@@ -1,46 +1,108 @@
-# Getting Started with Create React App
+# WearAgain Admin Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+WearAgain 관리자 대시보드 프론트엔드 애플리케이션입니다.
 
-## Available Scripts
+## 📋 프로젝트 개요
 
-In the project directory, you can run:
+이 프로젝트는 WearAgain 플랫폼의 관리자용 대시보드로, 행사 관리, 게시글 관리, 상점 관리, 참가자 관리 등의 기능을 제공합니다.
 
-### `npm start`
+## 🚀 기술 스택
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- React 18,
+- TypeScript
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## 📁 프로젝트 구조
 
-### `npm test`
+```
+src/
+├── components/                    # React 컴포넌트
+│   ├── AdminDashboard.tsx        # 관리자 대시보드
+│   ├── EventsManagement.tsx      # 행사 관리
+│   ├── PostsManagement.tsx      # 게시글 관리
+│   ├── StoreManagement.tsx      # 상점 관리
+│   ├── ParticipantManagement.tsx # 참가자 관리
+│   └── Navigation.tsx            # 네비게이션 바
+├── styles/                       # 스타일 파일
+│   ├── components/               # 컴포넌트별 스타일
+│   ├── App.css
+│   └── index.css
+└── ...
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🖥️ 화면별 기능
 
-### `npm run build`
+### 1. 관리자 대시보드 (`/`)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **전체 행사 현황**: 개최 파티 횟수, 누적 참가자 수, 참가 아이템 수, 교환 아이템 수, 의류 교환율, 지원 파티 횟수
+- **전체 누적 환경 임팩트**: CO2 절약량, 에너지 절약량, 물 절약량
+- **파티 랭킹**: 인기 파티 TOP 3 순위
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. 행사 관리 (`/events`)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **행사 목록**: 행사 카드 형태로 표시
+- **검색 및 필터링**: 행사명, 위치로 검색, 상태별 필터링
+- **행사 정보**: 제목, 날짜, 위치, 스태프 수, 참가자 수, 상태
+- **행사 액션**: 상세보기, 수정, 삭제 기능
+- **페이지네이션**: 행사 목록 페이징 처리
 
-### `npm run eject`
+### 3. 게시글 관리 (`/posts`)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- **게시글 목록**: 테이블 형태로 표시
+- **검색 및 필터링**: 제목, 내용으로 검색, 상태별 필터링, 정렬 기능
+- **게시글 정보**: ID, 제목, 내용, 작성일, 상태
+- **게시글 액션**: 보기, 수정 기능
+- **페이지네이션**: 게시글 목록 페이징 처리
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4. 상점 관리 (`/store`)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- **상품 목록**: 그리드 형태로 표시
+- **검색 및 필터링**: 상품명으로 검색, 상태별 필터링
+- **상품 정보**: 이미지, 이름, 가격, 상태
+- **상품 액션**: 상세보기, 수정, 삭제 기능
+- **페이지네이션**: 상품 목록 페이징 처리
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 5. 참가자 관리 (`/repair`)
 
-## Learn More
+- **참가자 통계**: 총 참가자 수, 활성 참가자 수, 신규 참가자 수, 알림 수
+- **참가자 목록**: 테이블 형태로 표시
+- **검색 기능**: 참가자명, 이메일로 검색
+- **참가자 정보**: 이름, 이메일, 가입일, 상태
+- **참가자 액션**: 수정, 삭제 기능
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🎨 디자인 시스템
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Figma 디자인**: 모든 UI는 Figma 디자인 시안을 기반으로 구현
+- **아이콘**: SVG 아이콘 사용으로 확장성 보장
+- **반응형 디자인**: 다양한 화면 크기에 대응
+- **일관된 스타일링**: 통일된 색상, 폰트, 간격 사용
+
+## 🚀 시작하기
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm start
+
+# 프로덕션 빌드
+npm run build
+```
+
+## 📝 주요 기능
+
+- ✅ 관리자 대시보드 (통계 및 현황)
+- ✅ 행사 관리 (CRUD, 검색, 필터링)
+- ✅ 게시글 관리 (CRUD, 검색, 필터링)
+- ✅ 상점 관리 (상품 CRUD, 검색, 필터링)
+- ✅ 참가자 관리 (참가자 목록, 통계)
+- ✅ 네비게이션 바 (화면 간 이동)
+- ✅ 반응형 디자인
+- ✅ Figma 디자인 적용
+
+## 🔧 개발 환경
+
+- Node.js 16+
+- npm 또는 yarn
+- React 18
+- TypeScript
