@@ -1,0 +1,9 @@
+{
+  "short_name": "피우다 관리자",
+  "name": "피우다 관리자 페이지",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#06b0b7",
+  "background_color": "#ffffff"
+}
