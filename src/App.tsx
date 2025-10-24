@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import AdminDashboard from "./components/AdminDashboard";
 import EventsManagement from "./components/EventsManagement";
+import EventDetail from "./components/EventDetail";
 import PostsManagement from "./components/PostsManagement";
 import StoreManagement from "./components/StoreManagement";
 import ParticipantManagement from "./components/ParticipantManagement";
@@ -12,13 +13,61 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <Navigation />
         <Routes>
-          <Route path="/" element={<AdminDashboard />} />
-          <Route path="/events" element={<EventsManagement />} />
-          <Route path="/posts" element={<PostsManagement />} />
-          <Route path="/store" element={<StoreManagement />} />
-          <Route path="/repair" element={<ParticipantManagement />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <Navigation />
+                <AdminDashboard />
+              </>
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              <>
+                <Navigation />
+                <EventsManagement />
+              </>
+            }
+          />
+          <Route
+            path="/events/:id"
+            element={
+              <>
+                <Navigation />
+                <EventDetail />
+              </>
+            }
+          />
+          <Route
+            path="/posts"
+            element={
+              <>
+                <Navigation />
+                <PostsManagement />
+              </>
+            }
+          />
+          <Route
+            path="/store"
+            element={
+              <>
+                <Navigation />
+                <StoreManagement />
+              </>
+            }
+          />
+          <Route
+            path="/repair"
+            element={
+              <>
+                <Navigation />
+                <ParticipantManagement />
+              </>
+            }
+          />
         </Routes>
       </Router>
     </div>
