@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/components/EventsManagement.css";
 
 interface Event {
@@ -13,6 +14,7 @@ interface Event {
 }
 
 const EventsManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -111,6 +113,10 @@ const EventsManagement: React.FC = () => {
     return events.filter((event) => event.status === status).length;
   };
 
+  const handleViewDetails = (eventId: number) => {
+    navigate(`/events/${eventId}`);
+  };
+
   return (
     <div className="admin-dashboard">
       <main className="main-content">
@@ -187,7 +193,7 @@ const EventsManagement: React.FC = () => {
                   </div>
 
                   <div className="event-actions">
-                    <button className="action-btn primary">
+                    <button className="action-btn primary" onClick={() => handleViewDetails(event.id)}>
                       <img src="/assets/04d68f7fbb294d1c98c16ad498aefcc01a3d9d77.svg" alt="상세보기" />
                       상세보기
                     </button>
