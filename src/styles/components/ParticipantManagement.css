@@ -310,8 +310,11 @@
 .participant-name {
   font-size: 14px;
   font-weight: 500;
-  color: #1f2937;
+  color: #2563eb;
   margin: 0 0 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .participant-email {

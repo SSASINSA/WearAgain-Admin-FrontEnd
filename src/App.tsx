@@ -8,6 +8,8 @@ import PostsManagement from "./components/PostsManagement";
 import StoreManagement from "./components/StoreManagement";
 import AddProduct from "./components/AddProduct";
 import ParticipantManagement from "./components/ParticipantManagement";
+import ParticipantEdit from "./components/ParticipantEdit";
+import ParticipantDetail from "./components/ParticipantDetail";
 import "./styles/App.css";
 
 function App() {
@@ -75,6 +77,24 @@ function App() {
               <>
                 <Navigation />
                 <ParticipantManagement />
+              </>
+            }
+          />
+          <Route
+            path="/repair/:id/edit"
+            element={
+              <>
+                <Navigation />
+                <ParticipantEdit />
+              </>
+            }
+          />
+          <Route
+            path="/repair/:id"
+            element={
+              <>
+                <Navigation />
+                <ParticipantDetail />
               </>
             }
           />

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/components/ParticipantManagement.css";
 
 interface Participant {
@@ -14,6 +15,7 @@ interface Participant {
 }
 
 const ParticipantManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: 1,
@@ -252,7 +254,12 @@ const ParticipantManagement: React.FC = () => {
                       <div className="participant-info">
                         <img src={participant.avatar} alt={participant.name} className="participant-avatar" />
                         <div className="participant-details">
-                          <p className="participant-name">{participant.name}</p>
+                          <p
+                            className="participant-name clickable"
+                            onClick={() => navigate(`/repair/${participant.id}`, { state: participant })}
+                          >
+                            {participant.name}
+                          </p>
                           <p className="participant-email">{participant.email}</p>
                         </div>
                       </div>
@@ -278,7 +285,7 @@ const ParticipantManagement: React.FC = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn edit">
+                        <button className="action-btn edit" onClick={() => navigate(`/repair/${participant.id}/edit`)}>
                           <img src="/assets/8033dce36e56395c2c73eaa07ada8a48bb110cc2.svg" alt="수정" />
                         </button>
                         <button className="action-btn delete">
