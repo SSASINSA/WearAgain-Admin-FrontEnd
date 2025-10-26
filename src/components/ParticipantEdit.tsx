@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/components/ParticipantEdit.css";
+import PageHeader from "./PageHeader";
 
 const ICONS = {
   back: "/assets/figma/ad1574d39b9fb9ce8f54df3a503c66ff4915d4c8.svg",
@@ -22,25 +23,7 @@ const ParticipantEdit: React.FC = () => {
 
   return (
     <div className="participant-edit-page">
-      <header className="detail-header">
-        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
-          <img src={ICONS.back} alt="뒤로" />
-        </button>
-        <div className="header-content">
-          <div className="header-info">
-            <h1>참가자 정보 수정</h1>
-            <p>참가자의 게임 정보를 수정하고 관리하세요</p>
-          </div>
-          <div className="header-actions">
-            <button className="notification-btn">
-              <img src={ICONS.bell} alt="알림" />
-            </button>
-            <div className="user-avatar">
-              <img src={ICONS.avatar} alt="관리자" />
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader title="참가자 정보 수정" subtitle="참가자의 게임 정보를 수정하고 관리하세요" />
 
       <main className="edit-content">
         {/* 기본 정보 */}

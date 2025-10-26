@@ -8,18 +8,7 @@
 }
 
 /* Header */
-.event-detail-header {
-  background-color: white !important;
-  border-bottom: 1px solid #e5e7eb;
-  height: 73px;
-  position: fixed;
-  top: 0;
-  left: 280px;
-  right: 0;
-  width: calc(100% - 280px);
-  display: block;
-  z-index: 99;
-}
+/* 개별 헤더 제거 - PageHeader 사용 */
 
 .header-content {
   height: 72px;
@@ -45,13 +34,13 @@
 .event-detail-main {
   margin: 0;
   padding: 32px;
+  padding-top: 105px; /* PageHeader 여백 */
   display: flex;
   gap: 32px;
   width: calc(100% - 280px);
   flex: 1;
   max-width: 1400px;
   margin-left: 280px;
-  margin-top: 73px;
   min-height: calc(100vh - 137px);
 }
 

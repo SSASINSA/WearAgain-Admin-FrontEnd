@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/components/AdminDashboard.css";
+import PageHeader from "./PageHeader";
 
 interface StatCardProps {
   title: string;
@@ -224,9 +225,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        <header className="main-header">
-          <h1>대시보드</h1>
-        </header>
+        <PageHeader title="대시보드" />
 
         <div className="dashboard-content">
           <section className="stats-title-section">

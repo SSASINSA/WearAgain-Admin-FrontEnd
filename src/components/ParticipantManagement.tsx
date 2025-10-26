@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/ParticipantManagement.css";
+import PageHeader from "./PageHeader";
 
 interface Participant {
   id: number;
@@ -139,26 +140,8 @@ const ParticipantManagement: React.FC = () => {
     <div className="admin-dashboard">
       <main className="main-content">
         {/* Header */}
-        <header className="participant-header">
-          <div className="header-content">
-            <div className="header-info">
-              <h1>참가자 관리</h1>
-              <p>이벤트 참가자 목록을 확인하고 관리하세요</p>
-            </div>
-            <div className="header-actions">
-              <button className="notification-btn">
-                <img src="/assets/921bd2353ab520138f1f007d33eaf3d23781b10b.svg" alt="알림" />
-                <span className="notification-badge">3</span>
-              </button>
-              <div className="user-profile">
-                <img src="/assets/exampleProfile.svg" alt="관리자" />
-                <div className="user-info">
-                  <p className="user-name">김관리</p>
-                  <p className="user-role">관리자</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <header className="participant-header" style={{ padding: 0, borderBottom: "none", height: "auto" }}>
+          <PageHeader title="참가자 관리" subtitle="이벤트 참가자 목록을 확인하고 관리하세요" />
         </header>
 
         {/* Statistics Cards */}
