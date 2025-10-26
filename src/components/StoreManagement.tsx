@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/components/StoreManagement.css";
 
 interface Product {
@@ -14,6 +15,7 @@ interface Product {
 }
 
 const StoreManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([
     {
       id: 1,
@@ -188,7 +190,7 @@ const StoreManagement: React.FC = () => {
               <p>등록된 상품을 관리하고 새로운 상품을 추가하세요</p>
             </div>
             <div className="header-actions">
-              <button className="add-product-btn">
+              <button className="add-product-btn" onClick={() => navigate('/store/add')}>
                 <span>+</span>
                 상품 추가
               </button>

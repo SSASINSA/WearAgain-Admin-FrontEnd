@@ -6,6 +6,7 @@ import EventsManagement from "./components/EventsManagement";
 import EventDetail from "./components/EventDetail";
 import PostsManagement from "./components/PostsManagement";
 import StoreManagement from "./components/StoreManagement";
+import AddProduct from "./components/AddProduct";
 import ParticipantManagement from "./components/ParticipantManagement";
 import "./styles/App.css";
 
@@ -56,6 +57,15 @@ function App() {
               <>
                 <Navigation />
                 <StoreManagement />
+              </>
+            }
+          />
+          <Route
+            path="/store/add"
+            element={
+              <>
+                <Navigation />
+                <AddProduct />
               </>
             }
           />
