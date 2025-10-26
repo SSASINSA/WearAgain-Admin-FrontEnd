@@ -12,16 +12,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 105px; /* 공용 헤더 여백 */
 }
 
-.main-header {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 32px;
-  height: 77px;
-  display: flex;
-  align-items: center;
-}
+/* 개별 헤더 제거 - PageHeader 사용 */
 
 .main-content {
   flex: 1;

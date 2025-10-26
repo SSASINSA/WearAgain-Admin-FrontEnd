@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import "../styles/components/EventDetail.css";
+import PageHeader from "./PageHeader";
 
 // 피그마에서 가져온 이미지 상수들
 const imgImg = "/assets/4d2714ec2a42c5075a817afb135100e88cdcbc39.png";
@@ -24,12 +25,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
 
   return (
     <div className="event-detail-page">
-      {/* Header */}
-      <div className="event-detail-header">
-        <div className="header-content">
-          <h1 className="header-title">행사 상세정보</h1>
-        </div>
-      </div>
+      <PageHeader title="행사 상세정보" />
 
       {/* Main Content */}
       <div className="event-detail-main">

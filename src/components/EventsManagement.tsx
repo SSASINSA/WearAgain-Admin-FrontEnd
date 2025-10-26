@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "./PageHeader";
 import "../styles/components/EventsManagement.css";
 
 interface Event {
@@ -120,9 +121,7 @@ const EventsManagement: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        <header className="main-header">
-          <h1>행사 관리</h1>
-        </header>
+        <PageHeader title="행사 관리" />
 
         <div className="dashboard-content">
           <div className="events-controls">

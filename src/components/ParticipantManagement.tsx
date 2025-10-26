@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/components/ParticipantManagement.css";
+import PageHeader from "./PageHeader";
 
 interface Participant {
   id: number;
@@ -14,6 +16,7 @@ interface Participant {
 }
 
 const ParticipantManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: 1,
@@ -137,26 +140,8 @@ const ParticipantManagement: React.FC = () => {
     <div className="admin-dashboard">
       <main className="main-content">
         {/* Header */}
-        <header className="participant-header">
-          <div className="header-content">
-            <div className="header-info">
-              <h1>참가자 관리</h1>
-              <p>이벤트 참가자 목록을 확인하고 관리하세요</p>
-            </div>
-            <div className="header-actions">
-              <button className="notification-btn">
-                <img src="/assets/921bd2353ab520138f1f007d33eaf3d23781b10b.svg" alt="알림" />
-                <span className="notification-badge">3</span>
-              </button>
-              <div className="user-profile">
-                <img src="/assets/exampleProfile.svg" alt="관리자" />
-                <div className="user-info">
-                  <p className="user-name">김관리</p>
-                  <p className="user-role">관리자</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <header className="participant-header" style={{ padding: 0, borderBottom: "none", height: "auto" }}>
+          <PageHeader title="참가자 관리" subtitle="이벤트 참가자 목록을 확인하고 관리하세요" />
         </header>
 
         {/* Statistics Cards */}
@@ -252,7 +237,12 @@ const ParticipantManagement: React.FC = () => {
                       <div className="participant-info">
                         <img src={participant.avatar} alt={participant.name} className="participant-avatar" />
                         <div className="participant-details">
-                          <p className="participant-name">{participant.name}</p>
+                          <p
+                            className="participant-name clickable"
+                            onClick={() => navigate(`/repair/${participant.id}`, { state: participant })}
+                          >
+                            {participant.name}
+                          </p>
                           <p className="participant-email">{participant.email}</p>
                         </div>
                       </div>
@@ -278,7 +268,7 @@ const ParticipantManagement: React.FC = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn edit">
+                        <button className="action-btn edit" onClick={() => navigate(`/repair/${participant.id}/edit`)}>
                           <img src="/assets/8033dce36e56395c2c73eaa07ada8a48bb110cc2.svg" alt="수정" />
                         </button>
                         <button className="action-btn delete">

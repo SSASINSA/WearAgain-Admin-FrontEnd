@@ -12,15 +12,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 105px; /* PageHeader 높이만큼 여백 */
 }
 
 /* Header */
-.product-header {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 32px;
-  height: 93px;
-}
+/* 개별 헤더 제거 - PageHeader 사용 */
 
 .header-content {
   display: flex;

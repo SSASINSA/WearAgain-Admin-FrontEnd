@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/components/PostsManagement.css";
+import PageHeader from "./PageHeader";
 
 interface Post {
   id: number;
@@ -104,19 +105,7 @@ const PostsManagement: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        <header className="main-header">
-          <div className="header-content">
-            <div className="header-info">
-              <h1>게시글 관리</h1>
-              <p>등록된 게시글을 관리하고 편집할 수 있습니다</p>
-            </div>
-            <div className="user-profile">
-              <div className="user-avatar">
-                <img src="/assets/exampleProfile.svg" alt="관리자 프로필" />
-              </div>
-            </div>
-          </div>
-        </header>
+        <PageHeader title="게시글 관리" subtitle="등록된 게시글을 관리하고 편집할 수 있습니다" />
 
         <div className="dashboard-content">
           <div className="posts-controls">

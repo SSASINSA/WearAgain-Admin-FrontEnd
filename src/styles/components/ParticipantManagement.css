@@ -12,6 +12,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 105px; /* 고정 헤더(PageHeader) 높이만큼 여백 확보 */
 }
 
 /* Header */
@@ -310,8 +311,11 @@
 .participant-name {
   font-size: 14px;
   font-weight: 500;
-  color: #1f2937;
+  color: #2563eb;
   margin: 0 0 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .participant-email {
@@ -460,6 +464,7 @@
   .main-content {
     margin-left: 0;
     width: 100vw;
+    padding-top: 105px; /* 모바일에서도 헤더와 콘텐츠 간격 유지 */
   }
 
   .participant-header {
