@@ -248,9 +248,12 @@ const ParticipantManagement: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="ticket-info">
+                      <div className="ticket-info-horizontal">
                         <span className="ticket-count">{participant.ticketCount}</span>
-                        <span className="ticket-type" style={{ color: getTicketTypeColor(participant.ticketType) }}>
+                        <span
+                          className="ticket-type"
+                          style={{ backgroundColor: getTicketTypeColor(participant.ticketType) }}
+                        >
                           {participant.ticketType}
                         </span>
                       </div>

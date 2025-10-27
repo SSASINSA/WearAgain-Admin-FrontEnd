@@ -256,6 +256,7 @@
 .participants-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .participants-table thead {
@@ -270,6 +271,23 @@
   font-weight: 500;
   color: #374151;
   border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+.participants-table th:nth-child(2) {
+  padding-left: 12px;
+}
+
+.participants-table th:first-child {
+  width: 40px;
+  padding-right: 12px;
+}
+
+.participants-table th:last-child {
+  text-align: left;
+  padding-left: 60px;
+  padding-right: 64px;
+  width: 200px;
 }
 
 .participants-table td {
@@ -277,6 +295,21 @@
   border-bottom: 1px solid #f3f4f6;
   font-size: 14px;
   color: #374151;
+  vertical-align: middle;
+}
+
+.participants-table td:first-child {
+  padding-right: 12px;
+}
+
+.participants-table td:nth-child(2) {
+  padding-left: 12px;
+}
+
+.participants-table td:last-child {
+  text-align: left;
+  padding-left: 60px;
+  padding-right: 64px;
 }
 
 .participants-table tbody tr:hover {
@@ -293,7 +326,7 @@
 .participant-info {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .participant-avatar {
@@ -331,6 +364,12 @@
   gap: 4px;
 }
 
+.ticket-info-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .ticket-count {
   font-size: 14px;
   font-weight: 500;
@@ -340,9 +379,9 @@
 .ticket-type {
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
-  background-color: #f3f4f6;
+  color: white;
   display: inline-block;
   width: fit-content;
 }
@@ -371,7 +410,10 @@
 /* Action Buttons */
 .action-buttons {
   display: flex;
+  flex-direction: row;
   gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .action-btn {
@@ -382,11 +424,17 @@
   border-radius: 4px;
   font-size: 14px;
   transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .action-btn img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .action-btn:hover {
