@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "./PageHeader";
 import "../styles/components/EventsManagement.css";
 
-// Figma에서 가져온 아이콘들
 const searchIcon = "/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg";
 const dropdownIcon = "/assets/a953cf4aa3d05bdc5c215acaa83bbaaa88af2690.svg";
 const plusIcon = "/assets/6d6f90e2ffd38dbcdb0f0bcdd3135d4b48cabcac.svg";
