@@ -3,6 +3,21 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "./PageHeader";
 import "../styles/components/EventsManagement.css";
 
+// Figma에서 가져온 아이콘들
+const searchIcon = "/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg";
+const dropdownIcon = "/assets/a953cf4aa3d05bdc5c215acaa83bbaaa88af2690.svg";
+const plusIcon = "/assets/6d6f90e2ffd38dbcdb0f0bcdd3135d4b48cabcac.svg";
+const calendarIcon = "/assets/45eac54c45ca5201e0aa3aff933f3cab572c34cc.svg";
+const locationIcon = "/assets/15e1c6cf22a17501e338794a0c5c32a3dc3d5b05.svg";
+const staffIcon = "/assets/1fb4265948a879fbe6fe4b9a17816498b7d9ed91.svg";
+const participantIcon = "/assets/c826cf9125aefce66b419803100026a327d17d91.svg";
+const detailIcon = "/assets/04d68f7fbb294d1c98c16ad498aefcc01a3d9d77.svg";
+const editIcon = "/assets/370737b288e3930aaad676cd42745a2603c9ad68.svg";
+const deleteIcon = "/assets/90e2ad5447972c11a34a1e89557a5e5d57604bf2.svg";
+const qrIcon = "/assets/9cd31a6198b9fdea13f907f0d3c258d2f4028a2d.svg";
+const prevIcon = "/assets/894f694d555d701abd2f634f741fa1342c657054.svg";
+const nextIcon = "/assets/ad717f7da25cc6f0b2f92726fbced9de4938d8ee.svg";
+
 interface Event {
   id: number;
   title: string;
@@ -128,7 +143,7 @@ const EventsManagement: React.FC = () => {
             <div className="search-filter-section">
               <div className="search-input-container">
                 <div className="search-icon">
-                  <img src="/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg" alt="검색" />
+                  <img src={searchIcon} alt="검색" />
                 </div>
                 <input
                   type="text"
@@ -149,7 +164,9 @@ const EventsManagement: React.FC = () => {
                 <option value="completed">완료</option>
               </select>
             </div>
-            <button className="add-event-btn">+ 새 행사 만들기</button>
+            <button className="add-event-btn">
+              <img src={plusIcon} alt="" />새 행사 만들기
+            </button>
           </div>
 
           <div className="events-grid">
@@ -164,13 +181,13 @@ const EventsManagement: React.FC = () => {
                   <div className="event-details">
                     <div className="event-detail">
                       <span className="detail-icon">
-                        <img src="/assets/45eac54c45ca5201e0aa3aff933f3cab572c34cc.svg" alt="날짜" />
+                        <img src={calendarIcon} alt="날짜" />
                       </span>
                       <span className="detail-text">{event.date}</span>
                     </div>
                     <div className="event-detail">
                       <span className="detail-icon">
-                        <img src="/assets/15e1c6cf22a17501e338794a0c5c32a3dc3d5b05.svg" alt="위치" />
+                        <img src={locationIcon} alt="위치" />
                       </span>
                       <span className="detail-text">{event.location}</span>
                     </div>
@@ -179,13 +196,13 @@ const EventsManagement: React.FC = () => {
                   <div className="event-stats">
                     <div className="stat-item">
                       <span className="stat-icon">
-                        <img src="/assets/1fb4265948a879fbe6fe4b9a17816498b7d9ed91.svg" alt="스태프" />
+                        <img src={staffIcon} alt="스태프" />
                       </span>
                       <span className="stat-text">스태프 {event.staff}명</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-icon">
-                        <img src="/assets/c826cf9125aefce66b419803100026a327d17d91.svg" alt="참가자" />
+                        <img src={participantIcon} alt="참가자" />
                       </span>
                       <span className="stat-text">참가자 {event.participants}명</span>
                     </div>
@@ -193,15 +210,20 @@ const EventsManagement: React.FC = () => {
 
                   <div className="event-actions">
                     <button className="action-btn primary" onClick={() => handleViewDetails(event.id)}>
-                      <img src="/assets/04d68f7fbb294d1c98c16ad498aefcc01a3d9d77.svg" alt="상세보기" />
+                      <img src={detailIcon} alt="" />
                       상세보기
                     </button>
-                    <button className="action-btn secondary">
-                      <img src="/assets/370737b288e3930aaad676cd42745a2603c9ad68.svg" alt="수정" />
-                    </button>
-                    <button className="action-btn secondary">
-                      <img src="/assets/90e2ad5447972c11a34a1e89557a5e5d57604bf2.svg" alt="삭제" />
-                    </button>
+                    <div className="action-icons-group">
+                      <button className="action-btn secondary">
+                        <img src={editIcon} alt="수정" />
+                      </button>
+                      <button className="action-btn secondary">
+                        <img src={qrIcon} alt="QR" />
+                      </button>
+                      <button className="action-btn secondary delete">
+                        <img src={deleteIcon} alt="삭제" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -218,7 +240,7 @@ const EventsManagement: React.FC = () => {
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
-                <img src="/assets/894f694d555d701abd2f634f741fa1342c657054.svg" alt="이전" />
+                <img src={prevIcon} alt="이전" />
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
@@ -234,7 +256,7 @@ const EventsManagement: React.FC = () => {
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
-                <img src="/assets/ad717f7da25cc6f0b2f92726fbced9de4938d8ee.svg" alt="다음" />
+                <img src={nextIcon} alt="다음" />
               </button>
             </div>
           </div>
