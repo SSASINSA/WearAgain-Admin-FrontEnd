@@ -32,16 +32,26 @@ interface ImpactCardProps {
   color: string;
   bgColor: string;
   borderColor: string;
+  badge: string;
 }
 
-const ImpactCard: React.FC<ImpactCardProps> = ({ title, value, description, icon, color, bgColor, borderColor }) => (
-  <div className="impact-card" style={{ borderColor }}>
+const ImpactCard: React.FC<ImpactCardProps> = ({
+  title,
+  value,
+  description,
+  icon,
+  color,
+  bgColor,
+  borderColor,
+  badge,
+}) => (
+  <div className="impact-card" style={{ backgroundColor: bgColor, borderColor }}>
     <div className="impact-card-header">
       <div className="impact-icon" style={{ backgroundColor: color }}>
         <img src={icon} alt="" />
       </div>
-      <span className="impact-badge" style={{ backgroundColor: bgColor, color }}>
-        환경보호
+      <span className="impact-badge" style={{ backgroundColor: "#ffffff", color }}>
+        {badge}
       </span>
     </div>
     <p className="impact-title" style={{ color }}>
@@ -157,6 +167,7 @@ const AdminDashboard: React.FC = () => {
       color: "#059669",
       bgColor: "#dcfce7",
       borderColor: "#bbf7d0",
+      badge: "환경보호",
     },
     {
       title: "에너지(KWh) 절약량",
@@ -166,6 +177,7 @@ const AdminDashboard: React.FC = () => {
       color: "#d97706",
       bgColor: "#fef3c7",
       borderColor: "#fde68a",
+      badge: "에너지",
     },
     {
       title: "물(L) 절약량",
@@ -175,6 +187,7 @@ const AdminDashboard: React.FC = () => {
       color: "#2563eb",
       bgColor: "#dbeafe",
       borderColor: "#bfdbfe",
+      badge: "물 절약",
     },
   ];
 

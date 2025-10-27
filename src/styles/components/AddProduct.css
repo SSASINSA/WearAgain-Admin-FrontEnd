@@ -125,32 +125,47 @@
 }
 
 .add-product-content {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 105px 40px 32px 40px; /* 상단에 헤더 높이만큼 패딩 추가 */
-  display: grid;
-  grid-template-columns: minmax(0, 810px) minmax(0, 390px);
-  gap: 32px;
+  padding: 120px 24px 40px 24px; /* 좌우 패딩을 줄여서 더 넓은 공간 확보 */
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 50px;
 }
 
 .content-left {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 32px;
+  flex: 2;
+  max-width: 800px;
+  width: 100%;
 }
 
 .section {
   background: white;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: 32px;
+}
+
+.add-product-content .content-left .product-images {
+  padding: 32px 32px 20px 32px !important;
+  height: fit-content !important;
+}
+
+.add-product-content .content-left .product-info {
+  padding: 32px 32px 20px 32px !important;
+  height: fit-content !important;
 }
 
 .section-header {
-  display: flex;
+  display: flex !important;
   align-items: center;
+  justify-content: flex-start !important;
   gap: 12px;
   margin-bottom: 24px;
+  text-align: left !important;
 }
 
 .section-header .icon {
@@ -184,13 +199,14 @@
   color: #111827;
   margin: 0;
   line-height: 28px;
+  text-align: left !important;
 }
 
 .image-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .image-upload-box {
@@ -198,6 +214,7 @@
   border: 2px dashed #d1d5db;
   border-radius: 8px;
   overflow: hidden;
+  min-height: 120px;
 }
 
 .image-upload-label {
@@ -262,9 +279,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
-  background: #EFF6FF;
+  padding: 6px 12px;
+  background: #eff6ff;
   border-radius: 8px;
+  margin-bottom: 0;
 }
 
 .info-icon {
@@ -273,14 +291,14 @@
 }
 
 .image-info p {
-  font-size: 14px;
-  color: #2563EB;
+  font-size: 13px;
+  color: #2563eb;
   margin: 0;
-  line-height: 20px;
+  line-height: 18px;
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 }
 
 .form-group:last-child {
@@ -298,18 +316,18 @@
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 12px 16px;
+  padding: 16px 20px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 16px;
   color: #111827;
   background: white;
   transition: all 0.2s;
-  height: 50px;
+  height: 56px;
 }
 
 .form-group textarea {
-  height: 170px;
+  height: 250px;
   resize: none;
 }
 
@@ -356,8 +374,11 @@
 .content-right {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
   height: fit-content;
+  width: 500px;
+  flex-shrink: 0;
+  flex: 1.5;
 }
 
 .preview-section h3,
@@ -367,6 +388,20 @@
   color: #111827;
   margin: 0 0 16px 0;
   line-height: 28px;
+}
+
+.preview-section {
+  padding: 32px 40px 28px 40px !important;
+}
+
+.quick-actions {
+  padding: 32px 40px 28px 40px !important;
+}
+
+.tips-section {
+  padding: 32px 40px 28px 40px !important;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1px solid #bae6fd !important;
 }
 
 .preview-container {
@@ -503,7 +538,8 @@
 }
 
 .quick-actions .action-buttons .action-btn.is-pressed img {
-  filter: brightness(0) saturate(100%) invert(43%) sepia(95%) saturate(478%) hue-rotate(139deg) brightness(95%) contrast(94%);
+  filter: brightness(0) saturate(100%) invert(43%) sepia(95%) saturate(478%) hue-rotate(139deg) brightness(95%)
+    contrast(94%);
 }
 
 .action-btn img {
@@ -582,12 +618,17 @@
   }
 
   .add-product-content {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     padding: 105px 24px 24px 24px;
   }
 
+  .content-left {
+    max-width: none;
+  }
+
   .content-right {
-    max-width: 810px;
+    width: 100%;
+    max-width: none;
   }
 }
 

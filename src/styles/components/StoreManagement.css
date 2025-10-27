@@ -4,7 +4,7 @@
   min-height: 100vh;
 }
 
-.main-content {
+.admin-dashboard .main-content {
   flex: 1;
   margin-left: 280px;
   background-color: #f9fafb;
@@ -12,7 +12,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; /* PageHeader 높이만큼 여백 */
+  padding-top: 120px !important; /* PageHeader 높이 + 충분한 여백 */
 }
 
 /* Header */
