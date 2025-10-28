@@ -2,6 +2,7 @@
   background-color: #f9fafb;
   min-height: 100vh;
   margin-left: 280px; /* 네비게이션 바 너비만큼 왼쪽 마진 추가 */
+  width: calc(100vw - 280px); /* 남는 공간 없이 꽉 채우기 */
 }
 
 .add-product-header {
@@ -125,20 +126,22 @@
 }
 
 .add-product-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 120px 24px 40px 24px; /* 좌우 패딩을 줄여서 더 넓은 공간 확보 */
+  max-width: none; /* 전체 가용 폭 사용 */
+  width: 100%;
+  margin: 0; /* 중앙 정렬 여백 제거 */
+  padding: 120px 24px 40px 24px; /* 좌우 패딩 유지 */
   display: flex !important;
   flex-direction: row !important;
-  gap: 50px;
+  gap: 32px; /* Figma 간격 기준 */
 }
 
 .content-left {
   display: flex !important;
   flex-direction: column !important;
   gap: 32px;
-  flex: 2;
-  max-width: 800px;
+  flex: 2.1 1 0; /* 좌측이 가로로 과도하게 확장되지 않도록 */
+  min-width: 0; /* 플렉스 아이템이 내용 폭 때문에 오른쪽을 밀어내지 않도록 */
+  max-width: none; /* 고정 최대폭 제거로 가용 폭 활용 */
   width: 100%;
 }
 
@@ -376,9 +379,10 @@
   flex-direction: column;
   gap: 28px;
   height: fit-content;
-  width: 500px;
-  flex-shrink: 0;
-  flex: 1.5;
+  width: auto; /* 고정 폭 제거 */
+  flex-shrink: 1;
+  flex: 1 1 0; /* 우측도 유연하게 확장 */
+  min-width: 0; /* 플렉스 수축 허용 */
 }
 
 .preview-section h3,
@@ -396,6 +400,8 @@
 
 .quick-actions {
   padding: 32px 40px 28px 40px !important;
+  min-width: 320px; /* 너무 좁아지지 않게 */
+  text-align: left; /* 버튼 텍스트 좌측 정렬 보장 */
 }
 
 .tips-section {
@@ -495,8 +501,35 @@
 
 .action-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: column !important; /* 수직 스택 고정 */
+  gap: 10px; /* 버튼 간격 적정화 */
+  align-items: stretch !important; /* 버튼이 카드 폭을 채우도록 */
+  width: 100%;
+}
+
+/* 전역 .action-btn 규칙(다른 페이지)과 충돌 방지: 빠른 작업 범위에서 재정의 */
+.quick-actions .action-btn {
+  width: 100% !important; /* 카드 폭 가득 채워 텍스트 잘림 방지 */
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding: 0 16px !important; /* 기본 좌측 패딩 */
+  background: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  text-align: left !important;
+  margin: 0 !important; /* 자동 마진 방지 */
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  max-width: none !important;
+}
+
+.quick-actions .action-btn img {
+  width: 16px !important;
+  height: 16px !important;
 }
 
 .quick-actions .action-buttons .action-btn {
@@ -519,6 +552,10 @@
   color: #374151;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap; /* 텍스트 세로 쪼개짐 방지 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 
 .action-btn:hover {

@@ -7,29 +7,6 @@
   flex-direction: column;
 }
 
-/* Header */
-/* 개별 헤더 제거 - PageHeader 사용 */
-
-.header-content {
-  height: 72px;
-  margin: 0;
-  padding: 0 32px;
-  position: relative;
-  display: flex !important;
-  align-items: center;
-  width: 100%;
-}
-
-.header-title {
-  font-family: "Pretendard", sans-serif !important;
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  color: #1f2937 !important;
-  margin: 0 !important;
-  line-height: 32px !important;
-  display: block !important;
-}
-
 /* Main Content */
 .event-detail-main {
   margin: 0;
@@ -156,7 +133,7 @@
   gap: 150px;
 }
 
-.detail-item {
+.event-details-section .detail-item {
   display: flex !important;
   flex-direction: row !important;
   gap: 12px;
@@ -165,7 +142,7 @@
   width: auto;
 }
 
-.detail-icon {
+.event-details-section .detail-icon {
   background-color: rgba(6, 176, 183, 0.1);
   border-radius: 12px;
   height: 56px;
@@ -176,7 +153,7 @@
   flex-shrink: 0;
 }
 
-.detail-icon img {
+.event-details-section .detail-icon img {
   width: 20px;
   height: 20px;
   filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%)
@@ -192,7 +169,7 @@
   padding: 0 !important;
 }
 
-.detail-label {
+.event-details-section .detail-label {
   font-family: "Pretendard", sans-serif;
   font-size: 16px;
   font-weight: 500;
@@ -201,7 +178,7 @@
   line-height: 24px;
 }
 
-.detail-value {
+.event-details-section .detail-value {
   font-family: "Pretendard", sans-serif;
   font-size: 16px;
   color: #6b7280;
@@ -209,7 +186,7 @@
   line-height: 24px;
 }
 
-.detail-value:last-child {
+.event-details-section .detail-value:last-child {
   margin-bottom: 0;
 }
 
@@ -479,15 +456,6 @@
 }
 
 @media (max-width: 768px) {
-  .event-detail-header {
-    left: 0;
-    width: 100%;
-  }
-
-  .header-content {
-    padding: 0 16px;
-  }
-
   .event-detail-main {
     margin-left: 0;
     width: 100%;
