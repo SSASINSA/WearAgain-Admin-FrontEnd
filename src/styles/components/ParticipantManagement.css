@@ -275,7 +275,7 @@
 }
 
 .participants-table th:nth-child(2) {
-  padding-left: 12px;
+  padding-left: 24px;
 }
 
 .participants-table th:first-child {
@@ -303,7 +303,7 @@
 }
 
 .participants-table td:nth-child(2) {
-  padding-left: 12px;
+  padding-left: 24px;
 }
 
 .participants-table td:last-child {
