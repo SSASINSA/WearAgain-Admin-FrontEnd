@@ -197,14 +197,9 @@ const PostsManagement: React.FC = () => {
                       </td>
                       <td>{getStatusBadge(post.status)}</td>
                       <td>
-                        <div className="action-buttons">
-                          <button className="action-btn view" title="보기">
-                            <img src="/assets/view.svg" alt="보기" />
-                          </button>
-                          <button className="action-btn edit" title="수정">
-                            <img src="/assets/qr-code.svg" alt="수정" />
-                          </button>
-                        </div>
+                        <button className="action-btn delete" title="삭제">
+                          <img src="/assets/delete.svg" alt="삭제" />
+                        </button>
                       </td>
                     </tr>
                   ))}
