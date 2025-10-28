@@ -23,5 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # AI Assistant files
-.agent.md
+agents.md
 temp.md
