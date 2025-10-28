@@ -3,19 +3,19 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "./PageHeader";
 import "../styles/components/EventsManagement.css";
 
-const searchIcon = "/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg";
-const dropdownIcon = "/assets/a953cf4aa3d05bdc5c215acaa83bbaaa88af2690.svg";
-const plusIcon = "/assets/6d6f90e2ffd38dbcdb0f0bcdd3135d4b48cabcac.svg";
-const calendarIcon = "/assets/45eac54c45ca5201e0aa3aff933f3cab572c34cc.svg";
-const locationIcon = "/assets/15e1c6cf22a17501e338794a0c5c32a3dc3d5b05.svg";
-const staffIcon = "/assets/1fb4265948a879fbe6fe4b9a17816498b7d9ed91.svg";
-const participantIcon = "/assets/c826cf9125aefce66b419803100026a327d17d91.svg";
-const detailIcon = "/assets/04d68f7fbb294d1c98c16ad498aefcc01a3d9d77.svg";
-const editIcon = "/assets/370737b288e3930aaad676cd42745a2603c9ad68.svg";
-const deleteIcon = "/assets/90e2ad5447972c11a34a1e89557a5e5d57604bf2.svg";
-const qrIcon = "/assets/9cd31a6198b9fdea13f907f0d3c258d2f4028a2d.svg";
-const prevIcon = "/assets/894f694d555d701abd2f634f741fa1342c657054.svg";
-const nextIcon = "/assets/ad717f7da25cc6f0b2f92726fbced9de4938d8ee.svg";
+const searchIcon = "/assets/search.svg";
+const dropdownIcon = "/assets/dropdown.svg";
+const plusIcon = "/assets/plus.svg";
+const calendarIcon = "/assets/calendar.svg";
+const locationIcon = "/assets/location.svg";
+const staffIcon = "/assets/staff.svg";
+const participantIcon = "/assets/user-group.svg";
+const detailIcon = "/assets/detail.svg";
+const editIcon = "/assets/edit.svg";
+const deleteIcon = "/assets/trash.svg";
+const qrIcon = "/assets/qr-code.svg";
+const prevIcon = "/assets/chevron-left.svg";
+const nextIcon = "/assets/arrow-right.svg";
 
 interface Event {
   id: number;

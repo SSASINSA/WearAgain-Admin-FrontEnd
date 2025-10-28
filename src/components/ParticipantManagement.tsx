@@ -154,7 +154,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change positive">+12% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/assets/0feaa8ab51947c65b8df39259010c80de9d3686c.svg" alt="참가자" />
+                <img src="/assets/users.svg" alt="참가자" />
               </div>
             </div>
           </div>
@@ -166,7 +166,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change positive">+8% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/assets/14ffc46a9c32402a6d92e76ca6694dd5f75757c2.svg" alt="티켓" />
+                <img src="/assets/ticket.svg" alt="티켓" />
               </div>
             </div>
           </div>
@@ -178,7 +178,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change negative">-3% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/assets/1db092d16dccfce416d263c40cb1e2e0f43b0757.svg" alt="크레딧" />
+                <img src="/assets/credit.svg" alt="크레딧" />
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@ const ParticipantManagement: React.FC = () => {
                 className="search-input"
               />
               <div className="search-icon">
-                <img src="/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg" alt="검색" />
+                <img src="/assets/search.svg" alt="검색" />
               </div>
             </div>
           </div>
@@ -272,10 +272,10 @@ const ParticipantManagement: React.FC = () => {
                     <td>
                       <div className="action-buttons">
                         <button className="action-btn edit" onClick={() => navigate(`/repair/${participant.id}/edit`)}>
-                          <img src="/assets/8033dce36e56395c2c73eaa07ada8a48bb110cc2.svg" alt="수정" />
+                          <img src="/assets/edit-square.svg" alt="수정" />
                         </button>
                         <button className="action-btn delete">
-                          <img src="/assets/3e682e096202cddfcfb144345efa2a7a99e1c493.svg" alt="삭제" />
+                          <img src="/assets/delete.svg" alt="삭제" />
                         </button>
                       </div>
                     </td>

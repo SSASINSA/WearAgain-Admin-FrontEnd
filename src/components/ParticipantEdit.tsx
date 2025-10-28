@@ -4,17 +4,17 @@ import "../styles/components/ParticipantEdit.css";
 import PageHeader from "./PageHeader";
 
 const ICONS = {
-  back: "/assets/figma/ad1574d39b9fb9ce8f54df3a503c66ff4915d4c8.svg",
-  bell: "/assets/figma/9dfac8e7468229fa02b7e41911b2430638cc8d70.svg",
-  avatar: "/assets/figma/1d5ad8aaf12fd61a75197f707f6ef40c7edd6e1f.png",
-  user: "/assets/figma/daa5ccd28610285fd14bfcff2d13b6a1f794a45a.svg",
-  ticket: "/assets/figma/867a83dc4a4ce89b14f7494744651a6091538bae.svg",
-  credit: "/assets/figma/6cc16e8a3d5249d45f23c6f0a43215a98c413c96.svg",
-  mascot: "/assets/figma/a4d344160c76ced3ded807c9dfb9564210221c59.svg",
-  scissor: "/assets/figma/aa9de78b2c4be9b33c039338f289ec7dc3663d95.svg",
-  minus: "/assets/figma/8a68699b303eb1dab10adad80f33f24e06f22814.svg",
-  plus: "/assets/figma/c40671971a66d3ee273776075aab31bcf1d83fcc.svg",
-  save: "/assets/figma/99a258c8b2f0ac266e31ffa8159bd4f8c2717525.svg",
+  back: "/assets/figma/back-arrow.svg",
+  bell: "/assets/figma/bell-icon.svg",
+  avatar: "/assets/figma/admin-avatar.png",
+  user: "/assets/figma/user-icon.svg",
+  ticket: "/assets/figma/ticket-badge.svg",
+  credit: "/assets/figma/credit-icon.svg",
+  mascot: "/assets/figma/mascot-icon.svg",
+  scissor: "/assets/figma/scissor-tool.svg",
+  minus: "/assets/figma/minus-icon.svg",
+  plus: "/assets/figma/plus-icon.svg",
+  save: "/assets/figma/save-icon.svg",
 };
 
 const ParticipantEdit: React.FC = () => {
@@ -115,5 +115,3 @@ const ParticipantEdit: React.FC = () => {
 };
 
 export default ParticipantEdit;
-
-

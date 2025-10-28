@@ -117,7 +117,7 @@ const PostsManagement: React.FC = () => {
               <div className="filter-controls">
                 <div className="search-container">
                   <div className="search-icon">
-                    <img src="/assets/037d414327aa68686a4c4df5147ba311fcc040dd.svg" alt="검색" />
+                    <img src="/assets/search.svg" alt="검색" />
                   </div>
                   <input
                     type="text"
@@ -199,10 +199,10 @@ const PostsManagement: React.FC = () => {
                       <td>
                         <div className="action-buttons">
                           <button className="action-btn view" title="보기">
-                            <img src="/assets/5787876d9736e0e831e5e2f6e0a2a8cf232bf854.svg" alt="보기" />
+                            <img src="/assets/view.svg" alt="보기" />
                           </button>
                           <button className="action-btn edit" title="수정">
-                            <img src="/assets/9cd31a6198b9fdea13f907f0d3c258d2f4028a2d.svg" alt="수정" />
+                            <img src="/assets/qr-code.svg" alt="수정" />
                           </button>
                         </div>
                       </td>
@@ -226,7 +226,7 @@ const PostsManagement: React.FC = () => {
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                 >
-                  <img src="/assets/e602afbf9f882a3d8323914ddf916e4f65f4f7e8.svg" alt="이전" />
+                  <img src="/assets/arrow-left.svg" alt="이전" />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
@@ -242,7 +242,7 @@ const PostsManagement: React.FC = () => {
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  <img src="/assets/72d1a69ab8c49e84d8ce05d5b82cae3c41f5e8dd.svg" alt="다음" />
+                  <img src="/assets/chevron-right.svg" alt="다음" />
                 </button>
               </div>
             </div>

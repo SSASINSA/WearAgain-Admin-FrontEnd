@@ -139,10 +139,10 @@ src/
 
 **예시**:
 
-- `Feature/ 메인 화면 구현 (#1)`
-- `BugFix/ 로그인 오류 수정 (#5)`
-- `Refactor/ 컴포넌트 구조 개선 (#12)`
-- `Infra/ 배포 파이프라인 설정 (#8)`
+- feature/main-screen-implementation(#1)
+- bugfix/login-error-fix(#5)
+- refactor/component-structure-refactor(#12)
+- infra/deployment-pipeline-setup(#8)
 
 ### 커밋 명명 규칙
 
@@ -157,10 +157,10 @@ src/
 
 ### 브랜치 및 커밋 명명 가이드라인
 
-- **브랜치명**: 이슈 템플릿 타입을 영어로 시작 (Feature, BugFix, Refactor, Infra)
+- **브랜치명**: 이슈 템플릿 타입을 영어로 시작 (Feature, BugFix, Refactor, Infra), 영문으로 작업 내용 작성
 - **커밋명**: 간결하고 명확한 작업 내용 설명
 - **이슈 번호**: 항상 괄호 안에 표시하여 추적 가능하도록 설정
-- **한글 사용**: 작업 내용은 한글로 작성하여 이해하기 쉽게 구성
+- **한글 사용**: 커밋시 커밋의 작업 내용은 한글로 작성
 
 ## 🎨 Figma MCP 사용 시 주의사항
 
@@ -201,4 +201,5 @@ src/
 - ✅ Figma의 시각적 요소를 React의 논리적 구조로 적절히 매핑
 
 ### 필수사항
+
 - 피그마 화면의 링크가 주어질시, 해당 화면을 스크린샷으로 표시하고 그를 바탕으로 작업업

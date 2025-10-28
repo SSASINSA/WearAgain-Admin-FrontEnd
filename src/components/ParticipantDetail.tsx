@@ -94,7 +94,9 @@ const ParticipantDetail: React.FC = () => {
   return (
     <div className="participant-detail-page">
       <header className="detail-header">
-        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">←</button>
+        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
+          ←
+        </button>
         <div className="header-content">
           <div className="header-info">
             <h1>참가자 상세</h1>
@@ -113,11 +115,11 @@ const ParticipantDetail: React.FC = () => {
                 <h2 className="summary-name">{display.name}</h2>
                 <div className="inline-stats">
                   <span className="chip">
-                    <img src="/assets/figma/d8d5f503390d8b087168230f49c05451668928c2.svg" alt="티켓" />
+                    <img src="/assets/figma/ticket-icon.svg" alt="티켓" />
                     티켓 {display.ticketCount}장
                   </span>
                   <span className="chip">
-                    <img src="/assets/figma/6cc16e8a3d5249d45f23c6f0a43215a98c413c96.svg" alt="크레딧" />
+                    <img src="/assets/figma/credit-icon.svg" alt="크레딧" />
                     크레딧 {display.creditCount.toLocaleString()}
                   </span>
                 </div>
@@ -130,19 +132,25 @@ const ParticipantDetail: React.FC = () => {
             <h3>환경 임팩트 기록</h3>
             <div className="impact-cards">
               <div className="impact-card green">
-                <div className="impact-icon"><img src="/assets/figma/d1c2488b66c51678f2cf50035ce34e15a3065cf7.svg" alt="CO2" /></div>
+                <div className="impact-icon">
+                  <img src="/assets/figma/co2-impact.svg" alt="CO2" />
+                </div>
                 <div className="impact-title">CO2 절감량</div>
                 <div className="impact-value green">156.7</div>
                 <div className="impact-unit">kg</div>
               </div>
               <div className="impact-card yellow">
-                <div className="impact-icon"><img src="/assets/figma/593672628723c5210c753f69e8351a7059c5ec3b.svg" alt="에너지" /></div>
+                <div className="impact-icon">
+                  <img src="/assets/figma/energy-impact.svg" alt="에너지" />
+                </div>
                 <div className="impact-title">에너지 절감량</div>
                 <div className="impact-value yellow">892.3</div>
                 <div className="impact-unit">kWh</div>
               </div>
               <div className="impact-card blue">
-                <div className="impact-icon"><img src="/assets/figma/72b14d000c2b9b9385a2c9ea1a70bcb4ced39bd3.svg" alt="물 절약" /></div>
+                <div className="impact-icon">
+                  <img src="/assets/figma/water-impact.svg" alt="물 절약" />
+                </div>
                 <div className="impact-title">물 절약량</div>
                 <div className="impact-value blue">2,450</div>
                 <div className="impact-unit">L</div>
@@ -155,15 +163,15 @@ const ParticipantDetail: React.FC = () => {
             <h3>획득한 옷</h3>
             <div className="clothes-grid">
               <div className="clothes-item">
-                <img src="/assets/figma/898b6598d9234ec53f69ee4f211b188143971fe0.png" alt="친환경 티셔츠" />
+                <img src="/assets/figma/clothes-tshirt.png" alt="친환경 티셔츠" />
                 <p>친환경 티셔츠</p>
               </div>
               <div className="clothes-item">
-                <img src="/assets/figma/0b939a40ebe55ba0015260af2edef442d00985d2.png" alt="지속가능 청바지" />
+                <img src="/assets/figma/clothes-jeans.png" alt="지속가능 청바지" />
                 <p>지속가능 청바지</p>
               </div>
               <div className="clothes-item">
-                <img src="/assets/figma/5c9e71cf87aaad0c77f5ab39217eaa7c89c14bf5.png" alt="재활용 운동화" />
+                <img src="/assets/figma/clothes-shoes.png" alt="재활용 운동화" />
                 <p>재활용 운동화</p>
               </div>
             </div>
@@ -175,14 +183,16 @@ const ParticipantDetail: React.FC = () => {
           <section className="section grow-card">
             <h3>옷 키우기</h3>
             <div className="grow-hero">
-              <img src="/assets/figma/95c6a013ce1968ed1e7d08a45666de2f05799fb8.png" alt="캐릭터" />
+              <img src="/assets/figma/character-mascot.png" alt="캐릭터" />
             </div>
             <div className="level">레벨 7</div>
-            <div className="progress-bar"><div className="progress" style={{ width: "35%" }} /></div>
+            <div className="progress-bar">
+              <div className="progress" style={{ width: "35%" }} />
+            </div>
             <div className="progress-text">다음 레벨까지 35%</div>
             <div className="scissor-box">
               <div className="label">
-                <img src="/assets/figma/6c248d6730a272f0cad2fcde085163b53c316d35.svg" alt="가위" />
+                <img src="/assets/figma/scissor-icon.svg" alt="가위" />
                 레벨업 가위
               </div>
               <div className="value">8개</div>
@@ -195,5 +205,3 @@ const ParticipantDetail: React.FC = () => {
 };
 
 export default ParticipantDetail;
-
-

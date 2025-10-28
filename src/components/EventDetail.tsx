@@ -3,18 +3,18 @@ import { useParams } from "react-router-dom";
 import "../styles/components/EventDetail.css";
 import PageHeader from "./PageHeader";
 
-// 피그마에서 가져온 이미지 상수들
-const imgImg = "/assets/4d2714ec2a42c5075a817afb135100e88cdcbc39.png";
-const imgFrame = "/assets/62d7d6bb02b7dbe461a56d51c8e42be5793499ab.svg";
-const imgFrame1 = "/assets/e156fcda94dc7363e317325ed126c4c98fd7f229.svg";
-const imgFrame2 = "/assets/5275e8f4a59ae9a14bb88c976f2783e059988c8b.svg";
-const imgFrame3 = "/assets/f501f8d36c88ae53b924b29d205fde3022daf692.svg";
-const imgFrame4 = "/assets/cc97c00ae63d5865792cc51daad633e92390a327.svg";
-const imgFrame5 = "/assets/4e6ef7213bc8a604ca43d1bdf47b78f2973f0789.svg";
-const imgFrame6 = "/assets/3432e30e98ce26608b8395711c6a818ec6b982f1.svg";
-const imgFrame7 = "/assets/63176c627731b00938cb0cc2a28239b36146ecec.svg";
-const imgFrame8 = "/assets/3a1a38f2b018f644790ba86c4f3e0bdebb91e012.svg";
-const imgFrame9 = "/assets/a28a5d264aa55383e6e6ce5bcd548297bbc81e47.svg";
+// 이미지 아이콘 상수들
+const imgImg = "/assets/event-hero.png";
+const imgFrame = "/assets/info.svg";
+const imgFrame1 = "/assets/date-time.svg";
+const imgFrame2 = "/assets/location-pin.svg";
+const imgFrame3 = "/assets/user-count.svg";
+const imgFrame4 = "/assets/co2.svg";
+const imgFrame5 = "/assets/energy.svg";
+const imgFrame6 = "/assets/water.svg";
+const imgFrame7 = "/assets/staff-badge.svg";
+const imgFrame8 = "/assets/code-generate.svg";
+const imgFrame9 = "/assets/alert.svg";
 
 interface EventDetailProps {
   eventId?: string;
