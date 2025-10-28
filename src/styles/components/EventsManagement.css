@@ -221,14 +221,18 @@
 
 .event-stats {
   display: flex;
-  gap: 150px;
+  justify-content: space-between;
   margin-bottom: 20px;
+  min-width: 0;
+  padding-right: 140px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .stat-icon {
@@ -256,6 +260,7 @@
   gap: 16px;
   align-items: center;
   min-height: 56px;
+  width: 100%;
 }
 
 .action-icons-group {
@@ -291,9 +296,10 @@
   color: white;
   padding: 14px 20px;
   gap: 8px;
-  flex: 1;
+  flex: 1 1 auto;
   justify-content: center;
   min-height: 48px;
+  max-width: none;
 }
 
 .action-btn.primary img {

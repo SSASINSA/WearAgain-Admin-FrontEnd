@@ -70,11 +70,15 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  filter: brightness(0) saturate(100%) invert(27%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
 }
 
 .nav-item:hover img,
 .sidebar-nav li.active .nav-item img {
   opacity: 1;
+  filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%)
+    contrast(101%);
 }
 
 .sidebar-nav li.active .nav-item {
