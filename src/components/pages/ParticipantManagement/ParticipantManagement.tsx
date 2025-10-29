@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "./ParticipantManagement.css";
 import PageHeader from "../../common/PageHeader";
 import DataList from "../../common/DataList";
-import Pagination from "../../common/Pagination";
 
 interface Participant {
   id: number;
@@ -19,7 +18,7 @@ interface Participant {
 
 const ParticipantManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [participants, setParticipants] = useState<Participant[]>([
+  const [participants] = useState<Participant[]>([
     {
       id: 1,
       name: "김민지",

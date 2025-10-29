@@ -5,7 +5,6 @@ import PageHeader from "../../common/PageHeader";
 
 // 이미지 아이콘 상수들
 const imgImg = "/assets/event-hero.png";
-const imgFrame = "/assets/info.svg";
 const imgFrame1 = "/assets/date-time.svg";
 const imgFrame2 = "/assets/location-pin.svg";
 const imgFrame3 = "/assets/user-count.svg";

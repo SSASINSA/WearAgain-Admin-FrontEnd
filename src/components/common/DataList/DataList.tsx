@@ -7,7 +7,7 @@ export interface DataListColumn<T> {
   title: React.ReactNode;
   width?: number | string;
   align?: "left" | "center" | "right";
-  dataIndex?: keyof T | string;
+  dataIndex?: keyof T;
   render?: (row: T) => React.ReactNode;
   className?: string;
 }
@@ -69,7 +69,7 @@ function DataList<T>(props: DataListProps<T>) {
                 <tr key={rowKey(row)}>
                   {columns.map((col) => (
                     <td key={col.key} className={col.className} style={{ textAlign: col.align || "left" }}>
-                      {col.render ? col.render(row) : col.dataIndex ? (row as any)[col.dataIndex] : null}
+                      {col.render ? col.render(row) : col.dataIndex ? String(row[col.dataIndex]) : null}
                     </td>
                   ))}
                 </tr>

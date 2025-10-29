@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PageHeader from "../../common/PageHeader";
 import "./EventRegistration.css";
 
@@ -17,7 +16,6 @@ const lightbulbIcon = "/assets/figma/lightbulb.svg";
 const checkIcon = "/assets/figma/check.svg";
 
 const EventRegistration: React.FC = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     eventName: "",
     eventDescription: "",

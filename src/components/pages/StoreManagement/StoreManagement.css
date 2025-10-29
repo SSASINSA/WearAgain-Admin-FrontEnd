@@ -291,12 +291,11 @@
 
 /* Pagination */
 .pagination-container {
-  background-color: transparent; /* 배경 제거로 ‘하얀 푸터’ 현상 방지 */
+  background-color: transparent; /* 배경 제거로 '하얀 푸터' 현상 방지 */
   border-top: none;
   padding: 16px 32px; /* 여백 축소 */
   display: flex;
   justify-content: center;
-  margin-top: auto; /* 메인 콘텐츠 하단으로 밀기 */
   position: fixed; /* 화면 하단 고정 */
   left: 50%;
   transform: translateX(-50%);

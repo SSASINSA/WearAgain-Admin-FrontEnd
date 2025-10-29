@@ -22,12 +22,15 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
   className,
 }) => {
   const leftRef = useRef<HTMLDivElement | null>(null);
+  const paginationRef = useRef<HTMLDivElement | null>(null);
   const [leftWidth, setLeftWidth] = useState<number>(0);
   const [leftMarginRight, setLeftMarginRight] = useState<number>(0);
 
   useEffect(() => {
     const el = leftRef.current;
-    if (!el) return;
+    const paginationEl = paginationRef.current;
+    if (!el || !paginationEl) return;
+
     const update = () => {
       setLeftWidth(el.offsetWidth || 0);
       try {
@@ -36,6 +39,10 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
       } catch {
         setLeftMarginRight(0);
       }
+
+      // 직접 스타일 적용
+      const translateX = `calc(-50% - ${(leftWidth + leftMarginRight) / 2}px - 8px)`;
+      paginationEl.style.transform = `translateX(${translateX})`;
     };
     update();
 
@@ -47,7 +54,7 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
       ro?.disconnect();
       window.removeEventListener("resize", onResize);
     };
-  }, [pageSize]);
+  }, [pageSize, leftWidth, leftMarginRight]);
 
   return (
     <div className={`dl-footer ${className ? className : ""}`}>
@@ -60,16 +67,13 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
           ))}
         </select>
       </div>
-      <Pagination currentPage={currentPage} totalPages={totalPages} onChange={onPageChange} className="dl-pagination" />
-      {/**
-       * 중앙 보정 식
-       * -50% : 컨테이너 정중앙
-       * -(leftWidth + leftMarginRight)/2 : 좌측 블록(셀렉트 + 마진)의 절반만큼 추가 이동
-       * - 8px : 셀렉트 화살표/내부 패딩으로 인한 시각적 중심 보정
-       */}
-      <style>{`.dl-footer .dl-pagination{ transform: translateX(calc(-50% - ${
-        (leftWidth + leftMarginRight) / 2
-      }px - 8px)); }`}</style>
+      <Pagination
+        ref={paginationRef}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onChange={onPageChange}
+        className="dl-pagination"
+      />
     </div>
   );
 };
