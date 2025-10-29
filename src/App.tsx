@@ -1,15 +1,16 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navigation from "./components/Navigation";
-import AdminDashboard from "./components/AdminDashboard";
-import EventsManagement from "./components/EventsManagement";
-import EventDetail from "./components/EventDetail";
-import PostsManagement from "./components/PostsManagement";
-import StoreManagement from "./components/StoreManagement";
-import AddProduct from "./components/AddProduct";
-import ParticipantManagement from "./components/ParticipantManagement";
-import ParticipantEdit from "./components/ParticipantEdit";
-import ParticipantDetail from "./components/ParticipantDetail";
+import Navigation from "./components/layout/Navigation";
+import AdminDashboard from "./components/pages/AdminDashboard";
+import EventsManagement from "./components/pages/EventsManagement";
+import EventDetail from "./components/pages/EventDetail";
+import EventRegistration from "./components/pages/EventRegistration";
+import PostsManagement from "./components/pages/PostsManagement";
+import StoreManagement from "./components/pages/StoreManagement";
+import AddProduct from "./components/pages/AddProduct";
+import ParticipantManagement from "./components/pages/ParticipantManagement";
+import ParticipantEdit from "./components/pages/ParticipantEdit";
+import ParticipantDetail from "./components/pages/ParticipantDetail";
 import "./styles/App.css";
 
 function App() {
@@ -41,6 +42,15 @@ function App() {
               <>
                 <Navigation />
                 <EventDetail />
+              </>
+            }
+          />
+          <Route
+            path="/events/register"
+            element={
+              <>
+                <Navigation />
+                <EventRegistration />
               </>
             }
           />

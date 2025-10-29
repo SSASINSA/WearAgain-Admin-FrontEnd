@@ -1,0 +1,303 @@
+.participant-detail-page {
+  background-color: #f9fafb;
+  min-height: 100vh;
+  margin-left: 280px;
+}
+
+.detail-header {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 24px 40px 24px 96px;
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  z-index: 90;
+}
+
+.detail-header .back-btn {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-info h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+.header-info p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.detail-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 128px 40px 32px 40px; /* 헤더와 콘텐츠 간 여백 확대 */
+  display: grid;
+  grid-template-columns: minmax(0, 810px) minmax(0, 390px);
+  grid-template-areas:
+    "summary grow"
+    "impact  grow"
+    "clothes clothes";
+  gap: 24px;
+}
+
+.section {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  height: 100%;
+}
+
+.content-left {
+  display: contents;
+}
+
+/* 요약 카드 */
+.summary-card {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  grid-area: summary;
+}
+.summary-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar.large {
+  width: 80px;
+  height: 80px;
+}
+.summary-name {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+.inline-stats {
+  display: flex;
+  gap: 12px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 14px;
+  color: #374151;
+}
+.chip img {
+  width: 16px;
+  height: 16px;
+}
+
+/* 환경 임팩트 */
+.impact-section {
+  grid-area: impact;
+}
+.impact-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+.impact-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.impact-card {
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  border: none;
+  box-shadow: none;
+}
+.impact-card.green {
+  background: #ecfdf5;
+}
+.impact-card.yellow {
+  background: #fffbeb;
+}
+.impact-card.blue {
+  background: #eff6ff;
+}
+.impact-icon img {
+  width: 24px;
+  height: 24px;
+}
+.impact-title {
+  color: #6b7280;
+  margin: 12px 0 8px;
+}
+.impact-value {
+  font-size: 30px;
+  font-weight: 700;
+}
+.impact-value.green {
+  color: #10b981;
+}
+.impact-value.yellow {
+  color: #d97706;
+}
+.impact-value.blue {
+  color: #2563eb;
+}
+.impact-unit {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* 획득한 옷 */
+.clothes-section {
+  grid-area: clothes;
+}
+.clothes-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+.clothes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+.clothes-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.clothes-item img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+.clothes-item p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* 오른쪽 - 옷 키우기 */
+.content-right {
+  grid-area: grow;
+  align-self: stretch;
+}
+.grow-card {
+  height: 100%;
+}
+.grow-card h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+.grow-hero {
+  display: flex;
+  justify-content: center;
+}
+.grow-hero img {
+  width: 128px;
+  height: 128px;
+  border-radius: 9999px;
+}
+.level {
+  text-align: center;
+  color: #374151;
+  margin: 8px 0;
+  font-weight: 500;
+}
+.progress-bar {
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress {
+  height: 12px;
+  background: linear-gradient(to right, #06b0b7, #642c8d);
+}
+.progress-text {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.scissor-box {
+  margin-top: 16px;
+  background: #f3e8ff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scissor-box .label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}
+.scissor-box .label img {
+  width: 20px;
+  height: 20px;
+}
+.scissor-box .value {
+  color: #642c8d;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .participant-detail-page {
+    margin-left: 0;
+  }
+  .detail-header {
+    left: 0;
+    padding: 24px 24px 24px 56px;
+  }
+  .detail-content {
+    padding: 120px 24px 24px 24px; /* 모바일에서도 헤더와 간격 확보 */
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "summary"
+      "grow"
+      "impact"
+      "clothes";
+  }
+  .impact-cards {
+    grid-template-columns: 1fr;
+  }
+}
