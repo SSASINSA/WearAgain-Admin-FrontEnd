@@ -238,7 +238,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        <PageHeader title="대시보드" />
+        <PageHeader title="대시보드" subtitle="전체 현황과 통계를 한눈에 확인하세요" />
 
         <div className="dashboard-content">
           <section className="stats-title-section">

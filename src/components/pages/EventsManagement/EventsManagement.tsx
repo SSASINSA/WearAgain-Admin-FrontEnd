@@ -135,7 +135,7 @@ const EventsManagement: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        <PageHeader title="행사 관리" />
+        <PageHeader title="행사 관리" subtitle="등록된 행사를 확인하고 관리할 수 있습니다" />
 
         <div className="dashboard-content">
           <div className="events-controls">
@@ -163,7 +163,7 @@ const EventsManagement: React.FC = () => {
                 <option value="completed">완료</option>
               </select>
             </div>
-            <button className="add-event-btn">
+            <button className="add-event-btn" onClick={() => navigate("/events/register")}>
               <img src={plusIcon} alt="" />새 행사 만들기
             </button>
           </div>

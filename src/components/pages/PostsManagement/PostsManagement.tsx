@@ -209,7 +209,7 @@ const PostsManagement: React.FC = () => {
                 key: "actions",
                 title: "작업",
                 width: 100,
-                align: "right",
+                align: "center",
                 render: () => (
                   <button className="action-btn delete" title="삭제">
                     <img src="/assets/delete.svg" alt="삭제" />

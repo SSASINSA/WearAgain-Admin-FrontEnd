@@ -87,7 +87,7 @@
 }
 
 .dashboard-content {
-  padding: 24px;
+  padding: 16px 24px 24px 24px;
 }
 
 /* Posts Controls */
@@ -311,8 +311,15 @@
 
 .posts-table th:nth-child(7) {
   width: 140px;
-  text-align: right;
-  padding: 16px 32px 16px 24px !important;
+  text-align: left !important;
+  padding: 16px 16px 16px 24px !important;
+}
+
+/* 더 구체적인 선택자로 작업 컬럼 헤더 정렬 */
+.posts-table thead tr th:last-child {
+  text-align: left !important;
+  padding-left: 24px !important;
+  padding-right: 16px !important;
 }
 
 .posts-table td:nth-child(7) {
