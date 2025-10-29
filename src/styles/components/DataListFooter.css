@@ -1,0 +1,30 @@
+.dl-footer {
+  position: relative; /* 중앙 배치 기준 */
+  display: flex;
+  justify-content: flex-start; /* 좌측 아이템 셀렉트는 왼쪽 */
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.dl-items {
+  display: flex;
+  align-items: center;
+}
+
+.dl-items-select {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.dl-pagination {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%); /* 정확한 가운데 */
+}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../styles/components/PostsManagement.css";
 import PageHeader from "./PageHeader";
+import DataList from "./DataList";
 
 interface Post {
   id: number;
@@ -17,7 +18,8 @@ const PostsManagement: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("latest");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedPosts, setSelectedPosts] = useState<number[]>([]);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
 
   const posts: Post[] = [
     {
@@ -108,140 +110,124 @@ const PostsManagement: React.FC = () => {
         <PageHeader title="게시글 관리" subtitle="등록된 게시글을 관리하고 편집할 수 있습니다" />
 
         <div className="dashboard-content">
-          <div className="posts-controls">
-            <div className="filter-section">
-              <div className="filter-header">
-                <h3>필터 및 검색</h3>
-                <button className="filter-toggle">▼</button>
-              </div>
-              <div className="filter-controls">
-                <div className="search-container">
-                  <div className="search-icon">
-                    <img src="/assets/search.svg" alt="검색" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="게시글 제목 또는 내용으로 검색..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                </div>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="status-select"
-                >
-                  <option value="all">전체 상태</option>
-                  <option value="active">활성</option>
-                  <option value="inactive">비활성</option>
-                </select>
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
-                  <option value="latest">최신순</option>
-                  <option value="oldest">오래된순</option>
-                  <option value="title">제목순</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="posts-table-container">
-            <div className="table-header">
-              <h3>게시글 목록</h3>
-              <div className="table-info">
+          <DataList
+            headerTitle="게시글 목록"
+            headerRight={
+              <>
                 <span>총 {filteredPosts.length}개 게시글</span>
                 <span>|</span>
                 <span>
                   페이지 {currentPage}/{totalPages}
                 </span>
-              </div>
-            </div>
-
-            <div className="table-wrapper">
-              <table className="posts-table">
-                <thead>
-                  <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={selectedPosts.length === currentPosts.length && currentPosts.length > 0}
-                        onChange={handleSelectAll}
-                      />
-                    </th>
-                    <th>ID</th>
-                    <th>제목</th>
-                    <th>내용</th>
-                    <th>작성일</th>
-                    <th>상태</th>
-                    <th>작업</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentPosts.map((post) => (
-                    <tr key={post.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedPosts.includes(post.id)}
-                          onChange={() => handleSelectPost(post.id)}
-                        />
-                      </td>
-                      <td>#{post.id.toString().padStart(3, "0")}</td>
-                      <td className="title-cell">{post.title}</td>
-                      <td className="content-cell">{post.content}</td>
-                      <td className="date-cell">
-                        <div>
-                          <div>{post.date.split("-")[0]}-</div>
-                          <div>{post.date.split("-").slice(1).join("-")}</div>
-                        </div>
-                      </td>
-                      <td>{getStatusBadge(post.status)}</td>
-                      <td>
-                        <button className="action-btn delete" title="삭제">
-                          <img src="/assets/delete.svg" alt="삭제" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="table-footer">
-              <div className="items-per-page">
-                <select className="items-select">
-                  <option value="10">10개씩 보기</option>
-                  <option value="20">20개씩 보기</option>
-                  <option value="50">50개씩 보기</option>
-                </select>
-              </div>
-              <div className="pagination-controls">
-                <button
-                  className="pagination-btn"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <img src="/assets/arrow-left.svg" alt="이전" />
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              </>
+            }
+            renderFilters={() => (
+              <div className={`filter-section ${isFilterOpen ? "is-open" : "is-collapsed"}`}>
+                <div className="filter-header">
+                  <h3>필터 및 검색</h3>
                   <button
-                    key={page}
-                    className={`pagination-btn ${currentPage === page ? "active" : ""}`}
-                    onClick={() => setCurrentPage(page)}
+                    className={`filter-toggle ${isFilterOpen ? "open" : ""}`}
+                    aria-expanded={isFilterOpen}
+                    onClick={() => setIsFilterOpen((v) => !v)}
                   >
-                    {page}
+                    ▼
                   </button>
-                ))}
-                <button
-                  className="pagination-btn"
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  <img src="/assets/chevron-right.svg" alt="다음" />
-                </button>
+                </div>
+                <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
+                  <div className="search-container">
+                    <div className="search-icon">
+                      <img src="/assets/search.svg" alt="검색" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="게시글 제목 또는 내용으로 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
+                  </div>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="status-select"
+                  >
+                    <option value="all">전체 상태</option>
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
+                  </select>
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+                    <option value="latest">최신순</option>
+                    <option value="oldest">오래된순</option>
+                    <option value="title">제목순</option>
+                  </select>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+            columns={[
+              {
+                key: "select",
+                title: (
+                  <input
+                    type="checkbox"
+                    checked={selectedPosts.length === currentPosts.length && currentPosts.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                ),
+                width: 50,
+                align: "center",
+                render: (row: any) => (
+                  <input
+                    type="checkbox"
+                    checked={selectedPosts.includes(row.id)}
+                    onChange={() => handleSelectPost(row.id)}
+                  />
+                ),
+              },
+              { key: "id", title: "ID", width: 70, render: (row: any) => `#${String(row.id).padStart(3, "0")}` },
+              { key: "title", title: "제목", width: 200, className: "title-cell", render: (row: any) => row.title },
+              {
+                key: "content",
+                title: "내용",
+                width: 370,
+                className: "content-cell",
+                render: (row: any) => row.content,
+              },
+              {
+                key: "date",
+                title: "작성일",
+                width: 120,
+                className: "date-cell",
+                render: (row: any) => (
+                  <div>
+                    <div>{row.date.split("-")[0]}-</div>
+                    <div>{row.date.split("-").slice(1).join("-")}</div>
+                  </div>
+                ),
+              },
+              { key: "status", title: "상태", width: 100, render: (row: any) => getStatusBadge(row.status) },
+              {
+                key: "actions",
+                title: "작업",
+                width: 100,
+                align: "right",
+                render: () => (
+                  <button className="action-btn delete" title="삭제">
+                    <img src="/assets/delete.svg" alt="삭제" />
+                  </button>
+                ),
+              },
+            ]}
+            data={currentPosts}
+            rowKey={(row: any) => row.id}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={itemsPerPage}
+            onPageChange={(p) => setCurrentPage(p)}
+            onPageSizeChange={(s) => {
+              setItemsPerPage(s);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       </main>
     </div>

@@ -187,7 +187,7 @@ const StoreManagement: React.FC = () => {
           title="상품 관리"
           subtitle="등록된 상품을 관리하고 새로운 상품을 추가하세요"
           rightSlot={
-            <button className="add-product-btn" onClick={() => navigate('/store/add')}>
+            <button className="add-product-btn" onClick={() => navigate("/store/add")}>
               <span>+</span>
               상품 추가
             </button>
@@ -198,6 +198,9 @@ const StoreManagement: React.FC = () => {
         <div className="search-filter-bar">
           <div className="search-filters">
             <div className="search-input-container">
+              <div className="search-icon">
+                <img src="/assets/search.svg" alt="검색" />
+              </div>
               <input
                 type="text"
                 placeholder="상품명으로 검색..."
@@ -205,7 +208,6 @@ const StoreManagement: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
               />
-              <div className="search-icon">🔍</div>
             </div>
             <select
               value={selectedCategory}

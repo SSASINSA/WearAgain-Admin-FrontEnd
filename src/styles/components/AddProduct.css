@@ -499,7 +499,7 @@
   height: 36px;
 }
 
-.action-buttons {
+.quick-actions .action-buttons {
   display: flex;
   flex-direction: column !important; /* 수직 스택 고정 */
   gap: 10px; /* 버튼 간격 적정화 */

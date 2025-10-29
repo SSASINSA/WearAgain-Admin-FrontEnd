@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/ParticipantManagement.css";
 import PageHeader from "./PageHeader";
+import DataList from "./DataList";
+import Pagination from "./Pagination";
 
 interface Participant {
   id: number;
@@ -76,19 +78,33 @@ const ParticipantManagement: React.FC = () => {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("가입일 최신순");
   const [selectedParticipants, setSelectedParticipants] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
 
-  const filteredParticipants = participants.filter(
-    (participant) =>
-      participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredParticipants = participants
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((p) => (selectedStatus ? p.status === selectedStatus : true));
 
-  const totalPages = Math.ceil(filteredParticipants.length / itemsPerPage);
+  const sortedParticipants = [...filteredParticipants].sort((a, b) => {
+    if (sortBy === "이름순") return a.name.localeCompare(b.name);
+    const dateA = new Date(a.joinDate.replace(/\./g, "-"));
+    const dateB = new Date(b.joinDate.replace(/\./g, "-"));
+    if (sortBy === "가입일 오래된 순") return dateA.getTime() - dateB.getTime();
+    // 기본: 가입일 최신순
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  const totalPages = Math.ceil(sortedParticipants.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentParticipants = filteredParticipants.slice(startIndex, startIndex + itemsPerPage);
+  const currentParticipants = sortedParticipants.slice(startIndex, startIndex + itemsPerPage);
 
   const handleSelectAll = () => {
     if (selectedParticipants.length === currentParticipants.length) {
@@ -184,155 +200,161 @@ const ParticipantManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Participants Table */}
+        {/* Participants Table via DataList */}
         <div className="participants-section">
-          <div className="section-header">
-            <h2>참가자 목록</h2>
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="참가자 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-              <div className="search-icon">
-                <img src="/assets/search.svg" alt="검색" />
-              </div>
-            </div>
-          </div>
-
-          <div className="table-container">
-            <table className="participants-table">
-              <thead>
-                <tr>
-                  <th>
+          <DataList
+            headerTitle="참가자 목록"
+            renderFilters={() => (
+              <div className="filter-section">
+                <div className="filter-header">
+                  <h3>필터 및 검색</h3>
+                  <button
+                    className={`filter-toggle ${isFilterOpen ? "open" : ""}`}
+                    aria-expanded={isFilterOpen}
+                    onClick={() => setIsFilterOpen((v) => !v)}
+                  >
+                    ▼
+                  </button>
+                </div>
+                <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
+                  <div className="search-container">
+                    <div className="search-icon">
+                      <img src="/assets/search.svg" alt="검색" />
+                    </div>
                     <input
-                      type="checkbox"
-                      checked={
-                        selectedParticipants.length === currentParticipants.length && currentParticipants.length > 0
-                      }
-                      onChange={handleSelectAll}
+                      type="text"
+                      placeholder="참가자 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
                     />
-                  </th>
-                  <th>참가자 정보</th>
-                  <th>티켓 개수</th>
-                  <th>크레딧 수</th>
-                  <th>가입일</th>
-                  <th>상태</th>
-                  <th>액션</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentParticipants.map((participant) => (
-                  <tr key={participant.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedParticipants.includes(participant.id)}
-                        onChange={() => handleSelectParticipant(participant.id)}
-                      />
-                    </td>
-                    <td>
-                      <div className="participant-info">
-                        <img src={participant.avatar} alt={participant.name} className="participant-avatar" />
-                        <div className="participant-details">
-                          <p
-                            className="participant-name clickable"
-                            onClick={() => navigate(`/repair/${participant.id}`, { state: participant })}
-                          >
-                            {participant.name}
-                          </p>
-                          <p className="participant-email">{participant.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="ticket-info-horizontal">
-                        <span className="ticket-count">{participant.ticketCount}</span>
-                        <span
-                          className="ticket-type"
-                          style={{ backgroundColor: getTicketTypeColor(participant.ticketType) }}
-                        >
-                          {participant.ticketType}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="credit-count">{participant.creditCount.toLocaleString()}</span>
-                    </td>
-                    <td>
-                      <span className="join-date">{participant.joinDate}</span>
-                    </td>
-                    <td>
-                      <span className="status-badge" style={{ backgroundColor: getStatusColor(participant.status) }}>
-                        {participant.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="action-btn edit" onClick={() => navigate(`/repair/${participant.id}/edit`)}>
-                          <img src="/assets/edit-square.svg" alt="수정" />
-                        </button>
-                        <button className="action-btn delete">
-                          <img src="/assets/delete.svg" alt="삭제" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="pagination-section">
-            <div className="pagination-info">
-              총 {participants.length}명 중 {startIndex + 1}-{Math.min(startIndex + itemsPerPage, participants.length)}
-              명 표시
-            </div>
-            <div className="pagination">
-              <button
-                className="pagination-btn"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                ‹
-              </button>
-              <button
-                className={`pagination-btn ${currentPage === 1 ? "active" : ""}`}
-                onClick={() => handlePageChange(1)}
-              >
-                1
-              </button>
-              <button
-                className={`pagination-btn ${currentPage === 2 ? "active" : ""}`}
-                onClick={() => handlePageChange(2)}
-              >
-                2
-              </button>
-              <button
-                className={`pagination-btn ${currentPage === 3 ? "active" : ""}`}
-                onClick={() => handlePageChange(3)}
-              >
-                3
-              </button>
-              <span className="pagination-dots">...</span>
-              <button
-                className={`pagination-btn ${currentPage === 125 ? "active" : ""}`}
-                onClick={() => handlePageChange(125)}
-              >
-                125
-              </button>
-              <button
-                className="pagination-btn"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                ›
-              </button>
-            </div>
-          </div>
+                  </div>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => {
+                      setSelectedStatus(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="status-select"
+                  >
+                    <option value="">전체 상태</option>
+                    <option value="활성">활성</option>
+                    <option value="대기">대기</option>
+                    <option value="비활성">비활성</option>
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="sort-select"
+                  >
+                    <option value="가입일 최신순">가입일 최신순</option>
+                    <option value="가입일 오래된 순">가입일 오래된 순</option>
+                    <option value="이름순">이름순</option>
+                  </select>
+                </div>
+              </div>
+            )}
+            columns={[
+              {
+                key: "select",
+                title: (
+                  <input
+                    type="checkbox"
+                    checked={
+                      currentParticipants.length > 0 && selectedParticipants.length === currentParticipants.length
+                    }
+                    onChange={handleSelectAll}
+                  />
+                ),
+                width: 40,
+                align: "center",
+                render: (p: Participant) => (
+                  <input
+                    type="checkbox"
+                    checked={selectedParticipants.includes(p.id)}
+                    onChange={() => handleSelectParticipant(p.id)}
+                  />
+                ),
+              },
+              {
+                key: "info",
+                title: "참가자 정보",
+                render: (p: Participant) => (
+                  <div className="participant-info">
+                    <img src={p.avatar} alt={p.name} className="participant-avatar" />
+                    <div className="participant-details">
+                      <p
+                        className="participant-name clickable"
+                        onClick={() => navigate(`/repair/${p.id}`, { state: p })}
+                      >
+                        {p.name}
+                      </p>
+                      <p className="participant-email">{p.email}</p>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: "tickets",
+                title: "티켓 개수",
+                width: 160,
+                render: (p: Participant) => (
+                  <div className="ticket-info-horizontal">
+                    <span className="ticket-count">{p.ticketCount}</span>
+                    <span className="ticket-type" style={{ backgroundColor: getTicketTypeColor(p.ticketType) }}>
+                      {p.ticketType}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                key: "credit",
+                title: "크레딧 수",
+                width: 140,
+                render: (p: Participant) => p.creditCount.toLocaleString(),
+              },
+              { key: "date", title: "가입일", width: 140, render: (p: Participant) => p.joinDate },
+              {
+                key: "status",
+                title: "상태",
+                width: 120,
+                render: (p: Participant) => (
+                  <span className="status-badge" style={{ backgroundColor: getStatusColor(p.status) }}>
+                    {p.status}
+                  </span>
+                ),
+              },
+              {
+                key: "actions",
+                title: "작업",
+                width: 140,
+                align: "center",
+                render: (p: Participant) => (
+                  <div className="action-buttons">
+                    <button className="action-btn edit" onClick={() => navigate(`/repair/${p.id}/edit`)}>
+                      <img src="/assets/edit-square.svg" alt="수정" />
+                    </button>
+                    <button className="action-btn delete">
+                      <img src="/assets/delete.svg" alt="삭제" />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={currentParticipants}
+            rowKey={(row: Participant) => row.id}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={itemsPerPage}
+            onPageChange={handlePageChange}
+            onPageSizeChange={(s) => {
+              setItemsPerPage(s);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       </main>
     </div>

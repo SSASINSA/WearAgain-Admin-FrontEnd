@@ -1,0 +1,68 @@
+.dl-container {
+  background-color: transparent;
+}
+
+.dl-controls {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  padding: 0; /* 내부 섹션에서 패딩을 주도록 0으로 유지 */
+}
+
+.dl-table-container {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dl-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dl-table-header h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+}
+
+.dl-table-info {
+  color: #6b7280;
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dl-table-wrapper {
+  overflow-x: auto;
+}
+
+.dl-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.dl-table th,
+.dl-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+.dl-table th {
+  background-color: #f9fafb;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+.dl-table td {
+  font-size: 14px;
+  color: #1f2937;
+}
+
+/* footer 스타일은 DataListFooter.css 사용 */

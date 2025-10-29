@@ -45,22 +45,23 @@
 }
 
 .add-product-btn {
-  background: #06b0b7;
+  background: linear-gradient(90deg, #06b0b7 0%, #642c8d 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 8px;
+  padding: 12px 20px; /* 행사 버튼 대비 살짝 컴팩트 */
+  font-size: 16px;
+  font-weight: 400;
   cursor: pointer;
+  transition: opacity 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  min-height: 44px;
 }
 
 .add-product-btn:hover {
-  background: #0599a0;
+  opacity: 0.9;
 }
 
 .user-avatar {
@@ -101,7 +102,7 @@
 .search-input {
   width: 100%;
   height: 42px;
-  padding: 0 40px 0 40px;
+  padding: 0 40px 0 16px; /* 게시글 관리와 동일한 좌측 패딩 */
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
@@ -119,8 +120,16 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-icon img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
 }
 
 .filter-select {
@@ -282,11 +291,17 @@
 
 /* Pagination */
 .pagination-container {
-  background-color: white;
-  border-top: 1px solid #e5e7eb;
-  padding: 32px;
+  background-color: transparent; /* 배경 제거로 ‘하얀 푸터’ 현상 방지 */
+  border-top: none;
+  padding: 16px 32px; /* 여백 축소 */
   display: flex;
   justify-content: center;
+  margin-top: auto; /* 메인 콘텐츠 하단으로 밀기 */
+  position: fixed; /* 화면 하단 고정 */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 24px;
+  z-index: 10;
 }
 
 .pagination {

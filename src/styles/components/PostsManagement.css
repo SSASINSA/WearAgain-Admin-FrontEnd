@@ -102,11 +102,34 @@
   padding: 24px;
 }
 
+.filter-section.is-collapsed {
+  padding-bottom: 20px;
+}
+
+.filter-section.is-collapsed .filter-header {
+  margin-bottom: 4px;
+}
+
 .filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+.filter-controls {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: max-height 220ms ease, opacity 150ms ease, transform 220ms ease;
+  pointer-events: none;
+}
+
+.filter-controls.is-open {
+  max-height: 240px; /* 내용보다 충분히 큰 값 */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .filter-header h3 {
@@ -122,6 +145,11 @@
   font-size: 16px;
   color: #6b7280;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.filter-toggle.open {
+  transform: rotate(180deg);
 }
 
 .filter-controls {
@@ -405,49 +433,8 @@
   cursor: pointer;
 }
 
-.pagination-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.pagination-btn {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: white;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pagination-btn img {
-  width: 10px;
-  height: 10px;
-  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
-    contrast(86%);
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-}
-
-.pagination-btn.active {
-  background-color: #06b0b7;
-  color: white;
-  border-color: #06b0b7;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.posts-pagination {
+  margin-left: auto;
 }
 
 /* Responsive Design */
@@ -505,7 +492,7 @@
     align-items: flex-start;
   }
 
-  .pagination-controls {
+  .posts-pagination {
     align-self: flex-end;
   }
 
