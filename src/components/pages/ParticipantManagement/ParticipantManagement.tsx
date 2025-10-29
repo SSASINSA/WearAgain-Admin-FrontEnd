@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/components/ParticipantManagement.css";
-import PageHeader from "./PageHeader";
-import DataList from "./DataList";
-import Pagination from "./Pagination";
+import "./ParticipantManagement.css";
+import PageHeader from "../../common/PageHeader";
+import DataList from "../../common/DataList";
+import Pagination from "../../common/Pagination";
 
 interface Participant {
   id: number;

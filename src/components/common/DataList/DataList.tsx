@@ -1,6 +1,6 @@
 import React from "react";
-import DataListFooter from "./DataListFooter";
-import "../styles/components/DataList.css";
+import DataListFooter from "../DataListFooter";
+import "./DataList.css";
 
 export interface DataListColumn<T> {
   key: string;

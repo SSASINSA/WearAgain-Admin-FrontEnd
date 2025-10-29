@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/components/Pagination.css";
+import "./Pagination.css";
 
 interface PaginationProps {
   currentPage: number;
@@ -63,4 +63,3 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onChan
 };
 
 export default Pagination;
-

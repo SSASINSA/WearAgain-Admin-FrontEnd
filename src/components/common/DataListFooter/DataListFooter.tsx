@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import Pagination from "./Pagination";
-import "../styles/components/DataListFooter.css";
+import Pagination from "../Pagination";
+import "./DataListFooter.css";
 
 interface DataListFooterProps {
   pageSize: number;

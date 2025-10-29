@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "../styles/components/ParticipantEdit.css";
-import PageHeader from "./PageHeader";
+import "./ParticipantEdit.css";
+import PageHeader from "../../common/PageHeader";
 
 const ICONS = {
   back: "/assets/figma/back-arrow.svg",

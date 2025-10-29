@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../styles/components/PostsManagement.css";
-import PageHeader from "./PageHeader";
-import DataList from "./DataList";
+import "./PostsManagement.css";
+import PageHeader from "../../common/PageHeader";
+import DataList from "../../common/DataList";
 
 interface Post {
   id: number;

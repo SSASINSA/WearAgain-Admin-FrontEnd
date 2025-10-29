@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "../styles/components/ParticipantDetail.css";
+import "./ParticipantDetail.css";
 
 interface ParticipantDetailState {
   id: number;

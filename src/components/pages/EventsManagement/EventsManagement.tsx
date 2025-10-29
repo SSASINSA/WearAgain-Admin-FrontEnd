@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "./PageHeader";
-import "../styles/components/EventsManagement.css";
+import PageHeader from "../../common/PageHeader";
+import "./EventsManagement.css";
 
 const searchIcon = "/assets/search.svg";
 const dropdownIcon = "/assets/dropdown.svg";

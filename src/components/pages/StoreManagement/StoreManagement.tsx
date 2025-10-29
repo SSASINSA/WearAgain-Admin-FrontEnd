@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "./PageHeader";
-import "../styles/components/StoreManagement.css";
+import PageHeader from "../../common/PageHeader";
+import "./StoreManagement.css";
 
 interface Product {
   id: number;

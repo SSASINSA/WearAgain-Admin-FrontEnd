@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/components/AddProduct.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./AddProduct.css";
 
 // 아이콘 imports
 const ICONS = {
-  camera: '/assets/icons/camera.svg',
-  imageAdd: '/assets/icons/image-add.svg',
-  info: '/assets/icons/info-circle.svg',
-  pencil: '/assets/icons/pencil.svg',
-  creditInfo: '/assets/icons/credit-info.svg',
-  imagePlaceholder: '/assets/icons/image-placeholder.svg',
-  eye: '/assets/icons/eye.svg',
-  copy: '/assets/icons/copy.svg',
-  share: '/assets/icons/share.svg',
-  lightbulb: '/assets/icons/lightbulb.svg',
-  checkCircle: '/assets/icons/check-circle.svg'
+  camera: "/assets/icons/camera.svg",
+  imageAdd: "/assets/icons/image-add.svg",
+  info: "/assets/icons/info-circle.svg",
+  pencil: "/assets/icons/pencil.svg",
+  creditInfo: "/assets/icons/credit-info.svg",
+  imagePlaceholder: "/assets/icons/image-placeholder.svg",
+  eye: "/assets/icons/eye.svg",
+  copy: "/assets/icons/copy.svg",
+  share: "/assets/icons/share.svg",
+  lightbulb: "/assets/icons/lightbulb.svg",
+  checkCircle: "/assets/icons/check-circle.svg",
 };
 
 interface ProductImage {
@@ -25,16 +25,16 @@ interface ProductImage {
 const AddProduct: React.FC = () => {
   const navigate = useNavigate();
   const [productData, setProductData] = useState({
-    name: '',
-    description: '',
-    price: '',
+    name: "",
+    description: "",
+    price: "",
   });
 
   const [images, setImages] = useState<ProductImage[]>([
-    { file: null, preview: '' },
-    { file: null, preview: '' },
-    { file: null, preview: '' },
-    { file: null, preview: '' },
+    { file: null, preview: "" },
+    { file: null, preview: "" },
+    { file: null, preview: "" },
+    { file: null, preview: "" },
   ]);
 
   const [pressedAction, setPressedAction] = useState<string | null>(null);
@@ -50,9 +50,9 @@ const AddProduct: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProductData(prev => ({
+    setProductData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -60,8 +60,8 @@ const AddProduct: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const preview = URL.createObjectURL(file);
-      
-      setImages(prev => {
+
+      setImages((prev) => {
         const newImages = [...prev];
         newImages[index] = { file, preview };
         return newImages;
@@ -70,22 +70,18 @@ const AddProduct: React.FC = () => {
   };
 
   const handleTempSave = () => {
-    console.log('임시저장:', { ...productData, images });
+    console.log("임시저장:", { ...productData, images });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('상품 등록:', { ...productData, images });
+    console.log("상품 등록:", { ...productData, images });
   };
 
   return (
     <div className="add-product-page">
       <div className="add-product-header">
-        <button
-          className="back-btn"
-          onClick={() => navigate(-1)}
-          aria-label="뒤로가기"
-        >
+        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
           ←
         </button>
         <div className="header-content">
@@ -128,14 +124,8 @@ const AddProduct: React.FC = () => {
                       <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
                     ) : (
                       <>
-                        <img 
-                          src={ICONS.imageAdd} 
-                          alt="이미지 추가" 
-                          className="upload-icon"
-                        />
-                        <span className="upload-text">
-                          {index === 0 ? '메인 이미지' : '추가 이미지'}
-                        </span>
+                        <img src={ICONS.imageAdd} alt="이미지 추가" className="upload-icon" />
+                        <span className="upload-text">{index === 0 ? "메인 이미지" : "추가 이미지"}</span>
                       </>
                     )}
                   </label>
@@ -209,11 +199,11 @@ const AddProduct: React.FC = () => {
                 )}
               </div>
               <div className="preview-info">
-                <h4>{productData.name || '상품명을 입력하세요'}</h4>
-                <p>{productData.description || '상품 설명이 여기에 표시됩니다...'}</p>
+                <h4>{productData.name || "상품명을 입력하세요"}</h4>
+                <p>{productData.description || "상품 설명이 여기에 표시됩니다..."}</p>
                 <div className="preview-price">
                   <div className="price-display">
-                    <span>{productData.price || '0'}</span>
+                    <span>{productData.price || "0"}</span>
                     <span>C</span>
                     <img src={ICONS.creditInfo} alt="크레딧 정보" />
                   </div>
@@ -227,22 +217,22 @@ const AddProduct: React.FC = () => {
             <h3>빠른 작업</h3>
             <div className="action-buttons">
               <button
-                className={`action-btn ${pressedAction === 'preview' ? 'is-pressed' : ''}`}
-                {...getPressHandlers('preview')}
+                className={`action-btn ${pressedAction === "preview" ? "is-pressed" : ""}`}
+                {...getPressHandlers("preview")}
               >
                 <img src={ICONS.eye} alt="미리보기" className="icon" />
                 미리보기
               </button>
               <button
-                className={`action-btn ${pressedAction === 'copy' ? 'is-pressed' : ''}`}
-                {...getPressHandlers('copy')}
+                className={`action-btn ${pressedAction === "copy" ? "is-pressed" : ""}`}
+                {...getPressHandlers("copy")}
               >
                 <img src={ICONS.copy} alt="복사하기" className="icon" />
                 복사하기
               </button>
               <button
-                className={`action-btn ${pressedAction === 'share' ? 'is-pressed' : ''}`}
-                {...getPressHandlers('share')}
+                className={`action-btn ${pressedAction === "share" ? "is-pressed" : ""}`}
+                {...getPressHandlers("share")}
               >
                 <img src={ICONS.share} alt="공유하기" className="icon" />
                 공유하기
