@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./ParticipantDetail.css";
 
@@ -91,6 +91,24 @@ const ParticipantDetail: React.FC = () => {
     status: state.status ?? mock?.status ?? "활성",
   };
 
+  // 환경 임팩트 카드 높이를 가로에 맞춰 동기화
+  const impactRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const syncHeights = () => {
+      const container = impactRef.current;
+      if (!container) return;
+      const cards = container.querySelectorAll<HTMLDivElement>(".impact-card");
+      cards.forEach((card) => {
+        // 너비 유지, 높이만 너비와 동일하게 설정
+        const width = card.clientWidth;
+        card.style.height = `${width}px`;
+      });
+    };
+    syncHeights();
+    window.addEventListener("resize", syncHeights);
+    return () => window.removeEventListener("resize", syncHeights);
+  }, []);
+
   return (
     <div className="participant-detail-page">
       <header className="detail-header">
@@ -106,59 +124,86 @@ const ParticipantDetail: React.FC = () => {
       </header>
 
       <main className="detail-content">
-        <div className="content-left">
-          {/* 요약 카드 */}
-          <section className="section summary-card">
-            <div className="summary-left">
-              <img className="avatar large" src={display.avatar} alt={display.name} />
-              <div className="summary-meta">
-                <h2 className="summary-name">{display.name}</h2>
-                <div className="inline-stats">
-                  <span className="chip">
-                    <img src="/assets/figma/ticket-icon.svg" alt="티켓" />
-                    티켓 {display.ticketCount}장
-                  </span>
-                  <span className="chip">
-                    <img src="/assets/figma/credit-icon.svg" alt="크레딧" />
-                    크레딧 {display.creditCount.toLocaleString()}
-                  </span>
+        {/* 상단 섹션: 좌우 2열 (좌: 이름+임팩트, 우: 옷 키우기) */}
+        <section className="top-section">
+          <div className="top-left">
+            {/* 요약 카드 */}
+            <section className="section summary-card">
+              <div className="summary-left">
+                <img className="avatar large" src={display.avatar} alt={display.name} />
+                <div className="summary-meta">
+                  <h2 className="summary-name">{display.name}</h2>
+                  <div className="inline-stats">
+                    <span className="chip">
+                      <img src="/assets/figma/ticket-icon.svg" alt="티켓" />
+                      티켓 {display.ticketCount}장
+                    </span>
+                    <span className="chip">
+                      <img src="/assets/figma/credit-icon.svg" alt="크레딧" />
+                      크레딧 {display.creditCount.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* 환경 임팩트 기록 */}
-          <section className="section impact-section">
-            <h3>환경 임팩트 기록</h3>
-            <div className="impact-cards">
-              <div className="impact-card green">
-                <div className="impact-icon">
-                  <img src="/assets/figma/co2-impact.svg" alt="CO2" />
+            {/* 환경 임팩트 기록 */}
+            <section className="section impact-section" ref={impactRef}>
+              <h3>환경 임팩트 기록</h3>
+              <div className="impact-cards">
+                <div className="impact-card green">
+                  <div className="impact-icon">
+                    <img src="/assets/figma/co2-impact.svg" alt="CO2" />
+                  </div>
+                  <div className="impact-title">CO2 절감량</div>
+                  <div className="impact-value green">156.7</div>
+                  <div className="impact-unit">kg</div>
                 </div>
-                <div className="impact-title">CO2 절감량</div>
-                <div className="impact-value green">156.7</div>
-                <div className="impact-unit">kg</div>
-              </div>
-              <div className="impact-card yellow">
-                <div className="impact-icon">
-                  <img src="/assets/figma/energy-impact.svg" alt="에너지" />
+                <div className="impact-card yellow">
+                  <div className="impact-icon">
+                    <img src="/assets/figma/energy-impact.svg" alt="에너지" />
+                  </div>
+                  <div className="impact-title">에너지 절감량</div>
+                  <div className="impact-value yellow">892.3</div>
+                  <div className="impact-unit">kWh</div>
                 </div>
-                <div className="impact-title">에너지 절감량</div>
-                <div className="impact-value yellow">892.3</div>
-                <div className="impact-unit">kWh</div>
-              </div>
-              <div className="impact-card blue">
-                <div className="impact-icon">
-                  <img src="/assets/figma/water-impact.svg" alt="물 절약" />
+                <div className="impact-card blue">
+                  <div className="impact-icon">
+                    <img src="/assets/figma/water-impact.svg" alt="물 절약" />
+                  </div>
+                  <div className="impact-title">물 절약량</div>
+                  <div className="impact-value blue">2,450</div>
+                  <div className="impact-unit">L</div>
                 </div>
-                <div className="impact-title">물 절약량</div>
-                <div className="impact-value blue">2,450</div>
-                <div className="impact-unit">L</div>
               </div>
-            </div>
-          </section>
+            </section>
+          </div>
 
-          {/* 획득한 옷 */}
+          <aside className="top-right">
+            {/* 옷 키우기 */}
+            <section className="section grow-card">
+              <h3>옷 키우기</h3>
+              <div className="grow-hero">
+                <img src="/assets/figma/grow-hero.svg" alt="캐릭터" />
+              </div>
+              <div className="level">레벨 7</div>
+              <div className="progress-bar">
+                <div className="progress" style={{ width: "35%" }} />
+              </div>
+              <div className="progress-text">다음 레벨까지 35%</div>
+              <div className="scissor-box">
+                <div className="label">
+                  <img src="/assets/figma/scissor-icon.svg" alt="가위" />
+                  레벨업 가위
+                </div>
+                <div className="value">8개</div>
+              </div>
+            </section>
+          </aside>
+        </section>
+
+        {/* 하단 섹션: 획득한 옷 전체 너비 */}
+        <section className="bottom-section">
           <section className="section clothes-section">
             <h3>획득한 옷</h3>
             <div className="clothes-grid">
@@ -176,29 +221,7 @@ const ParticipantDetail: React.FC = () => {
               </div>
             </div>
           </section>
-        </div>
-
-        <aside className="content-right">
-          {/* 옷 키우기 */}
-          <section className="section grow-card">
-            <h3>옷 키우기</h3>
-            <div className="grow-hero">
-              <img src="/assets/figma/character-mascot.png" alt="캐릭터" />
-            </div>
-            <div className="level">레벨 7</div>
-            <div className="progress-bar">
-              <div className="progress" style={{ width: "35%" }} />
-            </div>
-            <div className="progress-text">다음 레벨까지 35%</div>
-            <div className="scissor-box">
-              <div className="label">
-                <img src="/assets/figma/scissor-icon.svg" alt="가위" />
-                레벨업 가위
-              </div>
-              <div className="value">8개</div>
-            </div>
-          </section>
-        </aside>
+        </section>
       </main>
     </div>
   );

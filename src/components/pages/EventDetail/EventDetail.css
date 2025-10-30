@@ -12,11 +12,13 @@
   margin: 0;
   padding: 32px;
   display: flex;
+  justify-content: center; /* 내부 그리드 간격 유지 */
   gap: 32px;
-  width: calc(100% - 280px);
+  width: 100%;
   flex: 1;
   max-width: 1400px;
-  margin-left: 280px;
+  /* 좌측 네비(280px)를 보존하면서 화면 중앙에 위치 */
+  margin-left: calc(280px + (100% - 1400px) / 2);
   min-height: calc(100vh - 137px);
   margin-top: 105px;
 }
@@ -411,6 +413,8 @@
   .event-detail-main {
     max-width: 1600px;
     gap: 48px;
+    /* 1600 레이아웃에서도 중앙 정렬 유지 */
+    margin-left: calc(280px + (100% - 1600px) / 2);
   }
 
   .event-detail-content {
