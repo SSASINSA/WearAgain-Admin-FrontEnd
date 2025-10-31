@@ -404,11 +404,36 @@
 .participant-name {
   font-size: 14px;
   font-weight: 500;
-  color: #2563eb;
+  color: #1f2937; /* 기본 본문 색 */
   margin: 0 0 4px 0;
+}
+
+.participant-name.clickable {
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.participant-name.clickable:hover {
+  color: #06b0b7; /* 프라이머리 */
   text-decoration: underline;
   text-underline-offset: 2px;
-  cursor: pointer;
+}
+
+.participant-name.clickable::after {
+  content: "›";
+  display: inline-block;
+  margin-left: 6px;
+  color: #06b0b7;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.participant-name.clickable:hover::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .participant-email {

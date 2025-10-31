@@ -335,6 +335,35 @@
   font-weight: 500;
 }
 
+.title-cell .clickable {
+  color: #1f2937; /* 본문 색상과 일치 */
+  text-decoration: none; /* 기본 밑줄 제거 */
+  cursor: pointer;
+  transition: color 0.15s ease;
+  position: relative;
+}
+
+.title-cell .clickable:hover {
+  color: #06b0b7; /* 프라이머리 컬러로 강조 */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.title-cell .clickable::after {
+  content: "›"; /* 오른쪽 화살표 힌트 */
+  display: inline-block;
+  margin-left: 6px;
+  color: #06b0b7;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.title-cell .clickable:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .content-cell {
   color: #6b7280;
   overflow: hidden;

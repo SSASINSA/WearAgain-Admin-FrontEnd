@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./PostsManagement.css";
 import PageHeader from "../../common/PageHeader/PageHeader";
 import DataList from "../../common/DataList/DataList";
@@ -106,6 +107,8 @@ const PostsManagement: React.FC = () => {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="admin-dashboard">
       <main className="main-content">
@@ -186,7 +189,17 @@ const PostsManagement: React.FC = () => {
                   />
                 ),
               },
-              { key: "title", title: "제목", width: 200, className: "title-cell", render: (row: any) => row.title },
+              {
+                key: "title",
+                title: "제목",
+                width: 200,
+                className: "title-cell",
+                render: (row: any) => (
+                  <span className="clickable" onClick={() => navigate(`/posts/${row.id}`, { state: row })}>
+                    {row.title}
+                  </span>
+                ),
+              },
               {
                 key: "content",
                 title: "내용",
