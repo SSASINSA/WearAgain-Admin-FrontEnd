@@ -1,6 +1,6 @@
 import React from "react";
 import "./AdminDashboard.css";
-import PageHeader from "../../common/PageHeader";
+import PageHeader from "../../common/PageHeader/PageHeader";
 
 interface StatCardProps {
   title: string;

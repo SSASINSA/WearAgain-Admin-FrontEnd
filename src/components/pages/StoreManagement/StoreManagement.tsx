@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../../common/PageHeader";
+import PageHeader from "../../common/PageHeader/PageHeader";
 import "./StoreManagement.css";
 
 interface Product {

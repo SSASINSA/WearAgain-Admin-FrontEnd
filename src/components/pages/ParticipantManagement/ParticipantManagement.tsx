@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ParticipantManagement.css";
-import PageHeader from "../../common/PageHeader";
-import DataList from "../../common/DataList";
+import PageHeader from "../../common/PageHeader/PageHeader";
+import DataList from "../../common/DataList/DataList";
 
 interface Participant {
   id: number;
@@ -281,6 +281,7 @@ const ParticipantManagement: React.FC = () => {
               {
                 key: "info",
                 title: "참가자 정보",
+                width: 250,
                 render: (p: Participant) => (
                   <div className="participant-info">
                     <img src={p.avatar} alt={p.name} className="participant-avatar" />
@@ -299,7 +300,7 @@ const ParticipantManagement: React.FC = () => {
               {
                 key: "tickets",
                 title: "티켓 개수",
-                width: 160,
+                width: 150,
                 render: (p: Participant) => (
                   <div className="ticket-info-horizontal">
                     <span className="ticket-count">{p.ticketCount}</span>
@@ -312,14 +313,14 @@ const ParticipantManagement: React.FC = () => {
               {
                 key: "credit",
                 title: "크레딧 수",
-                width: 140,
+                width: 130,
                 render: (p: Participant) => p.creditCount.toLocaleString(),
               },
-              { key: "date", title: "가입일", width: 140, render: (p: Participant) => p.joinDate },
+              { key: "date", title: "가입일", width: 130, render: (p: Participant) => p.joinDate },
               {
                 key: "status",
                 title: "상태",
-                width: 120,
+                width: 100,
                 render: (p: Participant) => (
                   <span className="status-badge" style={{ backgroundColor: getStatusColor(p.status) }}>
                     {p.status}
@@ -329,7 +330,7 @@ const ParticipantManagement: React.FC = () => {
               {
                 key: "actions",
                 title: "작업",
-                width: 140,
+                width: 120,
                 align: "center",
                 render: (p: Participant) => (
                   <div className="action-buttons">
