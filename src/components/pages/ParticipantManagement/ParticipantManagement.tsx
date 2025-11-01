@@ -23,7 +23,7 @@ const ParticipantManagement: React.FC = () => {
       id: 1,
       name: "김민지",
       email: "minji.kim@email.com",
-      avatar: "/img/icon/basic-profile.svg",
+      avatar: "/admin/img/icon/basic-profile.svg",
       ticketCount: 5,
       ticketType: "VIP",
       creditCount: 1250,
@@ -34,7 +34,7 @@ const ParticipantManagement: React.FC = () => {
       id: 2,
       name: "박준호",
       email: "junho.park@email.com",
-      avatar: "/img/icon/basic-profile.svg",
+      avatar: "/admin/img/icon/basic-profile.svg",
       ticketCount: 3,
       ticketType: "일반",
       creditCount: 850,
@@ -45,7 +45,7 @@ const ParticipantManagement: React.FC = () => {
       id: 3,
       name: "이서영",
       email: "seoyoung.lee@email.com",
-      avatar: "/img/icon/basic-profile.svg",
+      avatar: "/admin/img/icon/basic-profile.svg",
       ticketCount: 7,
       ticketType: "프리미엄",
       creditCount: 2100,
@@ -56,7 +56,7 @@ const ParticipantManagement: React.FC = () => {
       id: 4,
       name: "최대현",
       email: "daehyun.choi@email.com",
-      avatar: "/img/icon/basic-profile.svg",
+      avatar: "/admin/img/icon/basic-profile.svg",
       ticketCount: 2,
       ticketType: "일반",
       creditCount: 450,
@@ -67,7 +67,7 @@ const ParticipantManagement: React.FC = () => {
       id: 5,
       name: "정수빈",
       email: "subin.jung@email.com",
-      avatar: "/img/icon/basic-profile.svg",
+      avatar: "/admin/img/icon/basic-profile.svg",
       ticketCount: 4,
       ticketType: "일반",
       creditCount: 720,
@@ -169,7 +169,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change positive">+12% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/img/icon/users.svg" alt="참가자" />
+                <img src="/admin/img/icon/users.svg" alt="참가자" />
               </div>
             </div>
           </div>
@@ -181,7 +181,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change positive">+8% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/img/icon/ticket.svg" alt="티켓" />
+                <img src="/admin/img/icon/ticket.svg" alt="티켓" />
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ const ParticipantManagement: React.FC = () => {
                 <p className="stat-change negative">-3% 전월 대비</p>
               </div>
               <div className="stat-icon">
-                <img src="/img/icon/credit.svg" alt="크레딧" />
+                <img src="/admin/img/icon/credit.svg" alt="크레딧" />
               </div>
             </div>
           </div>
@@ -218,7 +218,7 @@ const ParticipantManagement: React.FC = () => {
                 <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
                   <div className="search-container">
                     <div className="search-icon">
-                      <img src="/img/icon/search.svg" alt="검색" />
+                      <img src="/admin/img/icon/search.svg" alt="검색" />
                     </div>
                     <input
                       type="text"
@@ -335,10 +335,10 @@ const ParticipantManagement: React.FC = () => {
                 render: (p: Participant) => (
                   <div className="action-buttons">
                     <button className="action-btn edit" onClick={() => navigate(`/repair/${p.id}/edit`)}>
-                      <img src="/img/icon/edit-square.svg" alt="수정" />
+                      <img src="/admin/img/icon/edit-square.svg" alt="수정" />
                     </button>
                     <button className="action-btn delete">
-                      <img src="/img/icon/delete.svg" alt="삭제" />
+                      <img src="/admin/img/icon/delete.svg" alt="삭제" />
                     </button>
                   </div>
                 ),

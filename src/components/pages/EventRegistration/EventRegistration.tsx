@@ -3,17 +3,17 @@ import PageHeader from "../../common/PageHeader/PageHeader";
 import "./EventRegistration.css";
 
 // 피그마에서 가져온 아이콘들
-const heroIcon = "/img/icon/calendar-plus.svg";
-const eventNameIcon = "/img/icon/star.svg";
-const eventContentIcon = "/img/icon/document.svg";
-const eventDateIcon = "/img/icon/calendar.svg";
-const eventTimeIcon = "/img/icon/clock.svg";
-const eventLocationIcon = "/img/icon/location-pin.svg";
-const locationSearchIcon = "/img/icon/search.svg";
-const saveIcon = "/img/icon/save.svg";
-const registerIcon = "/img/icon/calendar-plus.svg";
-const lightbulbIcon = "/img/icon/lightbulb.svg";
-const checkIcon = "/img/icon/check.svg";
+const heroIcon = "/admin/img/icon/calendar-plus.svg";
+const eventNameIcon = "/admin/img/icon/star.svg";
+const eventContentIcon = "/admin/img/icon/document.svg";
+const eventDateIcon = "/admin/img/icon/calendar.svg";
+const eventTimeIcon = "/admin/img/icon/clock.svg";
+const eventLocationIcon = "/admin/img/icon/location-pin.svg";
+const locationSearchIcon = "/admin/img/icon/search.svg";
+const saveIcon = "/admin/img/icon/save.svg";
+const registerIcon = "/admin/img/icon/calendar-plus.svg";
+const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
+const checkIcon = "/admin/img/icon/check.svg";
 
 const EventRegistration: React.FC = () => {
   const [formData, setFormData] = useState({

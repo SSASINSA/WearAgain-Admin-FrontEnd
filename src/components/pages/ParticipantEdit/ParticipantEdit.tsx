@@ -4,17 +4,17 @@ import "./ParticipantEdit.css";
 import PageHeader from "../../common/PageHeader/PageHeader";
 
 const ICONS = {
-  back: "/img/icon/back-arrow.svg",
-  bell: "/img/icon/bell-icon.svg",
-  avatar: "/img/example/admin-avatar.png",
-  user: "/img/icon/user-icon.svg",
-  ticket: "/img/icon/ticket-badge.svg",
-  credit: "/img/icon/credit-icon.svg",
-  mascot: "/img/icon/mascot-icon.svg",
-  scissor: "/img/icon/scissor-tool.svg",
-  minus: "/img/icon/minus-icon.svg",
-  plus: "/img/icon/plus-icon.svg",
-  save: "/img/icon/save-icon.svg",
+  back: "/admin/img/icon/back-arrow.svg",
+  bell: "/admin/img/icon/bell-icon.svg",
+  avatar: "/admin/img/example/admin-avatar.png",
+  user: "/admin/img/icon/user-icon.svg",
+  ticket: "/admin/img/icon/ticket-badge.svg",
+  credit: "/admin/img/icon/credit-icon.svg",
+  mascot: "/admin/img/icon/mascot-icon.svg",
+  scissor: "/admin/img/icon/scissor-tool.svg",
+  minus: "/admin/img/icon/minus-icon.svg",
+  plus: "/admin/img/icon/plus-icon.svg",
+  save: "/admin/img/icon/save-icon.svg",
 };
 
 const ParticipantEdit: React.FC = () => {
