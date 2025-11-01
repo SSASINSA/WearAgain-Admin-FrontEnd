@@ -4,16 +4,16 @@ import "./EventDetail.css";
 import PageHeader from "../../common/PageHeader/PageHeader";
 
 // 이미지 아이콘 상수들
-const imgImg = "/img/example/event-hero.png";
-const imgFrame1 = "/img/icon/date-time.svg";
-const imgFrame2 = "/img/icon/location-pin.svg";
-const imgFrame3 = "/img/icon/user-count.svg";
-const imgFrame4 = "/img/icon/co2.svg";
-const imgFrame5 = "/img/icon/energy.svg";
-const imgFrame6 = "/img/icon/water.svg";
-const imgFrame7 = "/img/icon/staff-badge.svg";
-const imgFrame8 = "/img/icon/code-generate.svg";
-const imgFrame9 = "/img/icon/alert.svg";
+const imgImg = "/admin/img/example/event-hero.png";
+const imgFrame1 = "/admin/img/icon/date-time.svg";
+const imgFrame2 = "/admin/img/icon/location-pin.svg";
+const imgFrame3 = "/admin/img/icon/user-count.svg";
+const imgFrame4 = "/admin/img/icon/co2.svg";
+const imgFrame5 = "/admin/img/icon/energy.svg";
+const imgFrame6 = "/admin/img/icon/water.svg";
+const imgFrame7 = "/admin/img/icon/staff-badge.svg";
+const imgFrame8 = "/admin/img/icon/code-generate.svg";
+const imgFrame9 = "/admin/img/icon/alert.svg";
 
 interface EventDetailProps {
   eventId?: string;

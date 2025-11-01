@@ -141,7 +141,7 @@ const PostsManagement: React.FC = () => {
                 <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
                   <div className="search-container">
                     <div className="search-icon">
-                      <img src="/img/icon/search.svg" alt="검색" />
+                      <img src="/admin/img/icon/search.svg" alt="검색" />
                     </div>
                     <input
                       type="text"
@@ -227,7 +227,7 @@ const PostsManagement: React.FC = () => {
                 align: "center",
                 render: () => (
                   <button className="action-btn delete" title="삭제">
-                    <img src="/img/icon/delete.svg" alt="삭제" />
+                    <img src="/admin/img/icon/delete.svg" alt="삭제" />
                   </button>
                 ),
               },

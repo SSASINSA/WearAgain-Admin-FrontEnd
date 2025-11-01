@@ -8,27 +8,27 @@ const Navigation: React.FC = () => {
   const navItems = [
     {
       path: "/",
-      icon: "/img/icon/dashboard.svg",
+      icon: "/admin/img/icon/dashboard.svg",
       label: "대시보드",
     },
     {
       path: "/events",
-      icon: "/img/icon/events.svg",
+      icon: "/admin/img/icon/events.svg",
       label: "행사 관리",
     },
     {
       path: "/posts",
-      icon: "/img/icon/posts.svg",
+      icon: "/admin/img/icon/posts.svg",
       label: "게시글 관리",
     },
     {
       path: "/store",
-      icon: "/img/icon/store.svg",
+      icon: "/admin/img/icon/store.svg",
       label: "상점 관리",
     },
     {
       path: "/repair",
-      icon: "/img/icon/participants.svg",
+      icon: "/admin/img/icon/participants.svg",
       label: "참가자 관리",
     },
   ];

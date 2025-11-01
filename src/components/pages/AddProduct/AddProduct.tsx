@@ -4,17 +4,17 @@ import "./AddProduct.css";
 
 // 아이콘 imports
 const ICONS = {
-  camera: "/img/icon/camera.svg",
-  imageAdd: "/img/icon/image-add.svg",
-  info: "/img/icon/info-circle.svg",
-  pencil: "/img/icon/pencil.svg",
-  creditInfo: "/img/icon/credit-info.svg",
-  imagePlaceholder: "/img/icon/image-placeholder.svg",
-  eye: "/img/icon/eye.svg",
-  copy: "/img/icon/copy.svg",
-  share: "/img/icon/share.svg",
-  lightbulb: "/img/icon/lightbulb.svg",
-  checkCircle: "/img/icon/check-circle.svg",
+  camera: "/admin/img/icon/camera.svg",
+  imageAdd: "/admin/img/icon/image-add.svg",
+  info: "/admin/img/icon/info-circle.svg",
+  pencil: "/admin/img/icon/pencil.svg",
+  creditInfo: "/admin/img/icon/credit-info.svg",
+  imagePlaceholder: "/admin/img/icon/image-placeholder.svg",
+  eye: "/admin/img/icon/eye.svg",
+  copy: "/admin/img/icon/copy.svg",
+  share: "/admin/img/icon/share.svg",
+  lightbulb: "/admin/img/icon/lightbulb.svg",
+  checkCircle: "/admin/img/icon/check-circle.svg",
 };
 
 interface ProductImage {

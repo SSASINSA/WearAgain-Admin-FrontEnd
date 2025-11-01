@@ -96,7 +96,7 @@ const PostDetail: React.FC = () => {
           {/* Hero 섹션 (행사 상세와 동일 레이아웃) */}
           <div className="event-hero-section">
             <div className="event-hero-image">
-              <img src="/img/example/event-hero.png" alt="게시글 대표 이미지" />
+              <img src="/admin/img/example/event-hero.png" alt="게시글 대표 이미지" />
               <div className="image-overlay"></div>
             </div>
             <div className="event-hero-content">
@@ -147,7 +147,7 @@ const PostDetail: React.FC = () => {
             <div className="comments-list">
               <div className="comment-item">
                 <div className="comment-author">
-                  <img src="/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
+                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
                   <div className="comment-author-info">
                     <p className="comment-author-name">김민수</p>
                     <p className="comment-date">2024-01-20 14:30</p>
@@ -157,7 +157,7 @@ const PostDetail: React.FC = () => {
               </div>
               <div className="comment-item">
                 <div className="comment-author">
-                  <img src="/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
+                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
                   <div className="comment-author-info">
                     <p className="comment-author-name">이영희</p>
                     <p className="comment-date">2024-01-20 15:45</p>
@@ -167,7 +167,7 @@ const PostDetail: React.FC = () => {
               </div>
               <div className="comment-item">
                 <div className="comment-author">
-                  <img src="/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
+                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className="comment-avatar" />
                   <div className="comment-author-info">
                     <p className="comment-author-name">박철수</p>
                     <p className="comment-date">2024-01-21 09:15</p>
@@ -184,17 +184,17 @@ const PostDetail: React.FC = () => {
           <div ref={sidebarInnerRef} className="staff-code-section">
             <div className="staff-code-content">
               <div className="staff-code-icon">
-                <img src="/img/icon/edit-square.svg" alt="게시글 수정 아이콘" />
+                <img src="/admin/img/icon/edit-square.svg" alt="게시글 수정 아이콘" />
               </div>
               <h4 className="staff-code-title">게시글 수정</h4>
               <p className="staff-code-description">제목, 내용, 상태를 수정할 수 있습니다</p>
             </div>
             <button className="staff-code-button" onClick={() => navigate(`/posts/${id}/edit`, { state })}>
-              <img src="/img/icon/code-generate.svg" alt="수정 아이콘" />
+              <img src="/admin/img/icon/code-generate.svg" alt="수정 아이콘" />
               게시글 수정
             </button>
             <div className="staff-code-notice">
-              <img src="/img/icon/alert.svg" alt="알림 아이콘" />
+              <img src="/admin/img/icon/alert.svg" alt="알림 아이콘" />
               <p>수정 내역은 즉시 적용됩니다</p>
             </div>
           </div>
