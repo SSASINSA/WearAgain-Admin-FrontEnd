@@ -1,19 +1,19 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "./EventDetail.css";
 import PageHeader from "../../common/PageHeader/PageHeader";
 
 // 이미지 아이콘 상수들
-const imgImg = "/assets/event-hero.png";
-const imgFrame1 = "/assets/date-time.svg";
-const imgFrame2 = "/assets/location-pin.svg";
-const imgFrame3 = "/assets/user-count.svg";
-const imgFrame4 = "/assets/co2.svg";
-const imgFrame5 = "/assets/energy.svg";
-const imgFrame6 = "/assets/water.svg";
-const imgFrame7 = "/assets/staff-badge.svg";
-const imgFrame8 = "/assets/code-generate.svg";
-const imgFrame9 = "/assets/alert.svg";
+const imgImg = "/img/example/event-hero.png";
+const imgFrame1 = "/img/icon/date-time.svg";
+const imgFrame2 = "/img/icon/location-pin.svg";
+const imgFrame3 = "/img/icon/user-count.svg";
+const imgFrame4 = "/img/icon/co2.svg";
+const imgFrame5 = "/img/icon/energy.svg";
+const imgFrame6 = "/img/icon/water.svg";
+const imgFrame7 = "/img/icon/staff-badge.svg";
+const imgFrame8 = "/img/icon/code-generate.svg";
+const imgFrame9 = "/img/icon/alert.svg";
 
 interface EventDetailProps {
   eventId?: string;
@@ -22,12 +22,63 @@ interface EventDetailProps {
 const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
   const { id } = useParams<{ id: string }>();
 
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const headerOffsetPx = 120;
+    let sidebarTopAbs = 0;
+
+    const computeAnchors = () => {
+      const el = sidebarRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      sidebarTopAbs = window.scrollY + rect.top - headerOffsetPx;
+    };
+
+    const onScroll = () => {
+      const el = sidebarRef.current;
+      const inner = sidebarInnerRef.current;
+      if (!el || !inner) return;
+      const containerRect = el.getBoundingClientRect();
+      if (window.scrollY >= sidebarTopAbs) {
+        const fixedLeft = containerRect.left + window.scrollX;
+        const width = containerRect.width;
+        inner.style.position = "fixed";
+        inner.style.top = `${headerOffsetPx}px`;
+        inner.style.left = `${fixedLeft}px`;
+        inner.style.width = `${width}px`;
+        inner.style.zIndex = "2";
+      } else {
+        inner.style.position = "static";
+        inner.style.top = "";
+        inner.style.left = "";
+        inner.style.width = "";
+        inner.style.zIndex = "";
+      }
+    };
+
+    const onResize = () => {
+      computeAnchors();
+      onScroll();
+    };
+
+    computeAnchors();
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   return (
     <div className="event-detail-page">
       <PageHeader title="행사 상세정보" />
 
       {/* Main Content */}
-      <div className="event-detail-main">
+      <div className="event-detail-main" style={{ alignItems: "flex-start" }}>
         <div className="event-detail-content">
           {/* Event Hero Section */}
           <div className="event-hero-section">
@@ -120,9 +171,10 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
         </div>
 
         {/* Sidebar */}
-        <div className="event-detail-sidebar">
-          {/* Staff Code Section */}
-          <div className="staff-code-section">
+        <div className="event-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
+          <div ref={sidebarInnerRef}>
+            {/* Staff Code Section */}
+            <div className="staff-code-section">
             <div className="staff-code-content">
               <div className="staff-code-icon">
                 <img src={imgFrame7} alt="스태프 코드 아이콘" />
@@ -138,27 +190,28 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
               <img src={imgFrame9} alt="알림 아이콘" />
               <p>코드는 행사 당일에만 유효합니다</p>
             </div>
-          </div>
+            </div>
 
-          {/* Event Info Section */}
-          <div className="event-info-section">
-            <h4 className="info-title">행사 정보</h4>
-            <div className="info-list">
-              <div className="info-item">
-                <span className="info-label">상태</span>
-                <span className="info-value status-completed">완료</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">카테고리</span>
-                <span className="info-value">환경보호</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">주최자</span>
-                <span className="info-value">그린라이프</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">참가비</span>
-                <span className="info-value">무료</span>
+            {/* Event Info Section */}
+            <div className="event-info-section">
+              <h4 className="info-title">행사 정보</h4>
+              <div className="info-list">
+                <div className="info-item">
+                  <span className="info-label">상태</span>
+                  <span className="info-value status-completed">완료</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">카테고리</span>
+                  <span className="info-value">환경보호</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">주최자</span>
+                  <span className="info-value">그린라이프</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">참가비</span>
+                  <span className="info-value">무료</span>
+                </div>
               </div>
             </div>
           </div>

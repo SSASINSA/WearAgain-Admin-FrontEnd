@@ -177,9 +177,16 @@
   position: sticky !important;
   top: 120px !important; /* 헤더 높이 + 여백 */
   align-self: flex-start !important;
-  max-height: calc(100vh - 140px) !important;
-  overflow-y: auto !important;
-  height: fit-content !important;
+  height: max-content !important;
+  overflow: visible !important;
+  z-index: 1;
+}
+
+/* 내부 카드에 sticky를 적용하는 보조 규칙 (레이아웃에 따라 필요 시 작동) */
+.event-detail-page .event-detail-main .event-detail-sidebar .staff-code-section {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 120px;
 }
 
 /* Post Edit Card (staff-code-section 재사용) */
