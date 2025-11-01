@@ -1,14 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./PostsManagement.css";
-import PageHeader from "../../common/PageHeader";
-import DataList from "../../common/DataList";
+import PageHeader from "../../common/PageHeader/PageHeader";
+import DataList from "../../common/DataList/DataList";
 
 interface Post {
   id: number;
   title: string;
   content: string;
   date: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "reported";
   author: string;
 }
 
@@ -35,7 +36,7 @@ const PostsManagement: React.FC = () => {
       title: "React 18의 새로운 기능들",
       content: "React 18에서 추가된 Concurrent Features와 Suspense의 개선사항에...",
       date: "2024-01-14",
-      status: "active",
+      status: "inactive",
       author: "관리자",
     },
     {
@@ -43,7 +44,7 @@ const PostsManagement: React.FC = () => {
       title: "TypeScript 활용 가이드",
       content: "JavaScript 개발자를 위한 TypeScript 도입 가이드와 실무 활용 팁을 소개합니다...",
       date: "2024-01-13",
-      status: "inactive",
+      status: "reported",
       author: "관리자",
     },
     {
@@ -83,6 +84,8 @@ const PostsManagement: React.FC = () => {
         return <span className="status-badge active">활성</span>;
       case "inactive":
         return <span className="status-badge inactive">비활성</span>;
+      case "reported":
+        return <span className="status-badge reported">신고됨</span>;
       default:
         return null;
     }
@@ -103,6 +106,8 @@ const PostsManagement: React.FC = () => {
       setSelectedPosts([...selectedPosts, postId]);
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="admin-dashboard">
@@ -154,6 +159,7 @@ const PostsManagement: React.FC = () => {
                     <option value="all">전체 상태</option>
                     <option value="active">활성</option>
                     <option value="inactive">비활성</option>
+                    <option value="reported">신고됨</option>
                   </select>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
                     <option value="latest">최신순</option>
@@ -183,8 +189,17 @@ const PostsManagement: React.FC = () => {
                   />
                 ),
               },
-              { key: "id", title: "ID", width: 70, render: (row: any) => `#${String(row.id).padStart(3, "0")}` },
-              { key: "title", title: "제목", width: 200, className: "title-cell", render: (row: any) => row.title },
+              {
+                key: "title",
+                title: "제목",
+                width: 200,
+                className: "title-cell",
+                render: (row: any) => (
+                  <span className="clickable" onClick={() => navigate(`/posts/${row.id}`, { state: row })}>
+                    {row.title}
+                  </span>
+                ),
+              },
               {
                 key: "content",
                 title: "내용",

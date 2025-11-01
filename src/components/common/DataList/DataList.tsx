@@ -1,5 +1,5 @@
 import React from "react";
-import DataListFooter from "../DataListFooter";
+import DataListFooter from "../DataListFooter/DataListFooter";
 import "./DataList.css";
 
 export interface DataListColumn<T> {

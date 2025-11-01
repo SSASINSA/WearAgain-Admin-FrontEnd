@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Pagination from "../Pagination";
+import Pagination from "../Pagination/Pagination";
 import "./DataListFooter.css";
 
 interface DataListFooterProps {

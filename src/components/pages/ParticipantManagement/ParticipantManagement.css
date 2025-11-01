@@ -404,11 +404,36 @@
 .participant-name {
   font-size: 14px;
   font-weight: 500;
-  color: #2563eb;
+  color: #1f2937; /* 기본 본문 색 */
   margin: 0 0 4px 0;
+}
+
+.participant-name.clickable {
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.participant-name.clickable:hover {
+  color: #06b0b7; /* 프라이머리 */
   text-decoration: underline;
   text-underline-offset: 2px;
-  cursor: pointer;
+}
+
+.participant-name.clickable::after {
+  content: "›";
+  display: inline-block;
+  margin-left: 6px;
+  color: #06b0b7;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.participant-name.clickable:hover::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .participant-email {
@@ -465,6 +490,23 @@
   font-weight: 500;
   color: white;
   display: inline-block;
+}
+
+/* DataList 테이블 간격 조정 */
+.participants-section .dl-table th,
+.participants-section .dl-table td {
+  padding: 12px 16px;
+}
+
+.participants-section .dl-table th:first-child,
+.participants-section .dl-table td:first-child {
+  padding: 12px 8px;
+  width: 40px;
+}
+
+.participants-section .dl-table th:last-child,
+.participants-section .dl-table td:last-child {
+  padding: 12px 16px;
 }
 
 /* Action Buttons */

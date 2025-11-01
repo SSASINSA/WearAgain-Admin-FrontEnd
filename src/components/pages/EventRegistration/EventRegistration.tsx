@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PageHeader from "../../common/PageHeader";
+import PageHeader from "../../common/PageHeader/PageHeader";
 import "./EventRegistration.css";
 
 // 피그마에서 가져온 아이콘들
