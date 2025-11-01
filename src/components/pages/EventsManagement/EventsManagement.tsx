@@ -3,19 +3,19 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../common/PageHeader/PageHeader";
 import "./EventsManagement.css";
 
-const searchIcon = "/assets/search.svg";
-const dropdownIcon = "/assets/dropdown.svg";
-const plusIcon = "/assets/plus.svg";
-const calendarIcon = "/assets/calendar.svg";
-const locationIcon = "/assets/location.svg";
-const staffIcon = "/assets/staff.svg";
-const participantIcon = "/assets/user-group.svg";
-const detailIcon = "/assets/detail.svg";
-const editIcon = "/assets/edit.svg";
-const deleteIcon = "/assets/trash.svg";
-const qrIcon = "/assets/qr-code.svg";
-const prevIcon = "/assets/chevron-left.svg";
-const nextIcon = "/assets/arrow-right.svg";
+const searchIcon = "/img/icon/search.svg";
+const dropdownIcon = "/img/icon/dropdown.svg";
+const plusIcon = "/img/icon/plus.svg";
+const calendarIcon = "/img/icon/calendar.svg";
+const locationIcon = "/img/icon/location.svg";
+const staffIcon = "/img/icon/staff.svg";
+const participantIcon = "/img/icon/user-group.svg";
+const detailIcon = "/img/icon/detail.svg";
+const editIcon = "/img/icon/edit.svg";
+const deleteIcon = "/img/icon/trash.svg";
+const qrIcon = "/img/icon/qr-code.svg";
+const prevIcon = "/img/icon/chevron-left.svg";
+const nextIcon = "/img/icon/arrow-right.svg";
 
 interface Event {
   id: number;

@@ -31,11 +31,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightSlot }) =
         <div className="header-actions">
           {rightSlot}
           <button className="notification-btn">
-            <img src="/assets/bell.svg" alt="알림" />
+            <img src="/img/icon/bell.svg" alt="알림" />
             <span className="notification-badge">3</span>
           </button>
           <div className="user-avatar">
-            <img src="/assets/figma/admin-avatar.png" alt="관리자" />
+            <img src="/img/example/admin-avatar.png" alt="관리자" />
           </div>
         </div>
       </div>

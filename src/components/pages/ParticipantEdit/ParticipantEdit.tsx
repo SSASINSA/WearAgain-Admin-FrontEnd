@@ -4,17 +4,17 @@ import "./ParticipantEdit.css";
 import PageHeader from "../../common/PageHeader/PageHeader";
 
 const ICONS = {
-  back: "/assets/figma/back-arrow.svg",
-  bell: "/assets/figma/bell-icon.svg",
-  avatar: "/assets/figma/admin-avatar.png",
-  user: "/assets/figma/user-icon.svg",
-  ticket: "/assets/figma/ticket-badge.svg",
-  credit: "/assets/figma/credit-icon.svg",
-  mascot: "/assets/figma/mascot-icon.svg",
-  scissor: "/assets/figma/scissor-tool.svg",
-  minus: "/assets/figma/minus-icon.svg",
-  plus: "/assets/figma/plus-icon.svg",
-  save: "/assets/figma/save-icon.svg",
+  back: "/img/icon/back-arrow.svg",
+  bell: "/img/icon/bell-icon.svg",
+  avatar: "/img/example/admin-avatar.png",
+  user: "/img/icon/user-icon.svg",
+  ticket: "/img/icon/ticket-badge.svg",
+  credit: "/img/icon/credit-icon.svg",
+  mascot: "/img/icon/mascot-icon.svg",
+  scissor: "/img/icon/scissor-tool.svg",
+  minus: "/img/icon/minus-icon.svg",
+  plus: "/img/icon/plus-icon.svg",
+  save: "/img/icon/save-icon.svg",
 };
 
 const ParticipantEdit: React.FC = () => {
