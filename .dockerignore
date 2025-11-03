@@ -3,5 +3,4 @@ build
 .git
 .github
 Dockerfile
-docker/frontend-nginx.conf
 npm-debug.log
