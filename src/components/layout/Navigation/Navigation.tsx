@@ -31,6 +31,11 @@ const Navigation: React.FC = () => {
       icon: "/admin/img/icon/participants.svg",
       label: "참가자 관리",
     },
+    {
+      path: "#",
+      icon: "/admin/img/icon/user-icon.svg",
+      label: "로그인 (테스트)",
+    },
   ];
 
   return (

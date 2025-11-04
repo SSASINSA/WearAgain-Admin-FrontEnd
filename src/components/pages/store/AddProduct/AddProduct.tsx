@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AddProduct.css";
 
-// 아이콘 imports
 const ICONS = {
   camera: "/admin/img/icon/camera.svg",
   imageAdd: "/admin/img/icon/image-add.svg",

@@ -58,7 +58,7 @@
   border-color: #06b0b7;
   box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
 }
-/* 참가자 관리 페이지 스타일 - 피그마 디자인 기반 */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -72,10 +72,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; /* 고정 헤더(PageHeader) 높이만큼 여백 확보 */
+  padding-top: 105px; 
 }
 
-/* Header */
+
 .participant-header {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
@@ -177,7 +177,7 @@
   margin: 0;
 }
 
-/* Statistics Section */
+
 .stats-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -246,7 +246,7 @@
     contrast(86%);
 }
 
-/* Participants Section */
+
 .participants-section {
   flex: 1;
   padding: 0 32px 32px 32px;
@@ -304,7 +304,7 @@
     contrast(86%);
 }
 
-/* Table */
+
 .table-container {
   background-color: white;
   border-radius: 8px;
@@ -344,10 +344,10 @@
 }
 
 .participants-table th:last-child {
-  text-align: center; /* 아이콘 그룹의 중앙과 정렬 */
+  text-align: center; 
   padding-left: 0;
   padding-right: 0;
-  width: 90px; /* 아이콘 대비 적정 폭으로 축소 */
+  width: 90px; 
 }
 
 .participants-table td {
@@ -369,7 +369,7 @@
 .participants-table td:last-child {
   text-align: center;
   padding-left: 0;
-  padding-right: 16px; /* 여백 소폭 축소 */
+  padding-right: 16px; 
 }
 
 .participants-table tbody tr:hover {
@@ -382,7 +382,7 @@
   cursor: pointer;
 }
 
-/* Participant Info */
+
 .participant-info {
   display: flex;
   align-items: center;
@@ -404,7 +404,7 @@
 .participant-name {
   font-size: 14px;
   font-weight: 500;
-  color: #1f2937; /* 기본 본문 색 */
+  color: #1f2937; 
   margin: 0 0 4px 0;
 }
 
@@ -416,7 +416,7 @@
 }
 
 .participant-name.clickable:hover {
-  color: #06b0b7; /* 프라이머리 */
+  color: #06b0b7; 
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -442,7 +442,7 @@
   margin: 0;
 }
 
-/* Ticket Info */
+
 .ticket-info {
   display: flex;
   flex-direction: column;
@@ -482,7 +482,7 @@
   color: #6b7280;
 }
 
-/* Status Badge */
+
 .status-badge {
   padding: 4px 12px;
   border-radius: 12px;
@@ -492,7 +492,7 @@
   display: inline-block;
 }
 
-/* DataList 테이블 간격 조정 */
+
 .participants-section .dl-table th,
 .participants-section .dl-table td {
   padding: 12px 16px;
@@ -509,13 +509,13 @@
   padding: 12px 16px;
 }
 
-/* Action Buttons */
+
 .action-buttons {
-  display: inline-flex; /* 내용만큼만 차지해 불필요한 벌어짐 방지 */
+  display: inline-flex; 
   flex-direction: row;
-  gap: 2px; /* 아이콘 간격 최소화 */
+  gap: 2px; 
   align-items: center;
-  justify-content: center; /* 아이콘들을 컬럼 중앙에 */
+  justify-content: center; 
 }
 
 .action-btn {
@@ -551,10 +551,10 @@
   color: #ef4444;
 }
 
-/* Pagination */
+
 .pagination-section {
-  position: relative; /* 중앙 절대배치 기준 */
-  display: block; /* 왼쪽 정보는 기본 흐름으로 */
+  position: relative; 
+  display: block; 
   margin-top: 24px;
   padding: 24px 0;
 }
@@ -562,7 +562,7 @@
 .pagination-info {
   font-size: 14px;
   color: #6b7280;
-  position: absolute; /* 왼쪽 고정 배치 */
+  position: absolute; 
   left: 0;
   top: 50%;
   transform: translateY(-50%);
@@ -572,16 +572,16 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%); /* 기준 중앙 */
-  margin-left: -60px; /* 좌측 보정값 완화 */
+  transform: translate(-50%, -50%); 
+  margin-left: -60px; 
 }
 
-/* 반응형 디자인 */
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
     width: 100vw;
-    padding-top: 105px; /* 모바일에서도 헤더와 콘텐츠 간격 유지 */
+    padding-top: 105px; 
   }
 
   .participant-header {

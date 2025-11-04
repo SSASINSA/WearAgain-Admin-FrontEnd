@@ -1,4 +1,4 @@
-/* Event Registration Page Styles */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -22,7 +22,7 @@
   width: 100%;
 }
 
-/* Hero Section */
+
 .hero-section {
   text-align: center;
   margin-bottom: 48px;
@@ -51,7 +51,7 @@
   outline: none;
 }
 
-/* SVG 아이콘 스타일 */
+
 .hero-icon img svg {
   border: none;
 }
@@ -73,7 +73,7 @@
   margin: 0 auto;
 }
 
-/* Registration Form */
+
 .registration-form-container {
   background-color: white;
   border-radius: 16px;
@@ -110,12 +110,12 @@
   margin: 0;
 }
 
-/* 더 구체적인 선택자로 강제 적용 */
+
 .registration-form .form-group .form-label {
   gap: 16px !important;
 }
 
-/* 모든 form-label에 강제 적용 */
+
 .event-registration-content .form-label {
   gap: 16px !important;
 }
@@ -123,7 +123,7 @@
 .label-icon {
   width: 18px;
   height: 18px;
-  /* 아이콘의 원래 색상 유지 */
+  
 }
 
 .form-input {
@@ -172,7 +172,7 @@
   color: #adaebc;
 }
 
-/* Input with Icons */
+
 .date-input-container,
 .time-input-container,
 .location-input-container {
@@ -191,7 +191,7 @@
   pointer-events: none;
 }
 
-/* Form Actions */
+
 .form-actions {
   display: flex;
   gap: 16px;
@@ -223,7 +223,7 @@
 .save-draft-btn img {
   width: 18px;
   height: 18px;
-  /* 아이콘의 원래 색상 유지 */
+  
 }
 
 .register-btn {
@@ -253,7 +253,7 @@
   filter: brightness(0) invert(1);
 }
 
-/* Tips Section */
+
 .tips-section {
   background: linear-gradient(135deg, rgba(6, 176, 183, 0.1) 0%, rgba(100, 44, 141, 0.1) 100%);
   border-radius: 16px;
@@ -314,10 +314,10 @@
   height: 16px;
   margin-top: 3px;
   flex-shrink: 0;
-  /* 아이콘의 원래 색상 유지 */
+  
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;

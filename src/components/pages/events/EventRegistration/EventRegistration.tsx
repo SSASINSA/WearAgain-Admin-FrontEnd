@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import "./EventRegistration.css";
 
-// 피그마에서 가져온 아이콘들
 const heroIcon = "/admin/img/icon/calendar-plus.svg";
 const eventNameIcon = "/admin/img/icon/star.svg";
 const eventContentIcon = "/admin/img/icon/document.svg";
@@ -34,12 +33,10 @@ const EventRegistration: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 행사 등록 로직 구현
     console.log("행사 등록:", formData);
   };
 
   const handleSaveDraft = () => {
-    // TODO: 임시저장 로직 구현
     console.log("임시저장:", formData);
   };
 
@@ -49,7 +46,7 @@ const EventRegistration: React.FC = () => {
         <PageHeader title="행사 등록" subtitle="새로운 행사를 등록하고 관리하세요" />
 
         <div className="event-registration-content">
-          {/* Hero Section */}
+          {/* 헤더 섹션 */}
           <div className="hero-section">
             <div className="hero-icon">
               <img src={heroIcon} alt="행사 등록" />
@@ -58,10 +55,9 @@ const EventRegistration: React.FC = () => {
             <p className="hero-description">멋진 행사를 계획하고 참가자들과 함께 특별한 순간을 만들어보세요</p>
           </div>
 
-          {/* Registration Form */}
+          {/* 등록 폼 섹션 */}
           <div className="registration-form-container">
             <form className="registration-form" onSubmit={handleSubmit}>
-              {/* 행사 이름 */}
               <div className="form-group">
                 <label className="form-label">
                   <img src={eventNameIcon} alt="행사 이름" className="label-icon" style={{ marginRight: "8px" }} />
@@ -77,7 +73,6 @@ const EventRegistration: React.FC = () => {
                 />
               </div>
 
-              {/* 행사 내용 */}
               <div className="form-group">
                 <label className="form-label">
                   <img src={eventContentIcon} alt="행사 내용" className="label-icon" style={{ marginRight: "8px" }} />
@@ -93,7 +88,6 @@ const EventRegistration: React.FC = () => {
                 />
               </div>
 
-              {/* 날짜와 시간 */}
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">
@@ -132,7 +126,6 @@ const EventRegistration: React.FC = () => {
                 </div>
               </div>
 
-              {/* 행사 위치 */}
               <div className="form-group">
                 <label className="form-label">
                   <img src={eventLocationIcon} alt="행사 위치" className="label-icon" style={{ marginRight: "8px" }} />
@@ -151,7 +144,6 @@ const EventRegistration: React.FC = () => {
                 </div>
               </div>
 
-              {/* 버튼 그룹 */}
               <div className="form-actions">
                 <button type="button" className="save-draft-btn" onClick={handleSaveDraft}>
                   <img src={saveIcon} alt="저장" />

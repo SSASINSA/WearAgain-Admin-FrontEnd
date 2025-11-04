@@ -97,7 +97,6 @@ const ParticipantManagement: React.FC = () => {
     const dateA = new Date(a.joinDate.replace(/\./g, "-"));
     const dateB = new Date(b.joinDate.replace(/\./g, "-"));
     if (sortBy === "가입일 오래된 순") return dateA.getTime() - dateB.getTime();
-    // 기본: 가입일 최신순
     return dateB.getTime() - dateA.getTime();
   });
 
@@ -154,12 +153,11 @@ const ParticipantManagement: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <main className="main-content">
-        {/* Header */}
         <header className="participant-header" style={{ padding: 0, borderBottom: "none", height: "auto" }}>
           <PageHeader title="참가자 관리" subtitle="이벤트 참가자 목록을 확인하고 관리하세요" />
         </header>
 
-        {/* Statistics Cards */}
+        {/* 통계 카드 섹션 */}
         <div className="stats-section">
           <div className="stat-card">
             <div className="stat-content">
@@ -199,7 +197,7 @@ const ParticipantManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Participants Table via DataList */}
+        {/* 참가자 목록 섹션 */}
         <div className="participants-section">
           <DataList
             headerTitle="참가자 목록"

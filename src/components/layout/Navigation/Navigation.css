@@ -1,4 +1,4 @@
-/* 네비게이션 사이드바 스타일 */
+
 .sidebar {
   width: 280px;
   height: 100vh;
@@ -86,7 +86,7 @@
   font-weight: 600;
 }
 
-/* 반응형 디자인 */
+
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -109,7 +109,7 @@
   }
 }
 
-/* 메인 콘텐츠 반응형 조정 */
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0 !important;

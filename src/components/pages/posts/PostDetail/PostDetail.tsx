@@ -93,7 +93,7 @@ const PostDetail: React.FC = () => {
 
       <div className="event-detail-main" style={{ alignItems: "flex-start" }}>
         <div className="event-detail-content">
-          {/* Hero 섹션 (행사 상세와 동일 레이아웃) */}
+          {/* 게시글 헤더 섹션 */}
           <div className="event-hero-section">
             <div className="event-hero-image">
               <img src="/admin/img/example/event-hero.png" alt="게시글 대표 이미지" />
@@ -101,7 +101,6 @@ const PostDetail: React.FC = () => {
             </div>
             <div className="event-hero-content">
               <div className="event-tags">
-                {/* 상태 뱃지를 태그처럼 표시 */}
                 {renderStatus(state.status)}
                 <span className="tag workshop">게시글</span>
               </div>
@@ -110,7 +109,7 @@ const PostDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* 상세 정보 섹션 */}
+          {/* 게시글 상세 정보 섹션 */}
           <div className="event-details-section">
             <h3 className="section-title">게시글 상세 정보</h3>
             <div className="event-details-grid post-details-grid">
@@ -179,8 +178,12 @@ const PostDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="event-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start", height: "max-content" }}>
+        {/* 사이드바 - 게시글 수정 */}
+        <div
+          className="event-detail-sidebar"
+          ref={sidebarRef}
+          style={{ alignSelf: "flex-start", height: "max-content" }}
+        >
           <div ref={sidebarInnerRef} className="staff-code-section">
             <div className="staff-code-content">
               <div className="staff-code-icon">
@@ -205,5 +208,3 @@ const PostDetail: React.FC = () => {
 };
 
 export default PostDetail;
-
-

@@ -26,7 +26,6 @@ const ParticipantEdit: React.FC = () => {
       <PageHeader title="참가자 정보 수정" subtitle="참가자의 게임 정보를 수정하고 관리하세요" />
 
       <main className="edit-content">
-        {/* 기본 정보 */}
         <section className="section basic-info">
           <div className="section-title">
             <div className="title-icon gradient">
@@ -62,7 +61,6 @@ const ParticipantEdit: React.FC = () => {
           </div>
         </section>
 
-        {/* 옷 키우기 */}
         <section className="section grow-info">
           <div className="section-title">
             <div className="title-icon gradient alt">

@@ -1,4 +1,4 @@
-/* 상점 관리 페이지 스타일 - 피그마 디자인 기반 */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -12,11 +12,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 120px !important; /* PageHeader 높이 + 충분한 여백 */
+  padding-top: 120px !important; 
 }
 
-/* Header */
-/* 개별 헤더 제거 - PageHeader 사용 */
+
+
 
 .header-content {
   display: flex;
@@ -49,7 +49,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 12px 20px; /* 행사 버튼 대비 살짝 컴팩트 */
+  padding: 12px 20px; 
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
@@ -77,7 +77,7 @@
   object-fit: cover;
 }
 
-/* Search and Filter Bar */
+
 .search-filter-bar {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
@@ -102,7 +102,7 @@
 .search-input {
   width: 100%;
   height: 42px;
-  padding: 0 40px 0 16px; /* 게시글 관리와 동일한 좌측 패딩 */
+  padding: 0 40px 0 16px; 
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
@@ -192,7 +192,7 @@
   background-color: #f3f4f6;
 }
 
-/* Products Container */
+
 .products-container {
   flex: 1;
   padding: 32px;
@@ -213,7 +213,7 @@
   gap: 16px;
 }
 
-/* Product Card */
+
 .product-card {
   background-color: white;
   border-radius: 8px;
@@ -289,14 +289,14 @@
   background-color: #f3f4f6;
 }
 
-/* Pagination */
+
 .pagination-container {
-  background-color: transparent; /* 배경 제거로 '하얀 푸터' 현상 방지 */
+  background-color: transparent; 
   border-top: none;
-  padding: 16px 32px; /* 여백 축소 */
+  padding: 16px 32px; 
   display: flex;
   justify-content: center;
-  position: fixed; /* 화면 하단 고정 */
+  position: fixed; 
   left: 50%;
   transform: translateX(-50%);
   bottom: 24px;
@@ -347,7 +347,7 @@
   font-size: 14px;
 }
 
-/* List View Styles */
+
 .products-grid.list .product-card {
   display: flex;
   flex-direction: row;
@@ -383,7 +383,7 @@
   margin-top: auto;
 }
 
-/* 반응형 디자인 */
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;

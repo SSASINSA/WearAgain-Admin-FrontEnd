@@ -5,7 +5,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onChange: (page: number) => void;
-  className?: string; // 외부 컨테이너 클래스 (배치용)
+  className?: string;
 }
 
 const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
@@ -19,7 +19,6 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
       if (totalPages <= 5) {
         return Array.from({ length: totalPages }, (_, i) => i + 1);
       }
-      // 간단한 패턴: 1, 2, 3, ..., total
       return [1, 2, 3, "dots", totalPages];
     };
 

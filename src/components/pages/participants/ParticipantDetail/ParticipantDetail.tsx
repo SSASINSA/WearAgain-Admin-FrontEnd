@@ -91,7 +91,6 @@ const ParticipantDetail: React.FC = () => {
     status: state.status ?? mock?.status ?? "활성",
   };
 
-  // 환경 임팩트 카드 높이를 가로에 맞춰 동기화
   const impactRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const syncHeights = () => {
@@ -99,7 +98,6 @@ const ParticipantDetail: React.FC = () => {
       if (!container) return;
       const cards = container.querySelectorAll<HTMLDivElement>(".impact-card");
       cards.forEach((card) => {
-        // 너비 유지, 높이만 너비와 동일하게 설정
         const width = card.clientWidth;
         card.style.height = `${width}px`;
       });
@@ -124,10 +122,10 @@ const ParticipantDetail: React.FC = () => {
       </header>
 
       <main className="detail-content">
-        {/* 상단 섹션: 좌우 2열 (좌: 이름+임팩트, 우: 옷 키우기) */}
+        {/* 상단 섹션 */}
         <section className="top-section">
           <div className="top-left">
-            {/* 요약 카드 */}
+            {/* 참가자 요약 카드 */}
             <section className="section summary-card">
               <div className="summary-left">
                 <img className="avatar large" src={display.avatar} alt={display.name} />
@@ -147,7 +145,7 @@ const ParticipantDetail: React.FC = () => {
               </div>
             </section>
 
-            {/* 환경 임팩트 기록 */}
+            {/* 환경 임팩트 기록 섹션 */}
             <section className="section impact-section" ref={impactRef}>
               <h3>환경 임팩트 기록</h3>
               <div className="impact-cards">
@@ -180,7 +178,7 @@ const ParticipantDetail: React.FC = () => {
           </div>
 
           <aside className="top-right">
-            {/* 옷 키우기 */}
+            {/* 옷 키우기 섹션 */}
             <section className="section grow-card">
               <h3>옷 키우기</h3>
               <div className="grow-hero">
@@ -202,8 +200,9 @@ const ParticipantDetail: React.FC = () => {
           </aside>
         </section>
 
-        {/* 하단 섹션: 획득한 옷 전체 너비 */}
+        {/* 하단 섹션 */}
         <section className="bottom-section">
+          {/* 획득한 옷 섹션 */}
           <section className="section clothes-section">
             <h3>획득한 옷</h3>
             <div className="clothes-grid">

@@ -1,4 +1,4 @@
-/* Events Management Styles */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -12,16 +12,16 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; /* 공용 헤더 여백 */
+  padding-top: 105px; 
 }
 
-/* 개별 헤더 제거 - PageHeader 사용 */
+
 
 .dashboard-content {
   padding: 32px;
 }
 
-/* Events Controls */
+
 .events-controls {
   display: flex;
   justify-content: space-between;
@@ -113,10 +113,10 @@
 }
 
 .add-event-btn img {
-  display: none; /* 아이콘 테두리 제거: 이미지 숨김 */
+  display: none; 
 }
 
-/* 이미지 대신 플러스 텍스트 아이콘 표시 */
+
 .add-event-btn::before {
   content: "+";
   display: inline-block;
@@ -131,7 +131,7 @@
   opacity: 0.9;
 }
 
-/* Events Grid */
+
 .events-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -345,12 +345,12 @@
   background-color: #f3f4f6;
 }
 
-/* Pagination */
+
 .pagination-section {
-  position: relative; /* 중앙 배치 기준 */
+  position: relative; 
   display: block;
   margin-top: 32px;
-  min-height: 44px; /* 버튼 높이 보장 */
+  min-height: 44px; 
 }
 
 .pagination-info {
@@ -410,7 +410,7 @@
   cursor: not-allowed;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1200px) {
   .events-grid {
     grid-template-columns: repeat(2, 1fr);

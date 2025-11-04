@@ -1,10 +1,10 @@
-/* Admin Dashboard Styles */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
 }
 
-/* Main Content */
+
 .main-content {
   flex: 1;
   margin-left: 280px;
@@ -13,16 +13,16 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; /* 공용 헤더 높이만큼 여백 */
+  padding-top: 105px; 
 }
 
-/* 개별 헤더 제거 - PageHeader 사용 */
+
 
 .dashboard-content {
   padding: 32px;
 }
 
-/* Stats Title Section */
+
 .stats-title-section {
   margin-bottom: 20px;
 }
@@ -34,7 +34,7 @@
   margin: 0;
 }
 
-/* Stats Cards Section */
+
 .stats-cards-section {
   margin-bottom: 48px;
 }
@@ -103,7 +103,7 @@
   margin: 0;
 }
 
-/* Impact Section */
+
 .impact-section {
   margin-bottom: 48px;
 }
@@ -174,7 +174,7 @@
   font-weight: 400;
 }
 
-/* Ranking Section */
+
 .ranking-section {
   background-color: white;
   border: 1px solid #e5e7eb;
@@ -269,7 +269,7 @@
   margin: 0;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1200px) {
   .stats-grid,
   .impact-grid {

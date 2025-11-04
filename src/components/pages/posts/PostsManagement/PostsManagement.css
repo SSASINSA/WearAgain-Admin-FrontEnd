@@ -1,4 +1,4 @@
-/* Posts Management Styles */
+
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -12,10 +12,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; /* 공용 헤더 여백 */
+  padding-top: 105px; 
 }
 
-/* 개별 헤더 제거 - PageHeader 사용 */
+
 
 .main-content {
   flex: 1;
@@ -90,7 +90,7 @@
   padding: 16px 24px 24px 24px;
 }
 
-/* Posts Controls */
+
 .posts-controls {
   background-color: white;
   border: 1px solid #e5e7eb;
@@ -126,7 +126,7 @@
 }
 
 .filter-controls.is-open {
-  max-height: 240px; /* 내용보다 충분히 큰 값 */
+  max-height: 240px; 
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -215,7 +215,7 @@
   border-color: #06b0b7;
 }
 
-/* Posts Table */
+
 .posts-table-container {
   background-color: white;
   border: 1px solid #e5e7eb;
@@ -262,7 +262,7 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* 컬럼 너비 지정 */
+
 .posts-table th:nth-child(1) {
   width: 50px;
   padding: 16px 6px 16px 12px !important;
@@ -305,7 +305,7 @@
   padding: 16px 16px 16px 24px !important;
 }
 
-/* 더 구체적인 선택자로 작업 컬럼 헤더 정렬 */
+
 .posts-table thead tr th:last-child {
   text-align: left !important;
   padding-left: 24px !important;
@@ -336,21 +336,21 @@
 }
 
 .title-cell .clickable {
-  color: #1f2937; /* 본문 색상과 일치 */
-  text-decoration: none; /* 기본 밑줄 제거 */
+  color: #1f2937; 
+  text-decoration: none; 
   cursor: pointer;
   transition: color 0.15s ease;
   position: relative;
 }
 
 .title-cell .clickable:hover {
-  color: #06b0b7; /* 프라이머리 컬러로 강조 */
+  color: #06b0b7; 
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .title-cell .clickable::after {
-  content: "›"; /* 오른쪽 화살표 힌트 */
+  content: "›"; 
   display: inline-block;
   margin-left: 6px;
   color: #06b0b7;
@@ -439,7 +439,7 @@
   color: #374151;
 }
 
-/* Table Footer */
+
 .table-footer {
   display: flex;
   justify-content: space-between;
@@ -468,7 +468,7 @@
   margin-left: auto;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1200px) {
   .filter-controls {
     flex-direction: column;

@@ -1,4 +1,4 @@
-/* Event Detail Page Styles */
+
 .event-detail-page {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -7,17 +7,17 @@
   flex-direction: column;
 }
 
-/* Main Content */
+
 .event-detail-main {
   margin: 0;
   padding: 32px;
   display: flex;
-  justify-content: center; /* 내부 그리드 간격 유지 */
+  justify-content: center; 
   gap: 32px;
   width: 100%;
   flex: 1;
   max-width: 1400px;
-  /* 좌측 네비(280px)를 보존하면서 화면 중앙에 위치 */
+  
   margin-left: calc(280px + (100% - 1400px) / 2);
   min-height: calc(100vh - 137px);
   margin-top: 105px;
@@ -37,7 +37,7 @@
   gap: 32px;
 }
 
-/* Event Hero Section */
+
 .event-hero-section {
   background-color: white;
   border-radius: 16px;
@@ -112,7 +112,7 @@
   margin: 0;
 }
 
-/* Event Details Section */
+
 .event-details-section {
   background-color: white;
   border-radius: 16px;
@@ -191,7 +191,7 @@
   margin-bottom: 0;
 }
 
-/* Event Results Section */
+
 .event-results-section {
   background-color: white;
   border-radius: 16px;
@@ -258,7 +258,7 @@
   line-height: 20px;
 }
 
-/* Sidebar */
+
 .staff-code-section {
   background-color: white;
   border-radius: 16px;
@@ -357,7 +357,7 @@
   line-height: 20px;
 }
 
-/* Event Info Section */
+
 .event-info-section {
   background-color: white;
   border-radius: 16px;
@@ -408,12 +408,12 @@
   font-weight: 500;
 }
 
-/* Responsive Design */
+
 @media (min-width: 1600px) {
   .event-detail-main {
     max-width: 1600px;
     gap: 48px;
-    /* 1600 레이아웃에서도 중앙 정렬 유지 */
+    
     margin-left: calc(280px + (100% - 1600px) / 2);
   }
 

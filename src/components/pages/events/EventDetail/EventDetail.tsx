@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import "./EventDetail.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 
-// 이미지 아이콘 상수들
 const imgImg = "/admin/img/example/event-hero.png";
 const imgFrame1 = "/admin/img/icon/date-time.svg";
 const imgFrame2 = "/admin/img/icon/location-pin.svg";
@@ -77,10 +76,9 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
     <div className="event-detail-page">
       <PageHeader title="행사 상세정보" />
 
-      {/* Main Content */}
       <div className="event-detail-main" style={{ alignItems: "flex-start" }}>
         <div className="event-detail-content">
-          {/* Event Hero Section */}
+          {/* 행사 헤더 섹션 */}
           <div className="event-hero-section">
             <div className="event-hero-image">
               <img src={imgImg} alt="행사 이미지" />
@@ -99,7 +97,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
             </div>
           </div>
 
-          {/* Event Details Section */}
+          {/* 행사 상세 정보 섹션 */}
           <div className="event-details-section">
             <h3 className="section-title">행사 상세 정보</h3>
             <div className="event-details-grid">
@@ -126,7 +124,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
             </div>
           </div>
 
-          {/* Event Results Section */}
+          {/* 행사 결과 섹션 */}
           <div className="event-results-section">
             <h3 className="section-title">행사 결과</h3>
             <div className="results-grid">
@@ -170,10 +168,9 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* 사이드바 - 스태프 코드 발급 */}
         <div className="event-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            {/* Staff Code Section */}
             <div className="staff-code-section">
             <div className="staff-code-content">
               <div className="staff-code-icon">
@@ -192,7 +189,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
             </div>
             </div>
 
-            {/* Event Info Section */}
+            {/* 행사 정보 섹션 */}
             <div className="event-info-section">
               <h4 className="info-title">행사 정보</h4>
               <div className="info-list">

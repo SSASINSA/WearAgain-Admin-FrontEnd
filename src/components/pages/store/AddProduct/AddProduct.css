@@ -1,19 +1,19 @@
 .add-product-page {
   background-color: #f9fafb;
   min-height: 100vh;
-  margin-left: 280px; /* 네비게이션 바 너비만큼 왼쪽 마진 추가 */
-  width: calc(100vw - 280px); /* 남는 공간 없이 꽉 채우기 */
+  margin-left: 280px; 
+  width: calc(100vw - 280px); 
 }
 
 .add-product-header {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
-  padding: 24px 40px 24px 96px; /* 뒤로가기 버튼(40px) + 간격 확보 */
+  padding: 24px 40px 24px 96px; 
   position: fixed;
   top: 0;
-  left: 280px; /* 네비게이션 바 너비만큼 왼쪽에서 시작 */
+  left: 280px; 
   right: 0;
-  z-index: 90; /* 사이드바(100)보다 낮게 */
+  z-index: 90; 
 }
 
 .header-content {
@@ -126,22 +126,22 @@
 }
 
 .add-product-content {
-  max-width: none; /* 전체 가용 폭 사용 */
+  max-width: none; 
   width: 100%;
-  margin: 0; /* 중앙 정렬 여백 제거 */
-  padding: 120px 24px 40px 24px; /* 좌우 패딩 유지 */
+  margin: 0; 
+  padding: 120px 24px 40px 24px; 
   display: flex !important;
   flex-direction: row !important;
-  gap: 32px; /* Figma 간격 기준 */
+  gap: 32px; 
 }
 
 .content-left {
   display: flex !important;
   flex-direction: column !important;
   gap: 32px;
-  flex: 2.1 1 0; /* 좌측이 가로로 과도하게 확장되지 않도록 */
-  min-width: 0; /* 플렉스 아이템이 내용 폭 때문에 오른쪽을 밀어내지 않도록 */
-  max-width: none; /* 고정 최대폭 제거로 가용 폭 활용 */
+  flex: 2.1 1 0; 
+  min-width: 0; 
+  max-width: none; 
   width: 100%;
 }
 
@@ -248,13 +248,13 @@
   margin-bottom: 8px;
 }
 
-/* 첫 번째 이미지 업로드 아이콘 크기 (메인 이미지) */
+
 .image-upload-box:first-child .upload-icon {
   width: 21px;
   height: 24px;
 }
 
-/* 추가 이미지 업로드 아이콘 크기 */
+
 .image-upload-box:not(:first-child) .upload-icon {
   width: 17.5px;
   height: 20px;
@@ -266,13 +266,13 @@
   line-height: 20px;
 }
 
-/* 첫 번째 이미지 업로드 텍스트 */
+
 .image-upload-box:first-child .upload-text {
   font-size: 14px;
   line-height: 20px;
 }
 
-/* 추가 이미지 업로드 텍스트 */
+
 .image-upload-box:not(:first-child) .upload-text {
   font-size: 12px;
   line-height: 16px;
@@ -373,16 +373,16 @@
   line-height: 20px;
 }
 
-/* 오른쪽 사이드바 스타일 */
+
 .content-right {
   display: flex;
   flex-direction: column;
   gap: 28px;
   height: fit-content;
-  width: auto; /* 고정 폭 제거 */
+  width: auto; 
   flex-shrink: 1;
-  flex: 1 1 0; /* 우측도 유연하게 확장 */
-  min-width: 0; /* 플렉스 수축 허용 */
+  flex: 1 1 0; 
+  min-width: 0; 
 }
 
 .preview-section h3,
@@ -400,8 +400,8 @@
 
 .quick-actions {
   padding: 32px 40px 28px 40px !important;
-  min-width: 320px; /* 너무 좁아지지 않게 */
-  text-align: left; /* 버튼 텍스트 좌측 정렬 보장 */
+  min-width: 320px; 
+  text-align: left; 
 }
 
 .tips-section {
@@ -501,26 +501,26 @@
 
 .quick-actions .action-buttons {
   display: flex;
-  flex-direction: column !important; /* 수직 스택 고정 */
-  gap: 10px; /* 버튼 간격 적정화 */
-  align-items: stretch !important; /* 버튼이 카드 폭을 채우도록 */
+  flex-direction: column !important; 
+  gap: 10px; 
+  align-items: stretch !important; 
   width: 100%;
 }
 
-/* 전역 .action-btn 규칙(다른 페이지)과 충돌 방지: 빠른 작업 범위에서 재정의 */
+
 .quick-actions .action-btn {
-  width: 100% !important; /* 카드 폭 가득 채워 텍스트 잘림 방지 */
+  width: 100% !important; 
   height: 48px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
   gap: 12px !important;
-  padding: 0 16px !important; /* 기본 좌측 패딩 */
+  padding: 0 16px !important; 
   background: white !important;
   border: none !important;
   border-radius: 8px !important;
   text-align: left !important;
-  margin: 0 !important; /* 자동 마진 방지 */
+  margin: 0 !important; 
   overflow: visible !important;
   text-overflow: clip !important;
   white-space: nowrap !important;
@@ -533,7 +533,7 @@
 }
 
 .quick-actions .action-buttons .action-btn {
-  border: none; /* 테두리 제거 */
+  border: none; 
   background: transparent;
 }
 
@@ -542,17 +542,17 @@
   height: 48px;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 왼쪽 정렬 */
+  justify-content: flex-start; 
   gap: 12px;
   padding: 0 16px;
   background: white;
-  border: none; /* 테두리 제거 */
-  border-radius: 0; /* 모서리 제거 */
+  border: none; 
+  border-radius: 0; 
   font-size: 16px;
   color: #374151;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap; /* 텍스트 세로 쪼개짐 방지 */
+  white-space: nowrap; 
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
@@ -563,10 +563,10 @@
 }
 
 .action-btn:active {
-  background: #e5e7eb; /* 클릭 시 더 진한 회색 */
+  background: #e5e7eb; 
 }
 
-/* 빠른 작업 영역에서 누르는 상태를 더 강하게 표시 */
+
 .quick-actions .action-buttons .action-btn.is-pressed {
   background: rgba(6, 176, 183, 0.12);
   box-shadow: inset 0 0 0 1px #06b0b7;
@@ -585,7 +585,7 @@
   flex-shrink: 0;
 }
 
-/* 빠른 작업 버튼 아이콘 개별 크기 조정 */
+
 .action-btn:first-child img {
   width: 18px;
   height: 16px;
@@ -651,7 +651,7 @@
 
   .add-product-header {
     left: 0;
-    padding: 24px 24px 24px 56px; /* 뒤로가기 버튼 공간 확보 */
+    padding: 24px 24px 24px 56px; 
   }
 
   .add-product-content {
@@ -677,7 +677,7 @@
   }
 
   .add-product-header {
-    padding-left: 56px; /* 버튼과 제목 겹침 방지 */
+    padding-left: 56px; 
   }
 
   .header-left,
