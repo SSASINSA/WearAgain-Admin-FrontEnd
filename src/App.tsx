@@ -13,6 +13,7 @@ import ParticipantManagement from "./components/pages/participants/ParticipantMa
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
 import Login from "./components/pages/auth/Login/Login";
+import SignUp from "./components/pages/auth/SignUp/SignUp";
 import "./styles/App.css";
 
 function App() {
@@ -122,6 +123,10 @@ function App() {
           <Route
             path="/login"
             element={<Login />}
+          />
+          <Route
+            path="/signup"
+            element={<SignUp />}
           />
         </Routes>
       </Router>
