@@ -12,6 +12,7 @@ import AddProduct from "./components/pages/store/AddProduct/AddProduct";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
+import Login from "./components/pages/auth/Login/Login";
 import "./styles/App.css";
 
 function App() {
@@ -117,6 +118,10 @@ function App() {
                 <ParticipantDetail />
               </>
             }
+          />
+          <Route
+            path="/login"
+            element={<Login />}
           />
         </Routes>
       </Router>

@@ -32,7 +32,7 @@ const Navigation: React.FC = () => {
       label: "참가자 관리",
     },
     {
-      path: "#",
+      path: "/login",
       icon: "/admin/img/icon/user-icon.svg",
       label: "로그인 (테스트)",
     },
