@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "../EventDetail/EventDetail.css";
+import "../../events/EventDetail/EventDetail.css";
 import "./PostDetail.css";
-import PageHeader from "../../common/PageHeader/PageHeader";
+import PageHeader from "../../../common/PageHeader/PageHeader";
 
 interface PostState {
   id: number;

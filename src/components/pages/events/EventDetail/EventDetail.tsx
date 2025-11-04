@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "./EventDetail.css";
-import PageHeader from "../../common/PageHeader/PageHeader";
+import PageHeader from "../../../common/PageHeader/PageHeader";
 
 // 이미지 아이콘 상수들
 const imgImg = "/admin/img/example/event-hero.png";
