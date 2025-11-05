@@ -7,7 +7,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   margin-bottom: 8px;
-  padding: 0; /* 내부 섹션에서 패딩을 주도록 0으로 유지 */
+  padding: 0; 
 }
 
 .dl-table-container {
@@ -65,4 +65,9 @@
   color: #1f2937;
 }
 
-/* footer 스타일은 DataListFooter.css 사용 */
+.dl-table th:first-child,
+.dl-table td:first-child {
+  padding-left: 24px;
+}
+
+

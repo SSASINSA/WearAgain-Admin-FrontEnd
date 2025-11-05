@@ -40,7 +40,6 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
         setLeftMarginRight(0);
       }
 
-      // 직접 스타일 적용
       const translateX = `calc(-50% - ${(leftWidth + leftMarginRight) / 2}px - 8px)`;
       paginationEl.style.transform = `translateX(${translateX})`;
     };

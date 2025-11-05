@@ -1,7 +1,7 @@
 .dl-footer {
-  position: relative; /* 중앙 배치 기준 */
+  position: relative; 
   display: flex;
-  justify-content: flex-start; /* 좌측 아이템 셀렉트는 왼쪽 */
+  justify-content: flex-start; 
   align-items: center;
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
@@ -26,5 +26,5 @@
 .dl-pagination {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%); /* 정확한 가운데 */
+  transform: translateX(-50%); 
 }

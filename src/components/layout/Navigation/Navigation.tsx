@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./Navigation.css";
 
 const Navigation: React.FC = () => {
   const location = useLocation();
+  const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+  const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === "/approval") {
+      setIsAdminDropdownOpen(true);
+    }
+    if (location.pathname === "/login" || location.pathname === "/signup") {
+      setIsTestDropdownOpen(true);
+    }
+  }, [location.pathname]);
 
   const navItems = [
     {
@@ -52,6 +63,46 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           ))}
+          <li className={`nav-dropdown ${isAdminDropdownOpen ? "open" : ""}`}>
+            <button
+              className="nav-item nav-dropdown-toggle"
+              onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+            >
+              <img src="/admin/img/icon/user-icon.svg" alt="" />
+              <span>최고 관리자</span>
+              <span className={`dropdown-arrow ${isAdminDropdownOpen ? "open" : ""}`}>▼</span>
+            </button>
+            <ul className="nav-dropdown-menu">
+              <li className={location.pathname === "/approval" ? "active" : ""}>
+                <Link to="/approval" className="nav-dropdown-item">
+                  <img src="/admin/img/icon/check-circle.svg" alt="" />
+                  <span>관리자 계정 승인</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+          <li className={`nav-dropdown ${isTestDropdownOpen ? "open" : ""}`}>
+            <button
+              className="nav-item nav-dropdown-toggle"
+              onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}
+            >
+              <img src="/admin/img/icon/user-icon.svg" alt="" />
+              <span>테스트용</span>
+              <span className={`dropdown-arrow ${isTestDropdownOpen ? "open" : ""}`}>▼</span>
+            </button>
+            <ul className="nav-dropdown-menu">
+              <li className={location.pathname === "/login" ? "active" : ""}>
+                <Link to="/login" className="nav-dropdown-item">
+                  로그인
+                </Link>
+              </li>
+              <li className={location.pathname === "/signup" ? "active" : ""}>
+                <Link to="/signup" className="nav-dropdown-item">
+                  회원가입
+                </Link>
+              </li>
+            </ul>
+          </li>
         </ul>
       </nav>
     </aside>
