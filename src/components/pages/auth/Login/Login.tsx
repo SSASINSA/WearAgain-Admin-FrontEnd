@@ -16,36 +16,9 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="bg-white w-full min-w-[1280px] h-screen min-h-[700px] grid grid-cols-[560px_1fr] relative overflow-hidden">
-      <img className="absolute inset-y-0 right-0 h-full w-auto object-cover" alt="Rectangle" src={HERO_BG} />
-
-      <div className="absolute w-[41.34%] h-[16.05%] top-[12.73%] left-[50.00%]">
-        <div className="flex flex-col w-[95.52%] h-[78.68%] items-end absolute top-[21.32%] left-[4.48%]">
-          <p className="self-stretch [font-family:'Poppins-SemiBold',Helvetica] font-normal text-transparent text-[32px] tracking-[-0.64px] leading-[44px] relative mt-[-1.00px]">
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">다시 입어</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
-              , 패스트 패션 사회를 끝내고{" "}
-            </span>
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">미래</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
-              가 있는{" "}
-            </span>
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">오늘</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
-              을 만듭니다
-            </span>
-          </p>
-
-          <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto]">
-            <div className="w-fit [font-family:'Poppins-Medium',Helvetica] font-medium text-[#3a424a] text-2xl tracking-[-0.48px] leading-9 whitespace-nowrap relative mt-[-1.00px]">
-              - 다시입다연구소
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-start-1 flex h-full justify-center bg-white z-10">
-        <div className="my-auto w-[403px] flex flex-col items-stretch gap-10">
+    <div className="bg-white w-full h-screen min-h-[700px] flex relative overflow-hidden">
+      <div className="flex-1 flex h-full justify-center items-center bg-white z-10 px-6">
+        <div className="w-[403px] flex flex-col items-stretch gap-10">
           <h1 className="relative w-fit [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-[#171725] text-3xl text-center tracking-[0.10px] leading-[normal]">
             로그인
           </h1>
@@ -103,19 +76,19 @@ const Login: React.FC = () => {
                 </div>
 
                 <div className="flex w-[403px] items-center justify-end gap-2.5 relative flex-[0_0_auto]">
-                  <a
-                    href="#"
-                    className="mt-[-1.00px] [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-[#0062ff] text-[15px] text-center leading-6 whitespace-nowrap relative w-fit tracking-[0.10px] hover:underline"
+                  <button
+                    type="button"
+                    className="mt-[-1.00px] [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-[#0062ff] text-[15px] text-center leading-6 whitespace-nowrap relative w-fit tracking-[0.10px] hover:underline bg-transparent border-0 p-0 cursor-pointer"
                   >
                     비밀번호를 잊으셨나요?
-                  </a>
+                  </button>
                 </div>
               </div>
 
-              <div className="relative w-[401px] h-[21px]" />
+              <div className="relative w-[401px] h-[12px]" />
             </div>
 
-            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto] mt-[-52px]">
+            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto]">
               <div className="mt-[-1.00px] [font-family:'Poppins-Regular',Helvetica] font-normal text-[#969ab8] text-[15px] text-center leading-6 whitespace-nowrap relative w-fit tracking-[0.10px]">
                 아직 계정을 생성하지 않으셨나요?
               </div>
@@ -127,6 +100,35 @@ const Login: React.FC = () => {
               </Link>
             </div>
           </form>
+        </div>
+      </div>
+
+      <div className="relative flex-shrink-0">
+        <img className="h-full w-auto object-cover" alt="Rectangle" src={HERO_BG} />
+      </div>
+
+      <div className="absolute bottom-[71.22%] left-1/2 right-[8.66%] top-[12.73%] z-20">
+        <div className="flex flex-col items-end absolute bottom-0 left-[4.48%] right-0 top-[21.32%]">
+          <p className="[font-family:'Poppins-SemiBold',Helvetica] font-normal text-[#3a424a] text-[32px] tracking-[-0.64px] leading-[44px] relative min-w-full w-[min-content]">
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">다시 입어</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
+              , 패스트 패션 사회를 끝내고{" "}
+            </span>
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">미래</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
+              가 있는{" "}
+            </span>
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">오늘</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
+              을 만듭니다
+            </span>
+          </p>
+
+          <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto]">
+            <div className="w-fit [font-family:'Poppins-Medium',Helvetica] font-medium text-[#3a424a] text-2xl tracking-[-0.48px] leading-9 whitespace-nowrap relative mt-[-1.00px]">
+              - 다시입다연구소
+            </div>
+          </div>
         </div>
       </div>
     </div>
