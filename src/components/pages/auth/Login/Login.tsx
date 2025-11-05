@@ -10,9 +10,30 @@ const PASSWORD_ICON = PUBLIC_URL + "/img/auth/password-icon.svg";
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (username === "wearagain" && password === "wearagain") {
+      setModalTitle("로그인 성공");
+      setModalMessage("로그인에 성공했습니다!");
+      setShowModal(true);
+    } else if (username === "test" && password === "test") {
+      setModalTitle("로그인 실패");
+      setModalMessage("가입 대기중인 계정입니다. 관리자에게 문의하세요");
+      setShowModal(true);
+    } else {
+      setModalTitle("로그인 실패");
+      setModalMessage("아이디와 비밀번호가 일치하지 않습니다");
+      setShowModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -131,6 +152,27 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showModal && (
+        <div className="login-modal-overlay" onClick={handleCloseModal}>
+          <div className="login-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="login-modal-header">
+              <h2>{modalTitle}</h2>
+              <button className="login-modal-close" onClick={handleCloseModal}>
+                ×
+              </button>
+            </div>
+            <div className="login-modal-body">
+              <p>{modalMessage}</p>
+            </div>
+            <div className="login-modal-footer">
+              <button className="login-modal-btn" onClick={handleCloseModal}>
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

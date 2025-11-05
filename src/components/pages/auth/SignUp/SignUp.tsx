@@ -161,10 +161,10 @@ const SignUp: React.FC = () => {
                 </div>
               </div>
 
-              <div className="relative w-[401px] h-[21px]" />
+              <div className="relative w-[401px] h-[32px]" />
             </div>
 
-            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto] mt-[-52px]">
+            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto] mt-[-32px]">
               <div className="mt-[-1.00px] [font-family:'Poppins-Regular',Helvetica] font-normal text-[#969ab8] text-[15px] text-center leading-6 whitespace-nowrap relative w-fit tracking-[0.10px]">
                 이미 계정이 있으신가요?
               </div>
