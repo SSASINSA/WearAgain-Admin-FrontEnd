@@ -338,11 +338,6 @@
   padding-left: 24px;
 }
 
-.participants-table th:first-child {
-  width: 40px;
-  padding-right: 12px;
-}
-
 .participants-table th:last-child {
   text-align: center; 
   padding-left: 0;
@@ -358,8 +353,9 @@
   vertical-align: middle;
 }
 
-.participants-table td:first-child {
-  padding-right: 12px;
+.participants-section .dl-table th:first-child,
+.participants-section .dl-table td:first-child {
+  padding-left: 24px !important;
 }
 
 .participants-table td:nth-child(2) {

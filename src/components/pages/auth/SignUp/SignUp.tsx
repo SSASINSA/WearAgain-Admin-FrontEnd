@@ -12,9 +12,11 @@ const SignUp: React.FC = () => {
     username: "",
     password: "",
     confirmPassword: "",
+    email: "",
+    description: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -100,7 +102,7 @@ const SignUp: React.FC = () => {
                       />
                     </label>
 
-                    <label className="flex items-center gap-4 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] mb-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
+                    <label className="flex items-center gap-4 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
                       <div className="relative w-[19px] h-[19px]" aria-hidden="true">
                         <div className="absolute inset-[-6.06%]">
                           <img className="absolute w-full h-full top-0 left-0" alt="password" src={PASSWORD_ICON} />
@@ -117,6 +119,35 @@ const SignUp: React.FC = () => {
                         required
                       />
                     </label>
+
+                    <label className="flex items-center gap-4 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
+                      <div className="relative w-[21.5px] h-[17.2px]" aria-hidden="true">
+                        <img className="absolute w-full h-full top-0 left-0" alt="" src={USERNAME_ICON} />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="이메일"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-medium text-[#9699b7] text-sm leading-[normal] relative flex-1 min-w-0 bg-transparent border-0 outline-none tracking-[0.10px]"
+                        aria-label="이메일"
+                        required
+                      />
+                    </label>
+
+                    <div className="flex flex-col items-start gap-2 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] mb-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="상세 설명"
+                        rows={4}
+                        className="[font-family:'Poppins-Medium',Helvetica] font-medium text-[#9699b7] text-sm leading-[normal] relative self-stretch w-full min-h-[80px] bg-transparent border-0 outline-none tracking-[0.10px] resize-none"
+                        aria-label="상세 설명"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <button

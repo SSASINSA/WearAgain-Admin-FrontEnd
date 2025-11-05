@@ -12,6 +12,7 @@ import AddProduct from "./components/pages/store/AddProduct/AddProduct";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
+import ApprovalManagement from "./components/pages/approval/ApprovalManagement/ApprovalManagement";
 import Login from "./components/pages/auth/Login/Login";
 import SignUp from "./components/pages/auth/SignUp/SignUp";
 import "./styles/App.css";
@@ -117,6 +118,15 @@ function App() {
               <>
                 <Navigation />
                 <ParticipantDetail />
+              </>
+            }
+          />
+          <Route
+            path="/approval"
+            element={
+              <>
+                <Navigation />
+                <ApprovalManagement />
               </>
             }
           />

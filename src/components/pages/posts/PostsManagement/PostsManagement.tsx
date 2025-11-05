@@ -18,7 +18,6 @@ const PostsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("latest");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedPosts, setSelectedPosts] = useState<number[]>([]);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
 
@@ -91,22 +90,6 @@ const PostsManagement: React.FC = () => {
     }
   };
 
-  const handleSelectAll = () => {
-    if (selectedPosts.length === currentPosts.length) {
-      setSelectedPosts([]);
-    } else {
-      setSelectedPosts(currentPosts.map((post) => post.id));
-    }
-  };
-
-  const handleSelectPost = (postId: number) => {
-    if (selectedPosts.includes(postId)) {
-      setSelectedPosts(selectedPosts.filter((id) => id !== postId));
-    } else {
-      setSelectedPosts([...selectedPosts, postId]);
-    }
-  };
-
   const navigate = useNavigate();
 
   return (
@@ -170,25 +153,6 @@ const PostsManagement: React.FC = () => {
               </div>
             )}
             columns={[
-              {
-                key: "select",
-                title: (
-                  <input
-                    type="checkbox"
-                    checked={selectedPosts.length === currentPosts.length && currentPosts.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                ),
-                width: 50,
-                align: "center",
-                render: (row: any) => (
-                  <input
-                    type="checkbox"
-                    checked={selectedPosts.includes(row.id)}
-                    onChange={() => handleSelectPost(row.id)}
-                  />
-                ),
-              },
               {
                 key: "title",
                 title: "제목",

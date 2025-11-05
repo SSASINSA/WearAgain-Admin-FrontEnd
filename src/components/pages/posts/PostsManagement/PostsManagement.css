@@ -263,15 +263,20 @@
 }
 
 
+.dashboard-content .dl-table-wrapper .dl-table th:first-child,
+.dashboard-content .dl-table-wrapper .dl-table td:first-child {
+  padding-left: 24px !important;
+}
+
 .posts-table th:nth-child(1) {
   width: 50px;
-  padding: 16px 6px 16px 12px !important;
+  padding: 16px 6px 16px 4px !important;
   text-align: center;
 }
 
 .posts-table td:nth-child(1) {
   width: 50px;
-  padding: 16px 6px 16px 12px !important;
+  padding: 16px 6px 16px 4px !important;
   text-align: center;
 }
 

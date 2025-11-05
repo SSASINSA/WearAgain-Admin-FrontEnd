@@ -65,4 +65,9 @@
   color: #1f2937;
 }
 
+.dl-table th:first-child,
+.dl-table td:first-child {
+  padding-left: 24px;
+}
+
 

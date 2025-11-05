@@ -79,7 +79,6 @@ const ParticipantManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("가입일 최신순");
-  const [selectedParticipants, setSelectedParticipants] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
@@ -103,22 +102,6 @@ const ParticipantManagement: React.FC = () => {
   const totalPages = Math.ceil(sortedParticipants.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentParticipants = sortedParticipants.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleSelectAll = () => {
-    if (selectedParticipants.length === currentParticipants.length) {
-      setSelectedParticipants([]);
-    } else {
-      setSelectedParticipants(currentParticipants.map((p) => p.id));
-    }
-  };
-
-  const handleSelectParticipant = (id: number) => {
-    if (selectedParticipants.includes(id)) {
-      setSelectedParticipants(selectedParticipants.filter((p) => p !== id));
-    } else {
-      setSelectedParticipants([...selectedParticipants, id]);
-    }
-  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -255,27 +238,6 @@ const ParticipantManagement: React.FC = () => {
               </div>
             )}
             columns={[
-              {
-                key: "select",
-                title: (
-                  <input
-                    type="checkbox"
-                    checked={
-                      currentParticipants.length > 0 && selectedParticipants.length === currentParticipants.length
-                    }
-                    onChange={handleSelectAll}
-                  />
-                ),
-                width: 40,
-                align: "center",
-                render: (p: Participant) => (
-                  <input
-                    type="checkbox"
-                    checked={selectedParticipants.includes(p.id)}
-                    onChange={() => handleSelectParticipant(p.id)}
-                  />
-                ),
-              },
               {
                 key: "info",
                 title: "참가자 정보",
