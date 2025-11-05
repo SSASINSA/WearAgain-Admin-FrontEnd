@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import "./ApprovalManagement.css";
+import "./AdminAccountManagement.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
 
-interface ApprovalRequest {
+interface AdminAccountRequest {
   id: number;
   userId: string;
   email: string;
@@ -13,17 +13,17 @@ interface ApprovalRequest {
   description?: string;
 }
 
-const ApprovalManagement: React.FC = () => {
+const AdminAccountManagement: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("latest");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
-  const [selectedDetail, setSelectedDetail] = useState<ApprovalRequest | null>(null);
+  const [selectedDetail, setSelectedDetail] = useState<AdminAccountRequest | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
-  const approvalRequests: ApprovalRequest[] = [
+  const adminAccountRequests: AdminAccountRequest[] = [
     {
       id: 1,
       userId: "admin01",
@@ -72,7 +72,7 @@ const ApprovalManagement: React.FC = () => {
     },
   ];
 
-  const filteredRequests = approvalRequests.filter((request) => {
+  const filteredRequests = adminAccountRequests.filter((request) => {
     const matchesStatus = selectedStatus === "all" || request.status === selectedStatus;
     const matchesSearch =
       request.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,11 +99,11 @@ const ApprovalManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <span className="approval-status-badge pending">대기중</span>;
+        return <span className="admin-account-status-badge pending">대기중</span>;
       case "approved":
-        return <span className="approval-status-badge approved">승인됨</span>;
+        return <span className="admin-account-status-badge approved">승인됨</span>;
       case "rejected":
-        return <span className="approval-status-badge rejected">거부됨</span>;
+        return <span className="admin-account-status-badge rejected">거부됨</span>;
       default:
         return null;
     }
@@ -117,7 +117,7 @@ const ApprovalManagement: React.FC = () => {
     console.log("거부:", requestId);
   };
 
-  const handleViewDetail = (request: ApprovalRequest) => {
+  const handleViewDetail = (request: AdminAccountRequest) => {
     setSelectedDetail(request);
   };
 
@@ -138,28 +138,28 @@ const ApprovalManagement: React.FC = () => {
   };
 
   return (
-    <div className="approval-admin-dashboard">
-      <main className="approval-main-content">
-        <PageHeader title="관리자 계정 승인" subtitle="관리자 계정 신청을 검토하고 승인/거부할 수 있습니다" />
+    <div className="admin-account-dashboard">
+      <main className="admin-account-main-content">
+        <PageHeader title="관리자 계정 관리" subtitle="관리자 계정 신청을 검토하고 승인/거부할 수 있습니다" />
 
-        <div className="approval-dashboard-content">
+        <div className="admin-account-dashboard-content">
           <div className="dl-container">
             {isFilterOpen && (
               <div className="dl-controls">
-                <div className={`approval-filter-section ${isFilterOpen ? "is-open" : "is-collapsed"}`}>
-                  <div className="approval-filter-header">
+                <div className={`admin-account-filter-section ${isFilterOpen ? "is-open" : "is-collapsed"}`}>
+                  <div className="admin-account-filter-header">
                     <h3>필터 및 검색</h3>
                     <button
-                      className={`approval-filter-toggle ${isFilterOpen ? "open" : ""}`}
+                      className={`admin-account-filter-toggle ${isFilterOpen ? "open" : ""}`}
                       aria-expanded={isFilterOpen}
                       onClick={() => setIsFilterOpen((v) => !v)}
                     >
                       ▼
                     </button>
                   </div>
-                  <div className={`approval-filter-controls ${isFilterOpen ? "is-open" : ""}`}>
-                    <div className="approval-search-container">
-                      <div className="approval-search-icon">
+                  <div className={`admin-account-filter-controls ${isFilterOpen ? "is-open" : ""}`}>
+                    <div className="admin-account-search-container">
+                      <div className="admin-account-search-icon">
                         <img src="/admin/img/icon/search.svg" alt="검색" />
                       </div>
                       <input
@@ -167,20 +167,20 @@ const ApprovalManagement: React.FC = () => {
                         placeholder="아이디 또는 이메일로 검색..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="approval-search-input"
+                        className="admin-account-search-input"
                       />
                     </div>
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value)}
-                      className="approval-status-select"
+                      className="admin-account-status-select"
                     >
                       <option value="all">전체 상태</option>
                       <option value="pending">대기중</option>
                       <option value="approved">승인됨</option>
                       <option value="rejected">거부됨</option>
                     </select>
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="approval-sort-select">
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
                       <option value="latest">최신순</option>
                       <option value="oldest">오래된순</option>
                       <option value="id">아이디순</option>
@@ -233,20 +233,20 @@ const ApprovalManagement: React.FC = () => {
                         <tr>
                           <td style={{ textAlign: "center", padding: "8px 2px" }}>
                             <button
-                              className="approval-expand-btn"
+                              className="admin-account-expand-btn"
                               onClick={() => handleToggleRow(row.id)}
                               title={expandedRows.has(row.id) ? "접기" : "펼치기"}
                             >
-                              <span className={`approval-expand-icon ${expandedRows.has(row.id) ? "expanded" : ""}`}>
+                              <span className={`admin-account-expand-icon ${expandedRows.has(row.id) ? "expanded" : ""}`}>
                                 ▼
                               </span>
                             </button>
                           </td>
-                          <td className="approval-userid-cell" style={{ paddingLeft: "4px" }}>
+                          <td className="admin-account-userid-cell" style={{ paddingLeft: "4px" }}>
                             {row.userId}
                           </td>
-                          <td className="approval-email-cell">{row.email}</td>
-                          <td className="approval-date-cell">
+                          <td className="admin-account-email-cell">{row.email}</td>
+                          <td className="admin-account-date-cell">
                             {(() => {
                               const [datePart, timePart] = row.requestDate.split(" ");
                               const [year, month, day] = datePart.split("-");
@@ -264,14 +264,14 @@ const ApprovalManagement: React.FC = () => {
                             })()}
                           </td>
                           <td>{getStatusBadge(row.status)}</td>
-                          <td className="approval-description-cell">
-                            <div className="approval-description-wrapper">
-                              <span className="approval-description-text" title={row.description || ""}>
+                          <td className="admin-account-description-cell">
+                            <div className="admin-account-description-wrapper">
+                              <span className="admin-account-description-text" title={row.description || ""}>
                                 {row.description || "상세 설명이 없습니다."}
                               </span>
                               {row.description && (
                                 <button
-                                  className="approval-detail-btn"
+                                  className="admin-account-detail-btn"
                                   onClick={() => handleViewDetail(row)}
                                   title="전체 보기"
                                 >
@@ -281,18 +281,18 @@ const ApprovalManagement: React.FC = () => {
                             </div>
                           </td>
                           <td style={{ textAlign: "center" }}>
-                            <div className="approval-action-buttons">
+                            <div className="admin-account-action-buttons">
                               {row.status === "pending" && (
                                 <>
                                   <button
-                                    className="approval-action-btn approve"
+                                    className="admin-account-action-btn approve"
                                     title="승인"
                                     onClick={() => handleApprove(row.id)}
                                   >
                                     승인
                                   </button>
                                   <button
-                                    className="approval-action-btn reject"
+                                    className="admin-account-action-btn reject"
                                     title="거부"
                                     onClick={() => handleReject(row.id)}
                                   >
@@ -304,35 +304,35 @@ const ApprovalManagement: React.FC = () => {
                           </td>
                         </tr>
                         {expandedRows.has(row.id) && (
-                          <tr className="approval-expanded-row">
-                            <td colSpan={7} className="approval-expanded-content">
-                              <div className="approval-expanded-info">
-                                <div className="approval-expanded-item">
-                                  <span className="approval-expanded-label">아이디:</span>
-                                  <span className="approval-expanded-value">{row.userId}</span>
+                          <tr className="admin-account-expanded-row">
+                            <td colSpan={7} className="admin-account-expanded-content">
+                              <div className="admin-account-expanded-info">
+                                <div className="admin-account-expanded-item">
+                                  <span className="admin-account-expanded-label">아이디:</span>
+                                  <span className="admin-account-expanded-value">{row.userId}</span>
                                 </div>
-                                <div className="approval-expanded-item">
-                                  <span className="approval-expanded-label">이메일:</span>
-                                  <span className="approval-expanded-value">{row.email}</span>
+                                <div className="admin-account-expanded-item">
+                                  <span className="admin-account-expanded-label">이메일:</span>
+                                  <span className="admin-account-expanded-value">{row.email}</span>
                                 </div>
-                                <div className="approval-expanded-item">
-                                  <span className="approval-expanded-label">신청일:</span>
-                                  <span className="approval-expanded-value">{row.requestDate}</span>
+                                <div className="admin-account-expanded-item">
+                                  <span className="admin-account-expanded-label">신청일:</span>
+                                  <span className="admin-account-expanded-value">{row.requestDate}</span>
                                 </div>
-                                <div className="approval-expanded-item">
-                                  <span className="approval-expanded-label">상태:</span>
-                                  <span className="approval-expanded-value">{getStatusBadge(row.status)}</span>
+                                <div className="admin-account-expanded-item">
+                                  <span className="admin-account-expanded-label">상태:</span>
+                                  <span className="admin-account-expanded-value">{getStatusBadge(row.status)}</span>
                                 </div>
-                                <div className="approval-expanded-item">
-                                  <span className="approval-expanded-label">상세 설명:</span>
-                                  <span className="approval-expanded-value">
+                                <div className="admin-account-expanded-item">
+                                  <span className="admin-account-expanded-label">상세 설명:</span>
+                                  <span className="admin-account-expanded-value">
                                     {row.description || "상세 설명이 없습니다."}
                                   </span>
                                 </div>
                                 {row.reason && (
-                                  <div className="approval-expanded-item">
-                                    <span className="approval-expanded-label">거부 사유:</span>
-                                    <span className="approval-expanded-value">{row.reason}</span>
+                                  <div className="admin-account-expanded-item">
+                                    <span className="admin-account-expanded-label">거부 사유:</span>
+                                    <span className="admin-account-expanded-value">{row.reason}</span>
                                   </div>
                                 )}
                               </div>
@@ -361,41 +361,41 @@ const ApprovalManagement: React.FC = () => {
       </main>
 
       {selectedDetail && (
-        <div className="approval-modal-overlay" onClick={handleCloseModal}>
-          <div className="approval-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="approval-modal-header">
+        <div className="admin-account-modal-overlay" onClick={handleCloseModal}>
+          <div className="admin-account-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-account-modal-header">
               <h2>상세 정보</h2>
-              <button className="approval-modal-close" onClick={handleCloseModal}>
+              <button className="admin-account-modal-close" onClick={handleCloseModal}>
                 ×
               </button>
             </div>
-            <div className="approval-modal-body">
-              <div className="approval-modal-row">
-                <span className="approval-modal-label">아이디:</span>
-                <span className="approval-modal-value">{selectedDetail.userId}</span>
+            <div className="admin-account-modal-body">
+              <div className="admin-account-modal-row">
+                <span className="admin-account-modal-label">아이디:</span>
+                <span className="admin-account-modal-value">{selectedDetail.userId}</span>
               </div>
-              <div className="approval-modal-row">
-                <span className="approval-modal-label">이메일:</span>
-                <span className="approval-modal-value">{selectedDetail.email}</span>
+              <div className="admin-account-modal-row">
+                <span className="admin-account-modal-label">이메일:</span>
+                <span className="admin-account-modal-value">{selectedDetail.email}</span>
               </div>
-              <div className="approval-modal-row">
-                <span className="approval-modal-label">신청일:</span>
-                <span className="approval-modal-value">{selectedDetail.requestDate}</span>
+              <div className="admin-account-modal-row">
+                <span className="admin-account-modal-label">신청일:</span>
+                <span className="admin-account-modal-value">{selectedDetail.requestDate}</span>
               </div>
-              <div className="approval-modal-row">
-                <span className="approval-modal-label">상태:</span>
-                <span className="approval-modal-value">{getStatusBadge(selectedDetail.status)}</span>
+              <div className="admin-account-modal-row">
+                <span className="admin-account-modal-label">상태:</span>
+                <span className="admin-account-modal-value">{getStatusBadge(selectedDetail.status)}</span>
               </div>
-              <div className="approval-modal-row">
-                <span className="approval-modal-label">상세 설명:</span>
-                <div className="approval-modal-description">
+              <div className="admin-account-modal-row">
+                <span className="admin-account-modal-label">상세 설명:</span>
+                <div className="admin-account-modal-description">
                   {selectedDetail.description || "상세 설명이 없습니다."}
                 </div>
               </div>
               {selectedDetail.reason && (
-                <div className="approval-modal-row">
-                  <span className="approval-modal-label">거부 사유:</span>
-                  <span className="approval-modal-value">{selectedDetail.reason}</span>
+                <div className="admin-account-modal-row">
+                  <span className="admin-account-modal-label">거부 사유:</span>
+                  <span className="admin-account-modal-value">{selectedDetail.reason}</span>
                 </div>
               )}
             </div>
@@ -406,4 +406,5 @@ const ApprovalManagement: React.FC = () => {
   );
 };
 
-export default ApprovalManagement;
+export default AdminAccountManagement;
+

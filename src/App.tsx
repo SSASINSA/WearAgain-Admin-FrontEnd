@@ -12,7 +12,7 @@ import AddProduct from "./components/pages/store/AddProduct/AddProduct";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
-import ApprovalManagement from "./components/pages/approval/ApprovalManagement/ApprovalManagement";
+import AdminAccountManagement from "./components/pages/admin/AdminAccountManagement/AdminAccountManagement";
 import Login from "./components/pages/auth/Login/Login";
 import SignUp from "./components/pages/auth/SignUp/SignUp";
 import "./styles/App.css";
@@ -126,7 +126,7 @@ function App() {
             element={
               <>
                 <Navigation />
-                <ApprovalManagement />
+                <AdminAccountManagement />
               </>
             }
           />

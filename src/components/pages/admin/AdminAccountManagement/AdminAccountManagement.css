@@ -1,9 +1,9 @@
-.approval-admin-dashboard {
+.admin-account-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
 }
 
-.approval-main-content {
+.admin-account-main-content {
   flex: 1;
   margin-left: 280px;
   background-color: #f9fafb;
@@ -14,30 +14,30 @@
   padding-top: 105px;
 }
 
-.approval-dashboard-content {
+.admin-account-dashboard-content {
   padding: 16px 24px 24px 24px;
 }
 
-.approval-filter-section {
+.admin-account-filter-section {
   padding: 24px;
 }
 
-.approval-filter-section.is-collapsed {
+.admin-account-filter-section.is-collapsed {
   padding-bottom: 20px;
 }
 
-.approval-filter-section.is-collapsed .approval-filter-header {
+.admin-account-filter-section.is-collapsed .admin-account-filter-header {
   margin-bottom: 4px;
 }
 
-.approval-filter-header {
+.admin-account-filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.approval-filter-controls {
+.admin-account-filter-controls {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -46,21 +46,21 @@
   pointer-events: none;
 }
 
-.approval-filter-controls.is-open {
+.admin-account-filter-controls.is-open {
   max-height: 240px;
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-.approval-filter-header h3 {
+.admin-account-filter-header h3 {
   font-size: 18px;
   font-weight: 500;
   color: #1f2937;
   margin: 0;
 }
 
-.approval-filter-toggle {
+.admin-account-filter-toggle {
   background: none;
   border: none;
   font-size: 16px;
@@ -69,24 +69,24 @@
   transition: transform 0.2s ease;
 }
 
-.approval-filter-toggle.open {
+.admin-account-filter-toggle.open {
   transform: rotate(180deg);
 }
 
-.approval-filter-controls {
+.admin-account-filter-controls {
   display: flex;
   gap: 16px;
   align-items: center;
 }
 
-.approval-search-container {
+.admin-account-search-container {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.approval-search-icon {
+.admin-account-search-icon {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -97,14 +97,14 @@
   justify-content: center;
 }
 
-.approval-search-icon img {
+.admin-account-search-icon img {
   width: 16px;
   height: 16px;
   filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
     contrast(86%);
 }
 
-.approval-search-input {
+.admin-account-search-input {
   width: 100%;
   height: 50px;
   padding: 0 40px 0 40px;
@@ -114,14 +114,14 @@
   background-color: white;
 }
 
-.approval-search-input:focus {
+.admin-account-search-input:focus {
   outline: none;
   border-color: #06b0b7;
   box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
 }
 
-.approval-status-select,
-.approval-sort-select {
+.admin-account-status-select,
+.admin-account-sort-select {
   height: 50px;
   padding: 0 12px;
   border: 1px solid #d1d5db;
@@ -132,17 +132,17 @@
   min-width: 120px;
 }
 
-.approval-status-select:focus,
-.approval-sort-select:focus {
+.admin-account-status-select:focus,
+.admin-account-sort-select:focus {
   outline: none;
   border-color: #06b0b7;
 }
 
-.approval-userid-cell {
+.admin-account-userid-cell {
   font-weight: 700;
 }
 
-.approval-expand-btn {
+.admin-account-expand-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -156,42 +156,42 @@
   transition: background-color 0.2s;
 }
 
-.approval-expand-btn:hover {
+.admin-account-expand-btn:hover {
   background-color: #f3f4f6;
 }
 
-.approval-expand-icon {
+.admin-account-expand-icon {
   font-size: 12px;
   color: #6b7280;
   transition: transform 0.2s;
   display: inline-block;
 }
 
-.approval-expand-icon.expanded {
+.admin-account-expand-icon.expanded {
   transform: rotate(180deg);
 }
 
-.approval-expanded-row {
+.admin-account-expanded-row {
   background-color: #f9fafb;
 }
 
-.approval-expanded-content {
+.admin-account-expanded-content {
   padding: 20px 24px !important;
 }
 
-.approval-expanded-info {
+.admin-account-expanded-info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.approval-expanded-item {
+.admin-account-expanded-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.approval-expanded-label {
+.admin-account-expanded-label {
   font-size: 12px;
   font-weight: 600;
   color: #6b7280;
@@ -199,29 +199,29 @@
   letter-spacing: 0.5px;
 }
 
-.approval-expanded-value {
+.admin-account-expanded-value {
   font-size: 14px;
   color: #1f2937;
   word-break: break-word;
 }
 
-.approval-email-cell {
+.admin-account-email-cell {
   color: #6b7280;
 }
 
-.approval-phone-cell {
+.admin-account-phone-cell {
   color: #6b7280;
 }
 
-.approval-date-cell {
+.admin-account-date-cell {
   white-space: nowrap;
 }
 
-.approval-date-cell div {
+.admin-account-date-cell div {
   line-height: 1.2;
 }
 
-.approval-status-badge {
+.admin-account-status-badge {
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -229,28 +229,28 @@
   white-space: nowrap;
 }
 
-.approval-status-badge.pending {
+.admin-account-status-badge.pending {
   background-color: #fef3c7;
   color: #92400e;
 }
 
-.approval-status-badge.approved {
+.admin-account-status-badge.approved {
   background-color: #dcfce7;
   color: #166534;
 }
 
-.approval-status-badge.rejected {
+.admin-account-status-badge.rejected {
   background-color: #fee2e2;
   color: #991b1b;
 }
 
-.approval-action-buttons {
+.admin-account-action-buttons {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
 
-.approval-action-btn {
+.admin-account-action-btn {
   height: 36px;
   padding: 0 16px;
   border: 1px solid #d1d5db;
@@ -265,51 +265,51 @@
   font-weight: 500;
 }
 
-.approval-action-btn.approve {
+.admin-account-action-btn.approve {
   color: #166534;
   border-color: #86efac;
   background-color: #dcfce7;
 }
 
-.approval-action-btn.approve:hover {
+.admin-account-action-btn.approve:hover {
   background-color: #bbf7d0;
   border-color: #4ade80;
 }
 
-.approval-action-btn.reject {
+.admin-account-action-btn.reject {
   color: #991b1b;
   border-color: #fca5a5;
   background-color: #fee2e2;
 }
 
-.approval-action-btn.reject:hover {
+.admin-account-action-btn.reject:hover {
   background-color: #fecaca;
   border-color: #f87171;
 }
 
-.approval-dashboard-content .dl-table-wrapper .dl-table th:first-child,
-.approval-dashboard-content .dl-table-wrapper .dl-table td:first-child {
+.admin-account-dashboard-content .dl-table-wrapper .dl-table th:first-child,
+.admin-account-dashboard-content .dl-table-wrapper .dl-table td:first-child {
   padding-left: 24px !important;
 }
 
-.approval-dashboard-content .dl-table-wrapper .dl-table th:nth-child(2),
-.approval-dashboard-content .dl-table-wrapper .dl-table td:nth-child(2) {
+.admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(2),
+.admin-account-dashboard-content .dl-table-wrapper .dl-table td:nth-child(2) {
   padding-left: 4px !important;
 }
 
-.approval-dashboard-content .dl-table-wrapper .dl-table th:nth-child(6),
-.approval-dashboard-content .dl-table-wrapper .dl-table td:nth-child(6) {
+.admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(6),
+.admin-account-dashboard-content .dl-table-wrapper .dl-table td:nth-child(6) {
   text-align: center !important;
 }
 
-.approval-description-wrapper {
+.admin-account-description-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
 }
 
-.approval-description-text {
+.admin-account-description-text {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -319,11 +319,11 @@
   font-size: 14px;
 }
 
-.approval-description-cell {
+.admin-account-description-cell {
   max-width: 200px;
 }
 
-.approval-detail-btn {
+.admin-account-detail-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -335,16 +335,16 @@
   flex-shrink: 0;
 }
 
-.approval-detail-btn:hover {
+.admin-account-detail-btn:hover {
   opacity: 0.7;
 }
 
-.approval-detail-btn img {
+.admin-account-detail-btn img {
   width: 16px;
   height: 16px;
 }
 
-.approval-modal-overlay {
+.admin-account-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -357,7 +357,7 @@
   z-index: 1000;
 }
 
-.approval-modal-content {
+.admin-account-modal-content {
   background: white;
   border-radius: 12px;
   width: 90%;
@@ -367,7 +367,7 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.approval-modal-header {
+.admin-account-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -375,14 +375,14 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.approval-modal-header h2 {
+.admin-account-modal-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
   color: #1f2937;
 }
 
-.approval-modal-close {
+.admin-account-modal-close {
   background: none;
   border: none;
   font-size: 28px;
@@ -398,37 +398,37 @@
   transition: color 0.2s;
 }
 
-.approval-modal-close:hover {
+.admin-account-modal-close:hover {
   color: #1f2937;
 }
 
-.approval-modal-body {
+.admin-account-modal-body {
   padding: 24px;
 }
 
-.approval-modal-row {
+.admin-account-modal-row {
   display: flex;
   margin-bottom: 20px;
   align-items: flex-start;
 }
 
-.approval-modal-row:last-child {
+.admin-account-modal-row:last-child {
   margin-bottom: 0;
 }
 
-.approval-modal-label {
+.admin-account-modal-label {
   font-weight: 600;
   color: #374151;
   min-width: 100px;
   margin-right: 16px;
 }
 
-.approval-modal-value {
+.admin-account-modal-value {
   color: #6b7280;
   flex: 1;
 }
 
-.approval-modal-description {
+.admin-account-modal-description {
   color: #6b7280;
   flex: 1;
   white-space: pre-wrap;
@@ -440,38 +440,39 @@
 }
 
 @media (max-width: 1200px) {
-  .approval-filter-controls {
+  .admin-account-filter-controls {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .approval-search-container {
+  .admin-account-search-container {
     order: 1;
   }
 
-  .approval-status-select,
-  .approval-sort-select {
+  .admin-account-status-select,
+  .admin-account-sort-select {
     order: 2;
     min-width: auto;
   }
 }
 
 @media (max-width: 768px) {
-  .approval-main-content {
+  .admin-account-main-content {
     margin-left: 0;
     width: 100vw;
   }
 
-  .approval-dashboard-content {
+  .admin-account-dashboard-content {
     padding: 16px;
   }
 
-  .approval-action-buttons {
+  .admin-account-action-buttons {
     flex-direction: column;
     gap: 4px;
   }
 
-  .approval-action-btn {
+  .admin-account-action-btn {
     width: 100%;
   }
 }
+
