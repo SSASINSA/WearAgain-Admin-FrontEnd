@@ -5,6 +5,7 @@ import AdminDashboard from "./components/pages/dashboard/AdminDashboard/AdminDas
 import EventsManagement from "./components/pages/events/EventsManagement/EventsManagement";
 import EventDetail from "./components/pages/events/EventDetail/EventDetail";
 import EventRegistration from "./components/pages/events/EventRegistration/EventRegistration";
+import EventApproval from "./components/pages/admin/EventApproval/EventApproval";
 import PostsManagement from "./components/pages/posts/PostsManagement/PostsManagement";
 import PostDetail from "./components/pages/posts/PostDetail/PostDetail";
 import StoreManagement from "./components/pages/store/StoreManagement/StoreManagement";
@@ -55,6 +56,15 @@ function App() {
               <>
                 <Navigation />
                 <EventRegistration />
+              </>
+            }
+          />
+          <Route
+            path="/events/approval"
+            element={
+              <>
+                <Navigation />
+                <EventApproval />
               </>
             }
           />
@@ -130,14 +140,8 @@ function App() {
               </>
             }
           />
-          <Route
-            path="/login"
-            element={<Login />}
-          />
-          <Route
-            path="/signup"
-            element={<SignUp />}
-          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Router>
     </div>
