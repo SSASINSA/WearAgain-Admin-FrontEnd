@@ -6,6 +6,7 @@ import EventsManagement from "./components/pages/events/EventsManagement/EventsM
 import EventDetail from "./components/pages/events/EventDetail/EventDetail";
 import EventRegistration from "./components/pages/events/EventRegistration/EventRegistration";
 import EventApproval from "./components/pages/admin/EventApproval/EventApproval";
+import EventApprovalDetail from "./components/pages/admin/EventApprovalDetail/EventApprovalDetail";
 import PostsManagement from "./components/pages/posts/PostsManagement/PostsManagement";
 import PostDetail from "./components/pages/posts/PostDetail/PostDetail";
 import StoreManagement from "./components/pages/store/StoreManagement/StoreManagement";
@@ -65,6 +66,15 @@ function App() {
               <>
                 <Navigation />
                 <EventApproval />
+              </>
+            }
+          />
+          <Route
+            path="/events/approval/:id"
+            element={
+              <>
+                <Navigation />
+                <EventApprovalDetail />
               </>
             }
           />

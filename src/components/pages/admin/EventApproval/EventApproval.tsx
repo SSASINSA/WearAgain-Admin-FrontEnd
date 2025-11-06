@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import "./EventApproval.css";
 
 const searchIcon = "/admin/img/icon/search.svg";
@@ -31,6 +32,9 @@ const EventApproval: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const itemsPerPage = 9;
 
   const events: Event[] = [
@@ -122,19 +126,43 @@ const EventApproval: React.FC = () => {
   const currentEvents = filteredEvents.slice(startIndex, endIndex);
 
   const handleViewDetails = (eventId: number) => {
-    navigate(`/events/${eventId}`);
+    navigate(`/events/approval/${eventId}`);
   };
 
-  const handleApprove = (eventId: number) => {
-    // TODO: 승인 API 호출
-    console.log("승인:", eventId);
-    alert(`행사 ID ${eventId}가 승인되었습니다.`);
+  const handleApproveClick = (eventId: number) => {
+    setSelectedEventId(eventId);
+    setShowApproveModal(true);
   };
 
-  const handleReject = (eventId: number) => {
-    // TODO: 거부 API 호출
-    console.log("거부:", eventId);
-    alert(`행사 ID ${eventId}가 거부되었습니다.`);
+  const handleRejectClick = (eventId: number) => {
+    setSelectedEventId(eventId);
+    setShowRejectModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    if (selectedEventId !== null) {
+      // TODO: 승인 API 호출
+      console.log("승인:", selectedEventId);
+      alert(`행사 ID ${selectedEventId}가 승인되었습니다.`);
+      setShowApproveModal(false);
+      setSelectedEventId(null);
+    }
+  };
+
+  const handleRejectConfirm = () => {
+    if (selectedEventId !== null) {
+      // TODO: 거부 API 호출
+      console.log("거부:", selectedEventId);
+      alert(`행사 ID ${selectedEventId}가 거부되었습니다.`);
+      setShowRejectModal(false);
+      setSelectedEventId(null);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setShowApproveModal(false);
+    setShowRejectModal(false);
+    setSelectedEventId(null);
   };
 
   return (
@@ -197,10 +225,10 @@ const EventApproval: React.FC = () => {
                       상세보기
                     </button>
                     <div className="action-icons-group">
-                      <button className="action-btn secondary approve" onClick={() => handleApprove(event.id)} title="승인">
+                      <button className="action-btn secondary approve" onClick={() => handleApproveClick(event.id)} title="승인">
                         <img src={approveIcon} alt="승인" />
                       </button>
-                      <button className="action-btn secondary reject" onClick={() => handleReject(event.id)} title="거부">
+                      <button className="action-btn secondary reject" onClick={() => handleRejectClick(event.id)} title="거부">
                         <img src={rejectIcon} alt="거부" />
                       </button>
                     </div>
@@ -242,6 +270,28 @@ const EventApproval: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={showApproveModal}
+        title="행사 승인"
+        message="이 행사를 승인하시겠습니까?"
+        confirmText="승인"
+        cancelText="취소"
+        onConfirm={handleApproveConfirm}
+        onCancel={handleModalCancel}
+        type="approve"
+      />
+
+      <ConfirmModal
+        isOpen={showRejectModal}
+        title="행사 거부"
+        message="이 행사를 거부하시겠습니까?"
+        confirmText="거부"
+        cancelText="취소"
+        onConfirm={handleRejectConfirm}
+        onCancel={handleModalCancel}
+        type="reject"
+      />
     </div>
   );
 };
