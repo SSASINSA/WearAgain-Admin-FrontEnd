@@ -9,7 +9,7 @@ interface ConfirmModalProps {
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
-  type?: "approve" | "reject" | "default";
+  type?: "approve" | "account-approve" | "reject" | "default";
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({

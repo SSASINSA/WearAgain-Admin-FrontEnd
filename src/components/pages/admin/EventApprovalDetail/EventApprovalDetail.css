@@ -402,18 +402,20 @@
 }
 
 .approve-button {
-  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
-  color: white;
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
 }
 
 .approve-button:hover {
-  opacity: 0.9;
+  background-color: #bbf7d0;
+  border-color: #4ade80;
 }
 
 .approve-button img {
   width: 18px;
   height: 18px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(1352%) hue-rotate(106deg) brightness(95%) contrast(88%);
 }
 
 .reject-button {

@@ -8,7 +8,7 @@ interface PageHeaderProps {
   rightSlot?: React.ReactNode; // 알림 왼쪽에 추가 버튼 등 배치
 }
 
-const HIDE_BACK_ON: string[] = ["/", "/events", "/posts", "/store", "/repair"]; // 네비 5개 루트
+const HIDE_BACK_ON: string[] = ["/", "/events", "/posts", "/store", "/repair", "/approval", "/events/approval"]; // 네비 5개 루트 + 관리자 계정 관리, 행사등록 승인
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightSlot }) => {
   const navigate = useNavigate();
