@@ -124,6 +124,27 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
             </div>
           </div>
 
+          {/* 이용 방법 섹션 */}
+          <div className="event-usage-section">
+            <h3 className="section-title">이용 방법</h3>
+            <ul className="usage-list">
+              <li>깨끗한 옷을 행사장으로 들고옵니다.</li>
+              <li>행사장 입구에서 가져온 옷을 QR을 통해 등록합니다.</li>
+              <li>등록 후 교환 티켓이 잘 들어왔는지 확인합니다.</li>
+              <li>교환 티켓 만큼 행사장에 있는 옷들을 고릅니다.</li>
+              <li>교환 존에서 담당자에게 QR 제시 후 수령합니다.</li>
+            </ul>
+          </div>
+
+          {/* 주의사항 섹션 */}
+          <div className="event-precaution-section">
+            <h3 className="section-title">주의사항</h3>
+            <ul className="precaution-list">
+              <li>가져온 옷은 반드시 세탁 필수!</li>
+              <li>행사장 내에서 음식물 섭취는 제한 될 수 있습니다.</li>
+            </ul>
+          </div>
+
           {/* 행사 결과 섹션 */}
           <div className="event-results-section">
             <h3 className="section-title">행사 결과</h3>

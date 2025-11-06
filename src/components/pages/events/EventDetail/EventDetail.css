@@ -191,6 +191,73 @@
   margin-bottom: 0;
 }
 
+.event-usage-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.usage-list {
+  margin: 0;
+  padding-left: 24px;
+  list-style: none;
+}
+
+.usage-list li {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #374151;
+  line-height: 24px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.usage-list li::before {
+  content: "•";
+  position: absolute;
+  left: -20px;
+  color: #06b0b7;
+  font-weight: bold;
+}
+
+.usage-list li:last-child {
+  margin-bottom: 0;
+}
+
+.event-precaution-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.precaution-list {
+  margin: 0;
+  padding-left: 24px;
+  list-style: none;
+}
+
+.precaution-list li {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #374151;
+  line-height: 24px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.precaution-list li::before {
+  content: "•";
+  position: absolute;
+  left: -20px;
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.precaution-list li:last-child {
+  margin-bottom: 0;
+}
 
 .event-results-section {
   background-color: white;
@@ -468,6 +535,8 @@
 
   .event-hero-content,
   .event-details-section,
+  .event-usage-section,
+  .event-precaution-section,
   .event-results-section,
   .staff-code-section,
   .event-info-section {
