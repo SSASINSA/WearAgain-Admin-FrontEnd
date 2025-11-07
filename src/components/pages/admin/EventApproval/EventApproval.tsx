@@ -8,8 +8,6 @@ const searchIcon = "/admin/img/icon/search.svg";
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 const calendarIcon = "/admin/img/icon/calendar.svg";
 const locationIcon = "/admin/img/icon/location.svg";
-const staffIcon = "/admin/img/icon/staff.svg";
-const participantIcon = "/admin/img/icon/user-group.svg";
 const detailIcon = "/admin/img/icon/detail.svg";
 const approveIcon = "/admin/img/icon/check-approve.svg";
 const rejectIcon = "/admin/img/icon/x-reject.svg";
@@ -144,7 +142,6 @@ const EventApproval: React.FC = () => {
 
   const handleApproveConfirm = () => {
     if (selectedEventId !== null) {
-      // TODO: 승인 API 호출
       console.log("승인:", selectedEventId);
       alert(`행사 ID ${selectedEventId}가 승인되었습니다.`);
       setShowApproveModal(false);
@@ -154,7 +151,6 @@ const EventApproval: React.FC = () => {
 
   const handleRejectConfirm = () => {
     if (selectedEventId !== null) {
-      // TODO: 거부 API 호출
       console.log("거부:", selectedEventId);
       alert(`행사 ID ${selectedEventId}가 거부되었습니다.`);
       setShowRejectModal(false);

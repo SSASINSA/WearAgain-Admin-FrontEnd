@@ -1,4 +1,3 @@
-
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -51,7 +50,6 @@
   outline: none;
 }
 
-
 .hero-icon img svg {
   border: none;
 }
@@ -72,7 +70,6 @@
   max-width: 545px;
   margin: 0 auto;
 }
-
 
 .registration-form-container {
   background-color: white;
@@ -115,7 +112,6 @@
   gap: 16px !important;
 }
 
-
 .event-registration-content .form-label {
   gap: 16px !important;
 }
@@ -123,7 +119,6 @@
 .label-icon {
   width: 18px;
   height: 18px;
-  
 }
 
 .form-input {

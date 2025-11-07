@@ -127,7 +127,6 @@ const AdminAccountManagement: React.FC = () => {
 
   const handleApproveConfirm = () => {
     if (selectedRequestId !== null) {
-      // TODO: 승인 API 호출
       console.log("승인:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 승인되었습니다.`);
       setShowApproveModal(false);
@@ -137,7 +136,6 @@ const AdminAccountManagement: React.FC = () => {
 
   const handleRejectConfirm = () => {
     if (selectedRequestId !== null) {
-      // TODO: 거부 API 호출
       console.log("거부:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 거부되었습니다.`);
       setShowRejectModal(false);

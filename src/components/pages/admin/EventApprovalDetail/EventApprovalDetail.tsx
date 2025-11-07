@@ -10,11 +10,7 @@ const imgFrame2 = "/admin/img/icon/location-pin.svg";
 const approveIcon = "/admin/img/icon/check-approve.svg";
 const rejectIcon = "/admin/img/icon/x-reject.svg";
 
-interface EventApprovalDetailProps {
-  eventId?: string;
-}
-
-const EventApprovalDetail: React.FC<EventApprovalDetailProps> = ({ eventId }) => {
+const EventApprovalDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -80,14 +76,12 @@ const EventApprovalDetail: React.FC<EventApprovalDetailProps> = ({ eventId }) =>
   };
 
   const handleApproveConfirm = () => {
-    // TODO: 승인 API 호출
     console.log("승인:", id);
     alert("행사가 승인되었습니다.");
     navigate("/events/approval");
   };
 
   const handleRejectConfirm = () => {
-    // TODO: 거부 API 호출
     console.log("거부:", id);
     alert("행사가 거부되었습니다.");
     navigate("/events/approval");

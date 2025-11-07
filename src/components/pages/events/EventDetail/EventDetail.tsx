@@ -14,11 +14,7 @@ const imgFrame7 = "/admin/img/icon/staff-badge.svg";
 const imgFrame8 = "/admin/img/icon/code-generate.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
 
-interface EventDetailProps {
-  eventId?: string;
-}
-
-const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
+const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
