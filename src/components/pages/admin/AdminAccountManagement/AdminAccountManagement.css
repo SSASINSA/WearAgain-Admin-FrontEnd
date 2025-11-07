@@ -211,6 +211,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  padding-left: 10px;
 }
 
 .admin-account-expanded-item {
@@ -275,7 +276,7 @@
 .admin-account-action-buttons {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .admin-account-action-btn {
@@ -317,7 +318,10 @@
 
 .admin-account-dashboard-content .dl-table-wrapper .dl-table th:first-child,
 .admin-account-dashboard-content .dl-table-wrapper .dl-table td:first-child {
-  padding-left: 24px !important;
+  padding: 8px 2px 8px 8px !important;
+  width: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
 }
 
 .admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(2),
@@ -328,6 +332,14 @@
 .admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(6),
 .admin-account-dashboard-content .dl-table-wrapper .dl-table td:nth-child(6) {
   text-align: center !important;
+}
+
+.admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(7),
+.admin-account-dashboard-content .dl-table-wrapper .dl-table td:nth-child(7) {
+  min-width: 100px !important;
+  width: 100px !important;
+  max-width: 100px !important;
+  padding: 16px 8px !important;
 }
 
 .admin-account-description-wrapper {
