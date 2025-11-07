@@ -80,21 +80,46 @@
   color: #000;
 }
 
+.status-select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .status-select {
   width: 123px;
   height: 37px;
-  padding: 0 12px;
+  padding: 0 36px 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 16px;
   background-color: white;
   cursor: pointer;
   color: #000;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .status-select:focus {
   outline: none;
   border-color: #06b0b7;
+}
+
+.status-select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-select-icon img {
+  width: 12px;
+  height: 12px;
 }
 
 .add-event-btn {

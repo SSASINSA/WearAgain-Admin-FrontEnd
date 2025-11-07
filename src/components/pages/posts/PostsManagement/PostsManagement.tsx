@@ -4,6 +4,8 @@ import "./PostsManagement.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
 
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
 interface Post {
   id: number;
   title: string;
@@ -134,21 +136,31 @@ const PostsManagement: React.FC = () => {
                       className="search-input"
                     />
                   </div>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="status-select"
-                  >
-                    <option value="all">전체 상태</option>
-                    <option value="active">활성</option>
-                    <option value="inactive">비활성</option>
-                    <option value="reported">신고됨</option>
-                  </select>
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
-                    <option value="latest">최신순</option>
-                    <option value="oldest">오래된순</option>
-                    <option value="title">제목순</option>
-                  </select>
+                  <div className="status-select-container">
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      className="status-select"
+                    >
+                      <option value="all">전체 상태</option>
+                      <option value="active">활성</option>
+                      <option value="inactive">비활성</option>
+                      <option value="reported">신고됨</option>
+                    </select>
+                    <div className="status-select-icon">
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
+                  </div>
+                  <div className="sort-select-container">
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+                      <option value="latest">최신순</option>
+                      <option value="oldest">오래된순</option>
+                      <option value="title">제목순</option>
+                    </select>
+                    <div className="sort-select-icon">
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

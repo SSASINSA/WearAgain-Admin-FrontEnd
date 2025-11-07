@@ -5,6 +5,7 @@ import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import "./EventApproval.css";
 
 const searchIcon = "/admin/img/icon/search.svg";
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
 const calendarIcon = "/admin/img/icon/calendar.svg";
 const locationIcon = "/admin/img/icon/location.svg";
 const staffIcon = "/admin/img/icon/staff.svg";
@@ -22,7 +23,7 @@ interface Event {
   location: string;
   maxParticipants: number;
   staff: number;
-  status: "pending";
+  status: "pending" | "approved" | "rejected";
   description: string;
   registeredBy: string;
   registeredDate: string;
@@ -31,6 +32,7 @@ interface Event {
 const EventApproval: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -113,11 +115,12 @@ const EventApproval: React.FC = () => {
   ];
 
   const filteredEvents = events.filter((event) => {
+    const matchesStatus = selectedStatus === "all" || event.status === selectedStatus;
     const matchesSearch =
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.registeredBy.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    return matchesStatus && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
@@ -165,6 +168,19 @@ const EventApproval: React.FC = () => {
     setSelectedEventId(null);
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <span className="status-badge pending">승인 대기</span>;
+      case "approved":
+        return <span className="status-badge approved">승인됨</span>;
+      case "rejected":
+        return <span className="status-badge rejected">거부됨</span>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <main className="main-content">
@@ -185,6 +201,21 @@ const EventApproval: React.FC = () => {
                   className="search-input"
                 />
               </div>
+              <div className="status-select-container">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="status-select"
+                >
+                  <option value="all">전체 상태</option>
+                  <option value="pending">승인 대기</option>
+                  <option value="approved">승인됨</option>
+                  <option value="rejected">거부됨</option>
+                </select>
+                <div className="status-select-icon">
+                  <img src={dropdownIcon} alt="드롭다운" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -194,7 +225,7 @@ const EventApproval: React.FC = () => {
                 <div className="event-card-content">
                   <div className="event-header">
                     <h3 className="event-title">{event.title}</h3>
-                    <span className="status-badge pending">승인 대기</span>
+                    {getStatusBadge(event.status)}
                   </div>
 
                   <div className="event-details">

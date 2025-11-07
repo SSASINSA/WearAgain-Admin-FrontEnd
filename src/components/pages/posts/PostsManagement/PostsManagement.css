@@ -197,22 +197,50 @@
   box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
 }
 
+.status-select-container,
+.sort-select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .status-select,
 .sort-select {
   height: 50px;
-  padding: 0 12px;
+  padding: 0 36px 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
   background-color: white;
   cursor: pointer;
   min-width: 120px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .status-select:focus,
 .sort-select:focus {
   outline: none;
   border-color: #06b0b7;
+}
+
+.status-select-icon,
+.sort-select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-select-icon img,
+.sort-select-icon img {
+  width: 12px;
+  height: 12px;
 }
 
 

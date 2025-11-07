@@ -152,16 +152,21 @@ const EventsManagement: React.FC = () => {
                   className="search-input"
                 />
               </div>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="status-select"
-              >
-                <option value="all">전체 상태</option>
-                <option value="active">진행중</option>
-                <option value="upcoming">예정</option>
-                <option value="completed">완료</option>
-              </select>
+              <div className="status-select-container">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="status-select"
+                >
+                  <option value="all">전체 상태</option>
+                  <option value="active">진행중</option>
+                  <option value="upcoming">예정</option>
+                  <option value="completed">완료</option>
+                </select>
+                <div className="status-select-icon">
+                  <img src={dropdownIcon} alt="드롭다운" />
+                </div>
+              </div>
             </div>
             <button className="add-event-btn" onClick={() => navigate("/events/register")}>
               <img src={plusIcon} alt="" />새 행사 만들기
