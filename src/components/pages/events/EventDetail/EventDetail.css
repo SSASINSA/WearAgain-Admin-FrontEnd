@@ -299,9 +299,23 @@
   background-color: #3b82f6;
 }
 
+.result-item:nth-child(5) .result-icon {
+  background-color: #642c8d;
+}
+
+.result-item:nth-child(6) .result-icon {
+  background-color: #ec4899;
+}
+
+.result-item:nth-child(7) .result-icon {
+  background-color: #f59e0b;
+}
+
 .result-icon img {
   width: 24px;
   height: 24px;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
   filter: brightness(0) invert(1);
   opacity: 1;
 }

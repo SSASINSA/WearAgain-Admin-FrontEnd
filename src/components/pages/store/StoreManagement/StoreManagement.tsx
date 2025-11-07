@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import "./StoreManagement.css";
 
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
 interface Product {
   id: number;
   name: string;
@@ -209,26 +211,36 @@ const StoreManagement: React.FC = () => {
                 className="search-input"
               />
             </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">전체 카테고리</option>
-              <option value="전자제품">전자제품</option>
-              <option value="액세서리">액세서리</option>
-              <option value="생활용품">생활용품</option>
-              <option value="가방">가방</option>
-              <option value="신발">신발</option>
-              <option value="도서">도서</option>
-              <option value="의류">의류</option>
-              <option value="화장품">화장품</option>
-            </select>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
-              <option value="가격 낮은순">가격 낮은순</option>
-              <option value="가격 높은순">가격 높은순</option>
-              <option value="이름순">이름순</option>
-            </select>
+            <div className="category-select-container">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">전체 카테고리</option>
+                <option value="전자제품">전자제품</option>
+                <option value="액세서리">액세서리</option>
+                <option value="생활용품">생활용품</option>
+                <option value="가방">가방</option>
+                <option value="신발">신발</option>
+                <option value="도서">도서</option>
+                <option value="의류">의류</option>
+                <option value="화장품">화장품</option>
+              </select>
+              <div className="category-select-icon">
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
+            </div>
+            <div className="sort-select-container">
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                <option value="가격 낮은순">가격 낮은순</option>
+                <option value="가격 높은순">가격 높은순</option>
+                <option value="이름순">이름순</option>
+              </select>
+              <div className="sort-select-icon">
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
+            </div>
           </div>
           <div className="view-controls">
             <span className="product-count">총 {products.length}개 상품</span>
