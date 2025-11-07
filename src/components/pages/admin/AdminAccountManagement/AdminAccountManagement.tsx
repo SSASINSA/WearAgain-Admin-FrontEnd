@@ -4,6 +4,8 @@ import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
 interface AdminAccountRequest {
   id: number;
   userId: string;
@@ -202,21 +204,31 @@ const AdminAccountManagement: React.FC = () => {
                         className="admin-account-search-input"
                       />
                     </div>
-                    <select
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                      className="admin-account-status-select"
-                    >
-                      <option value="all">전체 상태</option>
-                      <option value="pending">대기중</option>
-                      <option value="approved">승인됨</option>
-                      <option value="rejected">거부됨</option>
-                    </select>
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
-                      <option value="latest">최신순</option>
-                      <option value="oldest">오래된순</option>
-                      <option value="id">아이디순</option>
-                    </select>
+                    <div className="admin-account-status-select-container">
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className="admin-account-status-select"
+                      >
+                        <option value="all">전체 상태</option>
+                        <option value="pending">대기중</option>
+                        <option value="approved">승인됨</option>
+                        <option value="rejected">거부됨</option>
+                      </select>
+                      <div className="admin-account-status-select-icon">
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                    <div className="admin-account-sort-select-container">
+                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
+                        <option value="latest">최신순</option>
+                        <option value="oldest">오래된순</option>
+                        <option value="id">아이디순</option>
+                      </select>
+                      <div className="admin-account-sort-select-icon">
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
