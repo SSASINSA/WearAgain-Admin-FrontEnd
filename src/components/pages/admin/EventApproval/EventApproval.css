@@ -1,4 +1,3 @@
-
 .admin-dashboard {
   background-color: #f9fafb;
   min-height: 100vh;
@@ -15,12 +14,9 @@
   padding-top: 105px; 
 }
 
-
-
 .dashboard-content {
   padding: 32px;
 }
-
 
 .events-controls {
   display: flex;
@@ -88,7 +84,7 @@
 
 .status-select {
   width: 123px;
-  height: 37px;
+  height: 42px;
   padding: 0 36px 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -122,46 +118,12 @@
   height: 12px;
 }
 
-.add-event-btn {
-  background: linear-gradient(90deg, #06b0b7 0%, #642c8d 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 15px 28px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.add-event-btn img {
-  display: none; 
-}
-
-
-.add-event-btn::before {
-  content: "+";
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  line-height: 16px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.add-event-btn:hover {
-  opacity: 0.9;
-}
-
-
 .events-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-bottom: 32px;
+  align-items: stretch;
 }
 
 .event-card {
@@ -170,6 +132,9 @@
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .event-card:hover {
@@ -179,6 +144,9 @@
 
 .event-card-content {
   padding: 24px 8px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .event-header {
@@ -204,19 +172,19 @@
   white-space: nowrap;
 }
 
-.status-badge.active {
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.approved {
   background-color: #dcfce7;
   color: #166534;
 }
 
-.status-badge.completed {
-  background-color: #e5e7eb;
-  color: #374151;
-}
-
-.status-badge.upcoming {
-  background-color: #dbeafe;
-  color: #1e40af;
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .event-details {
@@ -255,7 +223,7 @@
 .event-stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   min-width: 0;
   padding-right: 140px;
 }
@@ -288,12 +256,28 @@
   color: #6b7280;
 }
 
+.event-registration-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.registration-text {
+  font-size: 12px;
+  color: #6b7280;
+}
+
 .event-actions {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   align-items: center;
   min-height: 56px;
   width: 100%;
+  margin-top: auto;
 }
 
 .action-icons-group {
@@ -301,6 +285,7 @@
   gap: 8px;
   align-items: center;
   flex-shrink: 0;
+  padding-right: 8px;
 }
 
 .action-btn {
@@ -359,8 +344,8 @@
 }
 
 .action-btn.secondary img {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   display: block;
   margin: 0;
@@ -369,7 +354,6 @@
 .action-btn.secondary:hover {
   background-color: #f3f4f6;
 }
-
 
 .pagination-section {
   position: relative; 
@@ -435,7 +419,6 @@
   cursor: not-allowed;
 }
 
-
 @media (max-width: 1200px) {
   .events-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -492,3 +475,4 @@
     align-self: flex-end;
   }
 }
+

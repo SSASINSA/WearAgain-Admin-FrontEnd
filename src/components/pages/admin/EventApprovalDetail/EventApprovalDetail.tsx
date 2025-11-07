@@ -1,25 +1,24 @@
-import React, { useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import "./EventDetail.css";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "./EventApprovalDetail.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 
 const imgImg = "/admin/img/example/event-hero.png";
 const imgFrame1 = "/admin/img/icon/date-time.svg";
 const imgFrame2 = "/admin/img/icon/location-pin.svg";
-const imgFrame3 = "/admin/img/icon/user-count.svg";
-const imgFrame4 = "/admin/img/icon/co2.svg";
-const imgFrame5 = "/admin/img/icon/energy.svg";
-const imgFrame6 = "/admin/img/icon/water.svg";
-const imgFrame7 = "/admin/img/icon/staff-badge.svg";
-const imgFrame8 = "/admin/img/icon/code-generate.svg";
-const imgFrame9 = "/admin/img/icon/alert.svg";
+const approveIcon = "/admin/img/icon/check-approve.svg";
+const rejectIcon = "/admin/img/icon/x-reject.svg";
 
-interface EventDetailProps {
+interface EventApprovalDetailProps {
   eventId?: string;
 }
 
-const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
+const EventApprovalDetail: React.FC<EventApprovalDetailProps> = ({ eventId }) => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -72,12 +71,39 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
     };
   }, []);
 
-  return (
-    <div className="event-detail-page">
-      <PageHeader title="행사 상세정보" />
+  const handleApproveClick = () => {
+    setShowApproveModal(true);
+  };
 
-      <div className="event-detail-main" style={{ alignItems: "flex-start" }}>
-        <div className="event-detail-content">
+  const handleRejectClick = () => {
+    setShowRejectModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    // TODO: 승인 API 호출
+    console.log("승인:", id);
+    alert("행사가 승인되었습니다.");
+    navigate("/events/approval");
+  };
+
+  const handleRejectConfirm = () => {
+    // TODO: 거부 API 호출
+    console.log("거부:", id);
+    alert("행사가 거부되었습니다.");
+    navigate("/events/approval");
+  };
+
+  const handleModalCancel = () => {
+    setShowApproveModal(false);
+    setShowRejectModal(false);
+  };
+
+  return (
+    <div className="event-approval-detail-page">
+      <PageHeader title="행사등록 승인 상세" />
+
+      <div className="event-approval-detail-main" style={{ alignItems: "flex-start" }}>
+        <div className="event-approval-detail-content">
           {/* 행사 헤더 섹션 */}
           <div className="event-hero-section">
             <div className="event-hero-image">
@@ -144,79 +170,18 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
               <li>행사장 내에서 음식물 섭취는 제한 될 수 있습니다.</li>
             </ul>
           </div>
-
-          {/* 행사 결과 섹션 */}
-          <div className="event-results-section">
-            <h3 className="section-title">행사 결과</h3>
-            <div className="results-grid">
-              <div className="result-item">
-                <div className="result-icon">
-                  <img src={imgFrame3} alt="참가자 아이콘" />
-                </div>
-                <div className="result-content">
-                  <p className="result-number">156</p>
-                  <p className="result-label">참가자 수</p>
-                </div>
-              </div>
-              <div className="result-item">
-                <div className="result-icon">
-                  <img src={imgFrame4} alt="CO2 아이콘" />
-                </div>
-                <div className="result-content">
-                  <p className="result-number">2,340</p>
-                  <p className="result-label">CO₂ 절감량 (kg)</p>
-                </div>
-              </div>
-              <div className="result-item">
-                <div className="result-icon">
-                  <img src={imgFrame5} alt="에너지 아이콘" />
-                </div>
-                <div className="result-content">
-                  <p className="result-number">1,890</p>
-                  <p className="result-label">에너지 절감량 (kWh)</p>
-                </div>
-              </div>
-              <div className="result-item">
-                <div className="result-icon">
-                  <img src={imgFrame6} alt="물 아이콘" />
-                </div>
-                <div className="result-content">
-                  <p className="result-number">4,567</p>
-                  <p className="result-label">물 절약량 (L)</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* 사이드바 - 스태프 코드 발급 */}
-        <div className="event-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
+        {/* 사이드바 - 승인/거부 액션 */}
+        <div className="event-approval-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            <div className="staff-code-section">
-            <div className="staff-code-content">
-              <div className="staff-code-icon">
-                <img src={imgFrame7} alt="스태프 코드 아이콘" />
-              </div>
-              <h4 className="staff-code-title">스태프 코드 발급</h4>
-              <p className="staff-code-description">행사 운영진을 위한 전용 코드를 발급받으세요</p>
-            </div>
-            <button className="staff-code-button">
-              <img src={imgFrame8} alt="발급 아이콘" />
-              스태프 코드 발급
-            </button>
-            <div className="staff-code-notice">
-              <img src={imgFrame9} alt="알림 아이콘" />
-              <p>코드는 행사 당일에만 유효합니다</p>
-            </div>
-            </div>
-
             {/* 행사 정보 섹션 */}
             <div className="event-info-section">
               <h4 className="info-title">행사 정보</h4>
               <div className="info-list">
                 <div className="info-item">
                   <span className="info-label">상태</span>
-                  <span className="info-value status-completed">완료</span>
+                  <span className="info-value status-pending">승인 대기</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">카테고리</span>
@@ -230,13 +195,56 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
                   <span className="info-label">참가비</span>
                   <span className="info-value">무료</span>
                 </div>
+                <div className="info-item">
+                  <span className="info-label">등록자</span>
+                  <span className="info-value">김관리자</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">등록일</span>
+                  <span className="info-value">2024.03.10</span>
+                </div>
               </div>
+            </div>
+
+            {/* 승인/거부 액션 섹션 */}
+            <div className="approval-actions-section">
+              <button className="approve-button" onClick={handleApproveClick}>
+                <img src={approveIcon} alt="승인 아이콘" />
+                행사 승인
+              </button>
+              <button className="reject-button" onClick={handleRejectClick}>
+                <img src={rejectIcon} alt="거부 아이콘" />
+                행사 거부
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showApproveModal}
+        title="행사 승인"
+        message="이 행사를 승인하시겠습니까?"
+        confirmText="승인"
+        cancelText="취소"
+        onConfirm={handleApproveConfirm}
+        onCancel={handleModalCancel}
+        type="approve"
+      />
+
+      <ConfirmModal
+        isOpen={showRejectModal}
+        title="행사 거부"
+        message="이 행사를 거부하시겠습니까?"
+        confirmText="거부"
+        cancelText="취소"
+        onConfirm={handleRejectConfirm}
+        onCancel={handleModalCancel}
+        type="reject"
+      />
     </div>
   );
 };
 
-export default EventDetail;
+export default EventApprovalDetail;
+

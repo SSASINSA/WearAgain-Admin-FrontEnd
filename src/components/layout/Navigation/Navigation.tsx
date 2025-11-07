@@ -8,7 +8,7 @@ const Navigation: React.FC = () => {
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
 
   useEffect(() => {
-    if (location.pathname === "/approval") {
+    if (location.pathname === "/approval" || location.pathname === "/events/approval") {
       setIsAdminDropdownOpen(true);
     }
     if (location.pathname === "/login" || location.pathname === "/signup") {
@@ -79,15 +79,18 @@ const Navigation: React.FC = () => {
                   <span>관리자 계정 승인</span>
                 </Link>
               </li>
+              <li className={location.pathname === "/events/approval" ? "active" : ""}>
+                <Link to="/events/approval" className="nav-dropdown-item">
+                  <img src="/admin/img/icon/check-circle.svg" alt="" />
+                  <span>행사등록 승인</span>
+                </Link>
+              </li>
             </ul>
           </li>
           <li className={`nav-dropdown ${isTestDropdownOpen ? "open" : ""}`}>
-            <button
-              className="nav-item nav-dropdown-toggle"
-              onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}
-            >
+            <button className="nav-item nav-dropdown-toggle" onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}>
               <img src="/admin/img/icon/user-icon.svg" alt="" />
-              <span>테스트용</span>
+              <span>테스트용(삭제 예정)</span>
               <span className={`dropdown-arrow ${isTestDropdownOpen ? "open" : ""}`}>▼</span>
             </button>
             <ul className="nav-dropdown-menu">

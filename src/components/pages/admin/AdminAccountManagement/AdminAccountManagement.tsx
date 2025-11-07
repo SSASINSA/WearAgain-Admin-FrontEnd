@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import "./AdminAccountManagement.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
 
 interface AdminAccountRequest {
   id: number;
@@ -22,6 +25,9 @@ const AdminAccountManagement: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [selectedDetail, setSelectedDetail] = useState<AdminAccountRequest | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
 
   const adminAccountRequests: AdminAccountRequest[] = [
     {
@@ -109,12 +115,40 @@ const AdminAccountManagement: React.FC = () => {
     }
   };
 
-  const handleApprove = (requestId: number) => {
-    console.log("승인:", requestId);
+  const handleApproveClick = (requestId: number) => {
+    setSelectedRequestId(requestId);
+    setShowApproveModal(true);
   };
 
-  const handleReject = (requestId: number) => {
-    console.log("거부:", requestId);
+  const handleRejectClick = (requestId: number) => {
+    setSelectedRequestId(requestId);
+    setShowRejectModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    if (selectedRequestId !== null) {
+      // TODO: 승인 API 호출
+      console.log("승인:", selectedRequestId);
+      alert(`관리자 계정 ID ${selectedRequestId}가 승인되었습니다.`);
+      setShowApproveModal(false);
+      setSelectedRequestId(null);
+    }
+  };
+
+  const handleRejectConfirm = () => {
+    if (selectedRequestId !== null) {
+      // TODO: 거부 API 호출
+      console.log("거부:", selectedRequestId);
+      alert(`관리자 계정 ID ${selectedRequestId}가 거부되었습니다.`);
+      setShowRejectModal(false);
+      setSelectedRequestId(null);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setShowApproveModal(false);
+    setShowRejectModal(false);
+    setSelectedRequestId(null);
   };
 
   const handleViewDetail = (request: AdminAccountRequest) => {
@@ -170,21 +204,31 @@ const AdminAccountManagement: React.FC = () => {
                         className="admin-account-search-input"
                       />
                     </div>
-                    <select
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                      className="admin-account-status-select"
-                    >
-                      <option value="all">전체 상태</option>
-                      <option value="pending">대기중</option>
-                      <option value="approved">승인됨</option>
-                      <option value="rejected">거부됨</option>
-                    </select>
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
-                      <option value="latest">최신순</option>
-                      <option value="oldest">오래된순</option>
-                      <option value="id">아이디순</option>
-                    </select>
+                    <div className="admin-account-status-select-container">
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className="admin-account-status-select"
+                      >
+                        <option value="all">전체 상태</option>
+                        <option value="pending">대기중</option>
+                        <option value="approved">승인됨</option>
+                        <option value="rejected">거부됨</option>
+                      </select>
+                      <div className="admin-account-status-select-icon">
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                    <div className="admin-account-sort-select-container">
+                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
+                        <option value="latest">최신순</option>
+                        <option value="oldest">오래된순</option>
+                        <option value="id">아이디순</option>
+                      </select>
+                      <div className="admin-account-sort-select-icon">
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -287,14 +331,14 @@ const AdminAccountManagement: React.FC = () => {
                                   <button
                                     className="admin-account-action-btn approve"
                                     title="승인"
-                                    onClick={() => handleApprove(row.id)}
+                                    onClick={() => handleApproveClick(row.id)}
                                   >
                                     승인
                                   </button>
                                   <button
                                     className="admin-account-action-btn reject"
                                     title="거부"
-                                    onClick={() => handleReject(row.id)}
+                                    onClick={() => handleRejectClick(row.id)}
                                   >
                                     거부
                                   </button>
@@ -402,6 +446,28 @@ const AdminAccountManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showApproveModal}
+        title="관리자 계정 승인"
+        message="이 관리자 계정 신청을 승인하시겠습니까?"
+        confirmText="승인"
+        cancelText="취소"
+        onConfirm={handleApproveConfirm}
+        onCancel={handleModalCancel}
+        type="account-approve"
+      />
+
+      <ConfirmModal
+        isOpen={showRejectModal}
+        title="관리자 계정 거부"
+        message="이 관리자 계정 신청을 거부하시겠습니까?"
+        confirmText="거부"
+        cancelText="취소"
+        onConfirm={handleRejectConfirm}
+        onCancel={handleModalCancel}
+        type="reject"
+      />
     </div>
   );
 };
