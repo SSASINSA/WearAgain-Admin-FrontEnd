@@ -52,7 +52,7 @@ const EventRegistration: React.FC = () => {
               <img src={heroIcon} alt="행사 등록" />
             </div>
             <h1 className="hero-title">새로운 행사 등록</h1>
-            <p className="hero-description">멋진 행사를 계획하고 참가자들과 함께 특별한 순간을 만들어보세요</p>
+            <p className="hero-description">옷 교환을 통해 환경을 지키는 21%파티 행사를 등록하고 참가자들과 함께 지속가능한 패션을 실천해보세요</p>
           </div>
 
           {/* 등록 폼 섹션 */}
@@ -68,7 +68,7 @@ const EventRegistration: React.FC = () => {
                   name="eventName"
                   value={formData.eventName}
                   onChange={handleInputChange}
-                  placeholder="행사 이름을 입력해주세요"
+                  placeholder="예: 서울 강남구 옷 교환 파티"
                   className="form-input"
                 />
               </div>
@@ -82,7 +82,7 @@ const EventRegistration: React.FC = () => {
                   name="eventDescription"
                   value={formData.eventDescription}
                   onChange={handleInputChange}
-                  placeholder="행사에 대한 자세한 설명을 입력해주세요..."
+                  placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요..."
                   className="form-textarea"
                   rows={6}
                 />
@@ -137,7 +137,7 @@ const EventRegistration: React.FC = () => {
                     name="eventLocation"
                     value={formData.eventLocation}
                     onChange={handleInputChange}
-                    placeholder="행사가 열릴 장소를 입력해주세요"
+                    placeholder="예: 서울 강남구 그린센터 2층 컨퍼런스룸"
                     className="form-input"
                   />
                   <img src={locationSearchIcon} alt="위치 검색" className="input-icon" />
@@ -167,15 +167,15 @@ const EventRegistration: React.FC = () => {
               <ul className="tips-list">
                 <li className="tip-item">
                   <img src={checkIcon} alt="체크" className="tip-icon" />
-                  <span>행사 이름은 참가자들이 쉽게 기억할 수 있도록 간결하고 명확하게 작성해주세요</span>
+                  <span>행사 이름은 지역명과 '옷 교환' 키워드를 포함하여 명확하게 작성해주세요</span>
                 </li>
                 <li className="tip-item">
                   <img src={checkIcon} alt="체크" className="tip-icon" />
-                  <span>행사 내용에는 프로그램, 참가 대상, 준비물 등을 포함해주세요</span>
+                  <span>행사 내용에는 옷 교환 방법, 가져올 옷의 조건, 환경 임팩트 등을 포함해주세요</span>
                 </li>
                 <li className="tip-item">
                   <img src={checkIcon} alt="체크" className="tip-icon" />
-                  <span>정확한 날짜와 시간을 입력하여 참가자들의 혼란을 방지해주세요</span>
+                  <span>정확한 날짜와 시간을 입력하여 참가자들이 옷을 미리 준비할 수 있도록 해주세요</span>
                 </li>
               </ul>
             </div>

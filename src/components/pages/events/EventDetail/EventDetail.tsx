@@ -88,10 +88,10 @@ const EventDetail: React.FC = () => {
                 <span className="tag environment">환경보호</span>
                 <span className="tag workshop">워크샵</span>
               </div>
-              <h2 className="event-title">제로웨이스트 라이프스타일 워크샵</h2>
+              <h2 className="event-title">서울 강남구 옷 교환 파티</h2>
               <p className="event-description">
-                일상생활에서 실천할 수 있는 제로웨이스트 방법을 배우고, 지속가능한 라이프스타일을 시작 해보세요. 전문
-                강사와 함께하는 실습 중심의 워크샵으로 친환경 제품 만들기와 생활 속 실천 방법을 익힐 수 있습니다.
+                옷을 버리는 대신 교환함으로써 환경을 지키는 21%파티 행사입니다. 더 이상 입지 않는 옷을 가져와서 다른 사람의 옷과 교환하고, 
+                지속가능한 패션을 실천해보세요. 함께하면 환경도 지키고 새로운 스타일도 찾을 수 있습니다.
               </p>
             </div>
           </div>

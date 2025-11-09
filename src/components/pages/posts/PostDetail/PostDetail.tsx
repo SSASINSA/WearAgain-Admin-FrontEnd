@@ -152,7 +152,7 @@ const PostDetail: React.FC = () => {
                     <p className="comment-date">2024-01-20 14:30</p>
                   </div>
                 </div>
-                <p className="comment-text">정말 유용한 정보네요! 감사합니다.</p>
+                <p className="comment-text">옷 교환 행사에 참가해봤는데 정말 좋은 경험이었어요! 환경도 지키고 새 옷도 얻을 수 있어서 일석이조네요.</p>
               </div>
               <div className="comment-item">
                 <div className="comment-author">
@@ -162,7 +162,7 @@ const PostDetail: React.FC = () => {
                     <p className="comment-date">2024-01-20 15:45</p>
                   </div>
                 </div>
-                <p className="comment-text">좋은 글 잘 봤습니다. 더 많은 내용 기대합니다!</p>
+                <p className="comment-text">21%파티 덕분에 옷을 버리지 않고 교환할 수 있어서 환경 보호에 기여할 수 있어 뿌듯합니다!</p>
               </div>
               <div className="comment-item">
                 <div className="comment-author">
@@ -172,7 +172,7 @@ const PostDetail: React.FC = () => {
                     <p className="comment-date">2024-01-21 09:15</p>
                   </div>
                 </div>
-                <p className="comment-text">추가로 궁금한 점이 있는데요, 다음 글에서 다뤄주시면 좋겠습니다.</p>
+                <p className="comment-text">다음 옷 교환 행사는 언제 열리나요? 친구들도 데리고 가고 싶어요!</p>
               </div>
             </div>
           </div>
