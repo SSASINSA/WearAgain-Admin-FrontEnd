@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { authUtils } from "utils/auth";
 import "./Login.css";
 
 const PUBLIC_URL = process.env.PUBLIC_URL || "";
@@ -9,6 +10,7 @@ const PASSWORD_ICON = PUBLIC_URL + "/img/auth/password-icon.svg";
 const EYE_ICON = PUBLIC_URL + "/img/icon/eye.svg";
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,15 +38,24 @@ const Login: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setModalTitle("로그인 성공");
-        setModalMessage(
-          `로그인에 성공했습니다!\n\n` +
-            `Access Token: ${data.accessToken?.substring(0, 50)}...\n` +
-            `Role: ${data.role}\n` +
-            `Display Name: ${data.displayName}\n` +
-            `Expires In: ${data.expiresIn}초`
-        );
-        setShowModal(true);
+        if (data.accessToken && data.refreshToken) {
+          authUtils.setTokens({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            tokenType: data.tokenType || "Bearer",
+            expiresIn: data.expiresIn || 1800,
+          });
+          setModalTitle("로그인 성공");
+          setModalMessage("로그인에 성공했습니다!");
+          setShowModal(true);
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else {
+          setModalTitle("로그인 오류");
+          setModalMessage("토큰 정보를 받아오지 못했습니다.");
+          setShowModal(true);
+        }
       } else {
         setModalTitle("로그인 실패");
         setModalMessage(data.message || "로그인에 실패했습니다.");
