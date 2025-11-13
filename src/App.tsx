@@ -17,6 +17,8 @@ import ParticipantDetail from "./components/pages/participants/ParticipantDetail
 import AdminAccountManagement from "./components/pages/admin/AdminAccountManagement/AdminAccountManagement";
 import Login from "./components/pages/auth/Login/Login";
 import SignUp from "./components/pages/auth/SignUp/SignUp";
+import ProtectedRoute from "./components/common/ProtectedRoute/ProtectedRoute";
+import PublicRoute from "./components/common/PublicRoute/PublicRoute";
 import "./styles/App.css";
 
 function App() {
@@ -27,131 +29,145 @@ function App() {
           <Route
             path="/"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <AdminDashboard />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/events"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <EventsManagement />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/events/:id"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <EventDetail />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/events/register"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <EventRegistration />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/events/approval"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <EventApproval />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/events/approval/:id"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <EventApprovalDetail />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/posts"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <PostsManagement />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/posts/:id"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <PostDetail />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/store"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <StoreManagement />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/store/add"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <AddProduct />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/repair"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <ParticipantManagement />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/repair/:id/edit"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <ParticipantEdit />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/repair/:id"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <ParticipantDetail />
-              </>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/approval"
             element={
-              <>
+              <ProtectedRoute>
                 <Navigation />
                 <AdminAccountManagement />
-              </>
+              </ProtectedRoute>
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignUp />
+              </PublicRoute>
+            }
+          />
         </Routes>
       </Router>
     </div>

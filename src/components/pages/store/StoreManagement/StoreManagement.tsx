@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import "./StoreManagement.css";
 
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
 interface Product {
   id: number;
   name: string;
@@ -20,134 +22,134 @@ const StoreManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([
     {
       id: 1,
-      name: "무선 블루투스 헤드폰",
-      price: 89000,
-      category: "전자제품",
+      name: "바느질 도구 세트",
+      price: 25000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "고음질 무선 블루투스 헤드폰입니다.",
-      stock: 5,
+      description: "의류 수선에 필요한 기본 바느질 도구 세트입니다.",
+      stock: 15,
       createdAt: "2024-01-15",
     },
     {
       id: 2,
-      name: "스마트폰 케이스",
-      price: 25000,
-      category: "액세서리",
+      name: "재봉실 세트 (다양한 색상)",
+      price: 8000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "스마트폰 보호 케이스입니다.",
-      stock: 10,
+      description: "다양한 색상의 재봉실 세트입니다.",
+      stock: 20,
       createdAt: "2024-01-14",
     },
     {
       id: 3,
-      name: "노트북 컴퓨터",
-      price: 1250000,
-      category: "전자제품",
+      name: "의류 패치 키트",
+      price: 12000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "고성능 노트북 컴퓨터입니다.",
-      stock: 2,
+      description: "구멍 난 옷을 수선할 수 있는 패치 키트입니다.",
+      stock: 12,
       createdAt: "2024-01-13",
     },
     {
       id: 4,
-      name: "세라믹 머그컵",
+      name: "친환경 텀블러",
       price: 18000,
-      category: "생활용품",
+      category: "환경 굿즈",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "세련된 세라믹 머그컵입니다.",
-      stock: 8,
+      description: "재사용 가능한 친환경 텀블러입니다.",
+      stock: 25,
       createdAt: "2024-01-12",
     },
     {
       id: 5,
-      name: "여행용 백팩",
-      price: 65000,
-      category: "가방",
+      name: "천 장바구니",
+      price: 15000,
+      category: "환경 굿즈",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "여행에 최적화된 백팩입니다.",
-      stock: 3,
+      description: "재사용 가능한 천 장바구니입니다.",
+      stock: 18,
       createdAt: "2024-01-11",
     },
     {
       id: 6,
-      name: "스마트 워치",
-      price: 320000,
-      category: "전자제품",
+      name: "지퍼 수리 키트",
+      price: 10000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "스마트 기능이 탑재된 워치입니다.",
-      stock: 4,
+      description: "고장 난 지퍼를 수리할 수 있는 키트입니다.",
+      stock: 10,
       createdAt: "2024-01-10",
     },
     {
       id: 7,
-      name: "선글라스",
-      price: 45000,
-      category: "액세서리",
+      name: "업사이클링 토트백",
+      price: 35000,
+      category: "환경 굿즈",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "스타일리시한 선글라스입니다.",
-      stock: 6,
+      description: "재활용 소재로 만든 토트백입니다.",
+      stock: 8,
       createdAt: "2024-01-09",
     },
     {
       id: 8,
-      name: "운동화",
-      price: 95000,
-      category: "신발",
+      name: "바늘 세트 (다양한 크기)",
+      price: 6000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "편안한 운동화입니다.",
-      stock: 7,
+      description: "다양한 크기의 바늘 세트입니다.",
+      stock: 22,
       createdAt: "2024-01-08",
     },
     {
       id: 9,
-      name: "베스트셀러 소설",
-      price: 15000,
-      category: "도서",
+      name: "친환경 밀랍랩",
+      price: 12000,
+      category: "환경 굿즈",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "인기 베스트셀러 소설입니다.",
-      stock: 12,
+      description: "재사용 가능한 친환경 밀랍랩입니다.",
+      stock: 14,
       createdAt: "2024-01-07",
     },
     {
       id: 10,
-      name: "인테리어 화분",
-      price: 35000,
-      category: "생활용품",
+      name: "단추 수리 키트",
+      price: 9000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "인테리어용 예쁜 화분입니다.",
-      stock: 9,
+      description: "떨어진 단추를 다시 달 수 있는 키트입니다.",
+      stock: 16,
       createdAt: "2024-01-06",
     },
     {
       id: 11,
-      name: "면 티셔츠",
-      price: 28000,
-      category: "의류",
+      name: "재활용 소재 에코백",
+      price: 22000,
+      category: "환경 굿즈",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "편안한 면 티셔츠입니다.",
-      stock: 15,
+      description: "재활용 소재로 만든 에코백입니다.",
+      stock: 11,
       createdAt: "2024-01-05",
     },
     {
       id: 12,
-      name: "향수",
-      price: 120000,
-      category: "화장품",
+      name: "수선 가이드북",
+      price: 15000,
+      category: "수선 도구",
       status: "판매중",
       image: "/admin/img/icon/product-placeholder.svg",
-      description: "고급스러운 향수입니다.",
-      stock: 3,
+      description: "의류 수선 방법을 알려주는 가이드북입니다.",
+      stock: 7,
       createdAt: "2024-01-04",
     },
   ]);
@@ -209,26 +211,30 @@ const StoreManagement: React.FC = () => {
                 className="search-input"
               />
             </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">전체 카테고리</option>
-              <option value="전자제품">전자제품</option>
-              <option value="액세서리">액세서리</option>
-              <option value="생활용품">생활용품</option>
-              <option value="가방">가방</option>
-              <option value="신발">신발</option>
-              <option value="도서">도서</option>
-              <option value="의류">의류</option>
-              <option value="화장품">화장품</option>
-            </select>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
-              <option value="가격 낮은순">가격 낮은순</option>
-              <option value="가격 높은순">가격 높은순</option>
-              <option value="이름순">이름순</option>
-            </select>
+            <div className="category-select-container">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">전체 카테고리</option>
+                <option value="수선 도구">수선 도구</option>
+                <option value="환경 굿즈">환경 굿즈</option>
+              </select>
+              <div className="category-select-icon">
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
+            </div>
+            <div className="sort-select-container">
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                <option value="가격 낮은순">가격 낮은순</option>
+                <option value="가격 높은순">가격 높은순</option>
+                <option value="이름순">이름순</option>
+              </select>
+              <div className="sort-select-icon">
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
+            </div>
           </div>
           <div className="view-controls">
             <span className="product-count">총 {products.length}개 상품</span>
@@ -243,28 +249,30 @@ const StoreManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="products-container">
-          <div className={`products-grid ${viewMode}`}>
-            {currentProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="product-image-container">
-                  <img src={product.image} alt={product.name} className="product-image" />
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <div className="product-price-container">
-                    <span className="product-price">{product.price.toLocaleString()} C</span>
-                    <button className="product-menu-btn">⋯</button>
+        {/* Products Section */}
+        <section className="products-section">
+          {/* Products Grid */}
+          <div className="products-container">
+            <div className={`products-grid ${viewMode}`}>
+              {currentProducts.map((product) => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image-container">
+                    <img src={product.image} alt={product.name} className="product-image" />
+                  </div>
+                  <div className="product-info">
+                    <h3 className="product-name">{product.name}</h3>
+                    <div className="product-price-container">
+                      <span className="product-price">{product.price.toLocaleString()} C</span>
+                      <button className="product-menu-btn">⋯</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Pagination */}
-        <div className="pagination-container">
+          {/* Pagination */}
+          <div className="pagination-container">
           <div className="pagination">
             <button
               className="pagination-btn"
@@ -306,7 +314,8 @@ const StoreManagement: React.FC = () => {
               ›
             </button>
           </div>
-        </div>
+          </div>
+        </section>
       </main>
     </div>
   );

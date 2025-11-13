@@ -1,34 +1,74 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { authUtils } from "utils/auth";
 import "./Login.css";
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1";
 
 const PUBLIC_URL = process.env.PUBLIC_URL || "";
 const HERO_BG = PUBLIC_URL + "/img/default/hero-login.png";
 const USERNAME_ICON = PUBLIC_URL + "/img/auth/username-icon.svg";
 const PASSWORD_ICON = PUBLIC_URL + "/img/auth/password-icon.svg";
+const EYE_ICON = PUBLIC_URL + "/img/icon/eye.svg";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (username === "wearagain" && password === "wearagain") {
-      setModalTitle("로그인 성공");
-      setModalMessage("로그인에 성공했습니다!");
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.accessToken && data.refreshToken) {
+          authUtils.setTokens({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            tokenType: data.tokenType || "Bearer",
+            expiresIn: data.expiresIn || 1800,
+          });
+          setModalTitle("로그인 성공");
+          setModalMessage("로그인에 성공했습니다!");
+          setShowModal(true);
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else {
+          setModalTitle("로그인 오류");
+          setModalMessage("토큰 정보를 받아오지 못했습니다.");
+          setShowModal(true);
+        }
+      } else {
+        setModalTitle("로그인 실패");
+        setModalMessage(data.message || "로그인에 실패했습니다.");
+        setShowModal(true);
+      }
+    } catch (error) {
+      setModalTitle("오류 발생");
+      setModalMessage(error instanceof Error ? `네트워크 오류: ${error.message}` : "로그인 중 오류가 발생했습니다.");
       setShowModal(true);
-    } else if (username === "test" && password === "test") {
-      setModalTitle("로그인 실패");
-      setModalMessage("가입 대기중인 계정입니다. 관리자에게 문의하세요");
-      setShowModal(true);
-    } else {
-      setModalTitle("로그인 실패");
-      setModalMessage("아이디와 비밀번호가 일치하지 않습니다");
-      setShowModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,14 +94,14 @@ const Login: React.FC = () => {
                         <img className="absolute w-full h-full top-0 left-0" alt="" src={USERNAME_ICON} />
                       </div>
                       <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="아이디"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-medium text-[#9699b7] text-sm leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
-                        aria-label="아이디"
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="이메일"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
+                        aria-label="이메일"
                         required
                       />
                     </label>
@@ -73,25 +113,46 @@ const Login: React.FC = () => {
                         </div>
                       </div>
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         id="password"
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="비밀번호"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-medium text-[#9699b7] text-sm leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
                         aria-label="비밀번호"
                         required
                       />
+                      <div className="relative w-[19px] h-[19px] ml-2" aria-hidden="true">
+                        <button
+                          type="button"
+                          onMouseDown={() => setShowPassword(true)}
+                          onMouseUp={() => setShowPassword(false)}
+                          onMouseLeave={() => setShowPassword(false)}
+                          className="absolute inset-0 flex items-center justify-center cursor-pointer bg-transparent border-0 p-0"
+                          aria-label="비밀번호 보기"
+                        >
+                          <img
+                            className="w-full h-full opacity-70"
+                            style={{
+                              filter:
+                                "brightness(0) saturate(100%) invert(67%) sepia(8%) saturate(1000%) hue-rotate(200deg) brightness(95%) contrast(90%)",
+                            }}
+                            alt="비밀번호 보기"
+                            src={EYE_ICON}
+                          />
+                        </button>
+                      </div>
                     </label>
                   </div>
 
                   <button
                     type="submit"
-                    className="flex items-center justify-center gap-2.5 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-6xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-6xlarge)] relative self-stretch w-full flex-[0_0_auto] mb-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-[#0062ff] rounded-lg cursor-pointer hover:bg-[#0052d9] transition-colors"
+                    disabled={isLoading}
+                    className="flex items-center justify-center gap-2.5 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-6xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-6xlarge)] relative self-stretch w-full flex-[0_0_auto] mb-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-[#0062ff] rounded-lg cursor-pointer hover:bg-[#0052d9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="mt-[-0.80px] [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-white text-[15px] text-center leading-[normal] relative w-fit tracking-[0.10px]">
-                      Log In
+                      {isLoading ? "로그인 중..." : "Log In"}
                     </span>
                   </button>
                 </div>
@@ -128,9 +189,9 @@ const Login: React.FC = () => {
         <img className="h-full w-auto object-cover" alt="Rectangle" src={HERO_BG} />
       </div>
 
-      <div className="absolute bottom-[71.22%] left-1/2 right-[8.66%] top-[12.73%] z-20">
+      <div className="hidden lg:block absolute bottom-[71.22%] left-1/2 right-[8.66%] top-[12.73%] z-20">
         <div className="flex flex-col items-end absolute bottom-0 left-[4.48%] right-0 top-[21.32%]">
-          <p className="[font-family:'Poppins-SemiBold',Helvetica] font-normal text-[#3a424a] text-[32px] tracking-[-0.64px] leading-[44px] relative min-w-full w-[min-content]">
+          <p className="[font-family:'Poppins-SemiBold',Helvetica] font-normal text-[#3a424a] text-[48px] tracking-[-0.96px] leading-[66px] relative min-w-full w-[min-content]">
             <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">다시 입어</span>
             <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">
               , 패스트 패션 사회를 끝내고{" "}
@@ -144,12 +205,6 @@ const Login: React.FC = () => {
               을 만듭니다
             </span>
           </p>
-
-          <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto]">
-            <div className="w-fit [font-family:'Poppins-Medium',Helvetica] font-medium text-[#3a424a] text-2xl tracking-[-0.48px] leading-9 whitespace-nowrap relative mt-[-1.00px]">
-              - 다시입다연구소
-            </div>
-          </div>
         </div>
       </div>
 
@@ -163,7 +218,7 @@ const Login: React.FC = () => {
               </button>
             </div>
             <div className="login-modal-body">
-              <p>{modalMessage}</p>
+              <p style={{ whiteSpace: "pre-line" }}>{modalMessage}</p>
             </div>
             <div className="login-modal-footer">
               <button className="login-modal-btn" onClick={handleCloseModal}>

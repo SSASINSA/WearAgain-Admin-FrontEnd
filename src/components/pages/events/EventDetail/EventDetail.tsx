@@ -13,12 +13,11 @@ const imgFrame6 = "/admin/img/icon/water.svg";
 const imgFrame7 = "/admin/img/icon/staff-badge.svg";
 const imgFrame8 = "/admin/img/icon/code-generate.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
+const imgFrame10 = "/admin/img/icon/clothes.svg";
+const imgFrame11 = "/admin/img/icon/exchange-rate.svg";
+const imgFrame12 = "/admin/img/icon/star.svg";
 
-interface EventDetailProps {
-  eventId?: string;
-}
-
-const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
+const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -89,10 +88,10 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
                 <span className="tag environment">환경보호</span>
                 <span className="tag workshop">워크샵</span>
               </div>
-              <h2 className="event-title">제로웨이스트 라이프스타일 워크샵</h2>
+              <h2 className="event-title">서울 강남구 옷 교환 파티</h2>
               <p className="event-description">
-                일상생활에서 실천할 수 있는 제로웨이스트 방법을 배우고, 지속가능한 라이프스타일을 시작 해보세요. 전문
-                강사와 함께하는 실습 중심의 워크샵으로 친환경 제품 만들기와 생활 속 실천 방법을 익힐 수 있습니다.
+                옷을 버리는 대신 교환함으로써 환경을 지키는 21%파티 행사입니다. 더 이상 입지 않는 옷을 가져와서 다른 사람의 옷과 교환하고, 
+                지속가능한 패션을 실천해보세요. 함께하면 환경도 지키고 새로운 스타일도 찾을 수 있습니다.
               </p>
             </div>
           </div>
@@ -183,6 +182,33 @@ const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
                 <div className="result-content">
                   <p className="result-number">4,567</p>
                   <p className="result-label">물 절약량 (L)</p>
+                </div>
+              </div>
+              <div className="result-item">
+                <div className="result-icon">
+                  <img src={imgFrame10} alt="의류 교환량 아이콘" />
+                </div>
+                <div className="result-content">
+                  <p className="result-number">312</p>
+                  <p className="result-label">의류 교환량 (벌)</p>
+                </div>
+              </div>
+              <div className="result-item">
+                <div className="result-icon">
+                  <img src={imgFrame11} alt="교환율 아이콘" />
+                </div>
+                <div className="result-content">
+                  <p className="result-number">85.2%</p>
+                  <p className="result-label">교환율</p>
+                </div>
+              </div>
+              <div className="result-item">
+                <div className="result-icon">
+                  <img src={imgFrame12} alt="만족도 아이콘" />
+                </div>
+                <div className="result-content">
+                  <p className="result-number">4.6</p>
+                  <p className="result-label">만족도 (5점 만점)</p>
                 </div>
               </div>
             </div>

@@ -111,7 +111,7 @@ const ParticipantDetail: React.FC = () => {
     <div className="participant-detail-page">
       <header className="detail-header">
         <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
-          ←
+          <img src="/admin/img/icon/back-arrow.svg" alt="뒤로가기" />
         </button>
         <div className="header-content">
           <div className="header-info">

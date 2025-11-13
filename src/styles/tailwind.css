@@ -11,9 +11,6 @@
   }
 }
 
-@tailwind components;
-@tailwind utilities;
-
 @layer components {
   .all-\[unset\] {
     all: unset;
@@ -27,9 +24,6 @@
   --space-component-padding-6xlarge: var(--dimension-dimension-800);
   --space-component-padding-medium: var(--dimension-dimension-150);
   --space-component-padding-xlarge: var(--dimension-dimension-250);
-}
-
-:root {
   --animate-spin: spin 1s linear infinite;
 }
 

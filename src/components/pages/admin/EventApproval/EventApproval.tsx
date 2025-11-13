@@ -8,8 +8,6 @@ const searchIcon = "/admin/img/icon/search.svg";
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 const calendarIcon = "/admin/img/icon/calendar.svg";
 const locationIcon = "/admin/img/icon/location.svg";
-const staffIcon = "/admin/img/icon/staff.svg";
-const participantIcon = "/admin/img/icon/user-group.svg";
 const detailIcon = "/admin/img/icon/detail.svg";
 const approveIcon = "/admin/img/icon/check-approve.svg";
 const rejectIcon = "/admin/img/icon/x-reject.svg";
@@ -42,74 +40,50 @@ const EventApproval: React.FC = () => {
   const events: Event[] = [
     {
       id: 1,
-      title: "2024 스프링 컨퍼런스",
-      date: "2024.05.15 - 2024.05.16",
-      location: "서울 코엑스 컨벤션센터",
-      maxParticipants: 250,
-      staff: 12,
+      title: "서울 종로구 옷 교환 페스티벌",
+      date: "2024.05.25 - 2024.05.26",
+      location: "서울 종로구 문화예술회관",
+      maxParticipants: 300,
+      staff: 15,
       status: "pending",
-      description: "스프링 프레임워크 컨퍼런스",
-      registeredBy: "김관리자",
-      registeredDate: "2024.03.10",
+      description: "옷 교환을 통한 지속가능한 패션 문화 확산",
+      registeredBy: "김지원",
+      registeredDate: "2024.03.20",
     },
     {
       id: 2,
-      title: "AI 혁신 워크숍",
-      date: "2024.06.20 - 2024.06.21",
-      location: "부산 벡스코",
-      maxParticipants: 180,
-      staff: 8,
+      title: "경기 성남시 옷 교환 행사",
+      date: "2024.06.10 - 2024.06.11",
+      location: "경기 성남시 분당구 문화센터",
+      maxParticipants: 200,
+      staff: 10,
       status: "pending",
-      description: "AI 기술 혁신 워크숍",
-      registeredBy: "이관리자",
-      registeredDate: "2024.03.12",
+      description: "환경 보호와 함께하는 옷 교환 파티",
+      registeredBy: "이수진",
+      registeredDate: "2024.03.18",
     },
     {
       id: 3,
-      title: "스타트업 데모데이",
-      date: "2024.07.28 - 2024.07.28",
-      location: "서울 DDP",
-      maxParticipants: 320,
-      staff: 15,
+      title: "서울 용산구 옷 교환 데이",
+      date: "2024.07.05 - 2024.07.05",
+      location: "서울 용산구 이촌동 커뮤니티센터",
+      maxParticipants: 150,
+      staff: 8,
       status: "pending",
-      description: "스타트업 데모데이",
-      registeredBy: "박관리자",
+      description: "21%파티로 시작하는 친환경 라이프스타일",
+      registeredBy: "박민호",
       registeredDate: "2024.03.15",
     },
     {
       id: 4,
-      title: "2024 여름 축제",
-      date: "2024.08.10 - 2024.08.12",
-      location: "제주 국제컨벤션센터",
-      maxParticipants: 500,
-      staff: 20,
+      title: "부산 서면 옷 교환 파티",
+      date: "2024.08.15 - 2024.08.16",
+      location: "부산 부산진구 서면 문화공간",
+      maxParticipants: 250,
+      staff: 12,
       status: "pending",
-      description: "2024 여름 축제",
-      registeredBy: "최관리자",
-      registeredDate: "2024.03.18",
-    },
-    {
-      id: 5,
-      title: "디자인 컨퍼런스",
-      date: "2024.09.05 - 2024.09.06",
-      location: "서울 롯데호텔",
-      maxParticipants: 150,
-      staff: 6,
-      status: "pending",
-      description: "디자인 컨퍼런스",
-      registeredBy: "정관리자",
-      registeredDate: "2024.03.20",
-    },
-    {
-      id: 6,
-      title: "데이터 분석 워크숍",
-      date: "2024.10.15 - 2024.10.16",
-      location: "서울 강남구",
-      maxParticipants: 100,
-      staff: 5,
-      status: "pending",
-      description: "데이터 분석 워크숍",
-      registeredBy: "강관리자",
+      description: "옷을 버리지 않고 교환하는 환경 보호 실천",
+      registeredBy: "최영희",
       registeredDate: "2024.03.22",
     },
   ];
@@ -144,7 +118,6 @@ const EventApproval: React.FC = () => {
 
   const handleApproveConfirm = () => {
     if (selectedEventId !== null) {
-      // TODO: 승인 API 호출
       console.log("승인:", selectedEventId);
       alert(`행사 ID ${selectedEventId}가 승인되었습니다.`);
       setShowApproveModal(false);
@@ -154,7 +127,6 @@ const EventApproval: React.FC = () => {
 
   const handleRejectConfirm = () => {
     if (selectedEventId !== null) {
-      // TODO: 거부 API 호출
       console.log("거부:", selectedEventId);
       alert(`행사 ID ${selectedEventId}가 거부되었습니다.`);
       setShowRejectModal(false);

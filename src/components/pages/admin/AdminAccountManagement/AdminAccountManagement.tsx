@@ -127,7 +127,6 @@ const AdminAccountManagement: React.FC = () => {
 
   const handleApproveConfirm = () => {
     if (selectedRequestId !== null) {
-      // TODO: 승인 API 호출
       console.log("승인:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 승인되었습니다.`);
       setShowApproveModal(false);
@@ -137,7 +136,6 @@ const AdminAccountManagement: React.FC = () => {
 
   const handleRejectConfirm = () => {
     if (selectedRequestId !== null) {
-      // TODO: 거부 API 호출
       console.log("거부:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 거부되었습니다.`);
       setShowRejectModal(false);
@@ -220,7 +218,11 @@ const AdminAccountManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="admin-account-sort-select-container">
-                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-account-sort-select">
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="admin-account-sort-select"
+                      >
                         <option value="latest">최신순</option>
                         <option value="oldest">오래된순</option>
                         <option value="id">아이디순</option>
@@ -236,7 +238,7 @@ const AdminAccountManagement: React.FC = () => {
 
             <div className="dl-table-container">
               <div className="dl-table-header">
-                <h3>관리자 계정 승인 요청 목록</h3>
+                <h3>승인 요청 목록</h3>
                 <div className="dl-table-info">
                   <span>총 {filteredRequests.length}개 요청</span>
                   <span>|</span>
@@ -251,18 +253,18 @@ const AdminAccountManagement: React.FC = () => {
                   <thead>
                     <tr>
                       {[
-                        { key: "expand", title: "", width: 32 },
-                        { key: "userId", title: "아이디", width: 150 },
-                        { key: "email", title: "이메일", width: 200 },
-                        { key: "requestDate", title: "신청일", width: 180 },
+                        { key: "expand", title: "", width: 20 },
+                        { key: "userId", title: "아이디", width: 120 },
+                        { key: "email", title: "이메일", width: 180 },
+                        { key: "requestDate", title: "신청일", width: 150 },
+                        { key: "detail", title: "상세 설명", width: 280 },
                         { key: "status", title: "상태", width: 100 },
-                        { key: "detail", title: "상세 설명", width: 200 },
-                        { key: "actions", title: "작업", width: 140 },
+                        { key: "actions", title: "작업", width: 100 },
                       ].map((col) => (
                         <th
                           key={col.key}
                           style={{
-                            width: col.width,
+                            width: col.key === "actions" ? 100 : col.width,
                             textAlign: col.key === "actions" ? "center" : col.key === "detail" ? "left" : "left",
                           }}
                         >
@@ -275,13 +277,15 @@ const AdminAccountManagement: React.FC = () => {
                     {currentRequests.map((row) => (
                       <React.Fragment key={row.id}>
                         <tr>
-                          <td style={{ textAlign: "center", padding: "8px 2px" }}>
+                          <td style={{ textAlign: "center", padding: "8px 2px 8px 8px" }}>
                             <button
                               className="admin-account-expand-btn"
                               onClick={() => handleToggleRow(row.id)}
                               title={expandedRows.has(row.id) ? "접기" : "펼치기"}
                             >
-                              <span className={`admin-account-expand-icon ${expandedRows.has(row.id) ? "expanded" : ""}`}>
+                              <span
+                                className={`admin-account-expand-icon ${expandedRows.has(row.id) ? "expanded" : ""}`}
+                              >
                                 ▼
                               </span>
                             </button>
@@ -307,7 +311,6 @@ const AdminAccountManagement: React.FC = () => {
                               );
                             })()}
                           </td>
-                          <td>{getStatusBadge(row.status)}</td>
                           <td className="admin-account-description-cell">
                             <div className="admin-account-description-wrapper">
                               <span className="admin-account-description-text" title={row.description || ""}>
@@ -324,6 +327,7 @@ const AdminAccountManagement: React.FC = () => {
                               )}
                             </div>
                           </td>
+                          <td>{getStatusBadge(row.status)}</td>
                           <td style={{ textAlign: "center" }}>
                             <div className="admin-account-action-buttons">
                               {row.status === "pending" && (
@@ -473,4 +477,3 @@ const AdminAccountManagement: React.FC = () => {
 };
 
 export default AdminAccountManagement;
-
