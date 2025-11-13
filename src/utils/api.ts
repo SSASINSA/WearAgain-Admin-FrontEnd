@@ -1,6 +1,10 @@
 import { authUtils, TokenResponse } from "./auth";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+if (!API_BASE_URL) {
+  throw new Error("API_BASE_URL 환경변수가 설정되지 않았습니다.");
+}
 
 let isRefreshing = false;
 let refreshPromise: Promise<TokenResponse | null> | null = null;
@@ -24,7 +28,7 @@ const refreshAccessToken = async (): Promise<TokenResponse | null> => {
         throw new Error("리프레시 토큰을 찾을 수 없습니다.");
       }
 
-      const response = await fetch(`${API_BASE_URL}/admin/auth/refresh`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/auth/refresh`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +88,7 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}): P
   }
 
   const makeRequest = async (): Promise<Response> => {
-    return fetch(`${API_BASE_URL}${endpoint}`, {
+    return fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       ...options,
       headers,
     });
@@ -101,7 +105,7 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}): P
 
         if (newTokens) {
           headers["Authorization"] = `Bearer ${newTokens.accessToken}`;
-          response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
             ...options,
             headers,
           });

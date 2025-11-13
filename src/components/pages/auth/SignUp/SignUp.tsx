@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SignUp.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PUBLIC_URL = process.env.PUBLIC_URL || "";
 const HERO_BG = PUBLIC_URL + "/img/auth/signup-hero-bg.png";
@@ -62,10 +62,17 @@ const SignUp: React.FC = () => {
       return;
     }
 
+    if (!API_BASE_URL) {
+      setModalTitle("네트워크 오류");
+      setModalMessage("API 서버 주소가 설정되지 않았습니다. 환경변수를 확인해주세요.");
+      setShowModal(true);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/auth/signup-requests`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/auth/signup-requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
