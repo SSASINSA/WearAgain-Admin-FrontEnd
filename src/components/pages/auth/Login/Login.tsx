@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { authUtils } from "utils/auth";
 import "./Login.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1";
+
 const PUBLIC_URL = process.env.PUBLIC_URL || "";
 const HERO_BG = PUBLIC_URL + "/img/default/hero-login.png";
 const USERNAME_ICON = PUBLIC_URL + "/img/auth/username-icon.svg";
@@ -24,7 +26,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/admin/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
