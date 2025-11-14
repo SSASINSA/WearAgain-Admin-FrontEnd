@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ParticipantManagement.css";
+import styles from "./ParticipantManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
+
+const dropdownIcon = "/admin/img/icon/dropdown.svg";
 
 interface Participant {
   id: number;
@@ -134,46 +136,46 @@ const ParticipantManagement: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
-        <header className="participant-header" style={{ padding: 0, borderBottom: "none", height: "auto" }}>
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
+        <header className={styles["participant-header"]} style={{ padding: 0, borderBottom: "none", height: "auto" }}>
           <PageHeader title="참가자 관리" subtitle="이벤트 참가자 목록을 확인하고 관리하세요" />
         </header>
 
         {/* 통계 카드 섹션 */}
-        <div className="stats-section">
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-info">
+        <div className={styles["stats-section"]}>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
                 <h3>총 참가자</h3>
-                <p className="stat-number">1,247</p>
-                <p className="stat-change positive">+12% 전월 대비</p>
+                <p className={styles["stat-number"]}>1,247</p>
+                <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+12% 전월 대비</p>
               </div>
-              <div className="stat-icon">
+              <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/users.svg" alt="참가자" />
               </div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-info">
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
                 <h3>총 티켓</h3>
-                <p className="stat-number">3,891</p>
-                <p className="stat-change positive">+8% 전월 대비</p>
+                <p className={styles["stat-number"]}>3,891</p>
+                <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+8% 전월 대비</p>
               </div>
-              <div className="stat-icon">
+              <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/ticket.svg" alt="티켓" />
               </div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-info">
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
                 <h3>총 크레딧</h3>
-                <p className="stat-number">45,230</p>
-                <p className="stat-change negative">-3% 전월 대비</p>
+                <p className={styles["stat-number"]}>45,230</p>
+                <p className={`${styles["stat-change"]} ${styles["negative"]}`}>-3% 전월 대비</p>
               </div>
-              <div className="stat-icon">
+              <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/credit.svg" alt="크레딧" />
               </div>
             </div>
@@ -181,24 +183,24 @@ const ParticipantManagement: React.FC = () => {
         </div>
 
         {/* 참가자 목록 섹션 */}
-        <div className="participants-section">
+        <div className={styles["participants-section"]}>
           <DataList
             headerTitle="참가자 목록"
             renderFilters={() => (
-              <div className="filter-section">
-                <div className="filter-header">
+              <div className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+                <div className={styles["filter-header"]}>
                   <h3>필터 및 검색</h3>
                   <button
-                    className={`filter-toggle ${isFilterOpen ? "open" : ""}`}
+                    className={`${styles["filter-toggle"]} ${isFilterOpen ? styles["open"] : ""}`}
                     aria-expanded={isFilterOpen}
                     onClick={() => setIsFilterOpen((v) => !v)}
                   >
                     ▼
                   </button>
                 </div>
-                <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
-                  <div className="search-container">
-                    <div className="search-icon">
+                <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                  <div className={styles["search-container"]}>
+                    <div className={styles["search-icon"]}>
                       <img src="/admin/img/icon/search.svg" alt="검색" />
                     </div>
                     <input
@@ -206,34 +208,44 @@ const ParticipantManagement: React.FC = () => {
                       placeholder="참가자 검색..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="search-input"
+                      className={styles["search-input"]}
                     />
                   </div>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => {
-                      setSelectedStatus(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="status-select"
-                  >
-                    <option value="">전체 상태</option>
-                    <option value="활성">활성</option>
-                    <option value="대기">대기</option>
-                    <option value="비활성">비활성</option>
-                  </select>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => {
-                      setSortBy(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="sort-select"
-                  >
-                    <option value="가입일 최신순">가입일 최신순</option>
-                    <option value="가입일 오래된 순">가입일 오래된 순</option>
-                    <option value="이름순">이름순</option>
-                  </select>
+                  <div className={styles["status-select-container"]}>
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => {
+                        setSelectedStatus(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className={styles["status-select"]}
+                    >
+                      <option value="">전체 상태</option>
+                      <option value="활성">활성</option>
+                      <option value="대기">대기</option>
+                      <option value="비활성">비활성</option>
+                    </select>
+                    <div className={styles["status-select-icon"]}>
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
+                  </div>
+                  <div className={styles["sort-select-container"]}>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        setSortBy(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className={styles["sort-select"]}
+                    >
+                      <option value="가입일 최신순">가입일 최신순</option>
+                      <option value="가입일 오래된 순">가입일 오래된 순</option>
+                      <option value="이름순">이름순</option>
+                    </select>
+                    <div className={styles["sort-select-icon"]}>
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -243,16 +255,16 @@ const ParticipantManagement: React.FC = () => {
                 title: "참가자 정보",
                 width: 250,
                 render: (p: Participant) => (
-                  <div className="participant-info">
-                    <img src={p.avatar} alt={p.name} className="participant-avatar" />
-                    <div className="participant-details">
+                  <div className={styles["participant-info"]}>
+                    <img src={p.avatar} alt={p.name} className={styles["participant-avatar"]} />
+                    <div className={styles["participant-details"]}>
                       <p
-                        className="participant-name clickable"
+                        className={`${styles["participant-name"]} ${styles["clickable"]}`}
                         onClick={() => navigate(`/repair/${p.id}`, { state: p })}
                       >
                         {p.name}
                       </p>
-                      <p className="participant-email">{p.email}</p>
+                      <p className={styles["participant-email"]}>{p.email}</p>
                     </div>
                   </div>
                 ),
@@ -262,9 +274,9 @@ const ParticipantManagement: React.FC = () => {
                 title: "티켓 개수",
                 width: 150,
                 render: (p: Participant) => (
-                  <div className="ticket-info-horizontal">
-                    <span className="ticket-count">{p.ticketCount}</span>
-                    <span className="ticket-type" style={{ backgroundColor: getTicketTypeColor(p.ticketType) }}>
+                  <div className={styles["ticket-info-horizontal"]}>
+                    <span className={styles["ticket-count"]}>{p.ticketCount}</span>
+                    <span className={styles["ticket-type"]} style={{ backgroundColor: getTicketTypeColor(p.ticketType) }}>
                       {p.ticketType}
                     </span>
                   </div>
@@ -282,7 +294,7 @@ const ParticipantManagement: React.FC = () => {
                 title: "상태",
                 width: 100,
                 render: (p: Participant) => (
-                  <span className="status-badge" style={{ backgroundColor: getStatusColor(p.status) }}>
+                  <span className={styles["status-badge"]} style={{ backgroundColor: getStatusColor(p.status) }}>
                     {p.status}
                   </span>
                 ),
@@ -290,17 +302,13 @@ const ParticipantManagement: React.FC = () => {
               {
                 key: "actions",
                 title: "작업",
-                width: 120,
+                width: 60,
                 align: "center",
+                className: styles["actions-cell"],
                 render: (p: Participant) => (
-                  <div className="action-buttons">
-                    <button className="action-btn edit" onClick={() => navigate(`/repair/${p.id}/edit`)}>
-                      <img src="/admin/img/icon/edit-square.svg" alt="수정" />
-                    </button>
-                    <button className="action-btn delete">
-                      <img src="/admin/img/icon/delete.svg" alt="삭제" />
-                    </button>
-                  </div>
+                  <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
+                    <img src="/admin/img/icon/delete.svg" alt="삭제" />
+                  </button>
                 ),
               },
             ]}

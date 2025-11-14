@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import "./Pagination.css";
+import styles from "./Pagination.module.css";
 
 interface PaginationProps {
   currentPage: number;
@@ -24,9 +24,9 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
 
     return (
       <div ref={ref} className={`${className ? className : ""}`}>
-        <div className="wa-pagination">
+        <div className={styles["wa-pagination"]}>
           <button
-            className="wa-pagination-btn"
+            className={styles["wa-pagination-btn"]}
             onClick={() => go(currentPage - 1)}
             disabled={currentPage === 1}
             aria-label="이전 페이지"
@@ -35,13 +35,13 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
           </button>
           {pages().map((p, idx) =>
             p === "dots" ? (
-              <span key={`dots-${idx}`} className="wa-pagination-dots">
+              <span key={`dots-${idx}`} className={styles["wa-pagination-dots"]}>
                 …
               </span>
             ) : (
               <button
                 key={p}
-                className={`wa-pagination-btn ${currentPage === p ? "active" : ""}`}
+                className={`${styles["wa-pagination-btn"]} ${currentPage === p ? styles["active"] : ""}`}
                 onClick={() => go(p)}
                 aria-current={currentPage === p ? "page" : undefined}
               >
@@ -50,7 +50,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
             )
           )}
           <button
-            className="wa-pagination-btn"
+            className={styles["wa-pagination-btn"]}
             onClick={() => go(currentPage + 1)}
             disabled={currentPage === totalPages}
             aria-label="다음 페이지"

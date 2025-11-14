@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "./ParticipantDetail.css";
+import styles from "./ParticipantDetail.module.css";
 
 interface ParticipantDetailState {
   id: number;
@@ -96,7 +96,7 @@ const ParticipantDetail: React.FC = () => {
     const syncHeights = () => {
       const container = impactRef.current;
       if (!container) return;
-      const cards = container.querySelectorAll<HTMLDivElement>(".impact-card");
+      const cards = container.querySelectorAll<HTMLDivElement>(`.${styles["impact-card"]}`);
       cards.forEach((card) => {
         const width = card.clientWidth;
         card.style.height = `${width}px`;
@@ -108,35 +108,35 @@ const ParticipantDetail: React.FC = () => {
   }, []);
 
   return (
-    <div className="participant-detail-page">
-      <header className="detail-header">
-        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
+    <div className={styles["participant-detail-page"]}>
+      <header className={styles["detail-header"]}>
+        <button className={styles["back-btn"]} onClick={() => navigate(-1)} aria-label="뒤로가기">
           <img src="/admin/img/icon/back-arrow.svg" alt="뒤로가기" />
         </button>
-        <div className="header-content">
-          <div className="header-info">
+        <div className={styles["header-content"]}>
+          <div className={styles["header-info"]}>
             <h1>참가자 상세</h1>
             <p>참가자 정보를 확인하고 관리하세요</p>
           </div>
         </div>
       </header>
 
-      <main className="detail-content">
+      <main className={styles["detail-content"]}>
         {/* 상단 섹션 */}
-        <section className="top-section">
-          <div className="top-left">
+        <section className={styles["top-section"]}>
+          <div className={styles["top-left"]}>
             {/* 참가자 요약 카드 */}
-            <section className="section summary-card">
-              <div className="summary-left">
-                <img className="avatar large" src={display.avatar} alt={display.name} />
-                <div className="summary-meta">
-                  <h2 className="summary-name">{display.name}</h2>
-                  <div className="inline-stats">
-                    <span className="chip">
+            <section className={`${styles["section"]} ${styles["summary-card"]}`}>
+              <div className={styles["summary-left"]}>
+                <img className={`${styles["avatar"]} ${styles["large"]}`} src={display.avatar} alt={display.name} />
+                <div className={styles["summary-meta"]}>
+                  <h2 className={styles["summary-name"]}>{display.name}</h2>
+                  <div className={styles["inline-stats"]}>
+                    <span className={styles["chip"]}>
                       <img src="/admin/img/icon/ticket-icon.svg" alt="티켓" />
                       티켓 {display.ticketCount}장
                     </span>
-                    <span className="chip">
+                    <span className={styles["chip"]}>
                       <img src="/admin/img/icon/credit-icon.svg" alt="크레딧" />
                       크레딧 {display.creditCount.toLocaleString()}
                     </span>
@@ -146,75 +146,75 @@ const ParticipantDetail: React.FC = () => {
             </section>
 
             {/* 환경 임팩트 기록 섹션 */}
-            <section className="section impact-section" ref={impactRef}>
+            <section className={`${styles["section"]} ${styles["impact-section"]}`} ref={impactRef}>
               <h3>환경 임팩트 기록</h3>
-              <div className="impact-cards">
-                <div className="impact-card green">
-                  <div className="impact-icon">
+              <div className={styles["impact-cards"]}>
+                <div className={`${styles["impact-card"]} ${styles["green"]}`}>
+                  <div className={styles["impact-icon"]}>
                     <img src="/admin/img/icon/co2-impact.svg" alt="CO2" />
                   </div>
-                  <div className="impact-title">CO2 절감량</div>
-                  <div className="impact-value green">156.7</div>
-                  <div className="impact-unit">kg</div>
+                  <div className={styles["impact-title"]}>CO2 절감량</div>
+                  <div className={`${styles["impact-value"]} ${styles["green"]}`}>156.7</div>
+                  <div className={styles["impact-unit"]}>kg</div>
                 </div>
-                <div className="impact-card yellow">
-                  <div className="impact-icon">
+                <div className={`${styles["impact-card"]} ${styles["yellow"]}`}>
+                  <div className={styles["impact-icon"]}>
                     <img src="/admin/img/icon/energy-impact.svg" alt="에너지" />
                   </div>
-                  <div className="impact-title">에너지 절감량</div>
-                  <div className="impact-value yellow">892.3</div>
-                  <div className="impact-unit">kWh</div>
+                  <div className={styles["impact-title"]}>에너지 절감량</div>
+                  <div className={`${styles["impact-value"]} ${styles["yellow"]}`}>892.3</div>
+                  <div className={styles["impact-unit"]}>kWh</div>
                 </div>
-                <div className="impact-card blue">
-                  <div className="impact-icon">
+                <div className={`${styles["impact-card"]} ${styles["blue"]}`}>
+                  <div className={styles["impact-icon"]}>
                     <img src="/admin/img/icon/water-impact.svg" alt="물 절약" />
                   </div>
-                  <div className="impact-title">물 절약량</div>
-                  <div className="impact-value blue">2,450</div>
-                  <div className="impact-unit">L</div>
+                  <div className={styles["impact-title"]}>물 절약량</div>
+                  <div className={`${styles["impact-value"]} ${styles["blue"]}`}>2,450</div>
+                  <div className={styles["impact-unit"]}>L</div>
                 </div>
               </div>
             </section>
           </div>
 
-          <aside className="top-right">
+          <aside className={styles["top-right"]}>
             {/* 옷 키우기 섹션 */}
-            <section className="section grow-card">
+            <section className={`${styles["section"]} ${styles["grow-card"]}`}>
               <h3>옷 키우기</h3>
-              <div className="grow-hero">
+              <div className={styles["grow-hero"]}>
                 <img src="/admin/img/example/grow-hero.svg" alt="캐릭터" />
               </div>
-              <div className="level">레벨 7</div>
-              <div className="progress-bar">
-                <div className="progress" style={{ width: "35%" }} />
+              <div className={styles["level"]}>레벨 7</div>
+              <div className={styles["progress-bar"]}>
+                <div className={styles["progress"]} style={{ width: "35%" }} />
               </div>
-              <div className="progress-text">다음 레벨까지 35%</div>
-              <div className="scissor-box">
-                <div className="label">
+              <div className={styles["progress-text"]}>다음 레벨까지 35%</div>
+              <div className={styles["scissor-box"]}>
+                <div className={styles["label"]}>
                   <img src="/admin/img/icon/scissor-icon.svg" alt="가위" />
                   레벨업 가위
                 </div>
-                <div className="value">8개</div>
+                <div className={styles["value"]}>8개</div>
               </div>
             </section>
           </aside>
         </section>
 
         {/* 하단 섹션 */}
-        <section className="bottom-section">
+        <section className={styles["bottom-section"]}>
           {/* 획득한 옷 섹션 */}
-          <section className="section clothes-section">
+          <section className={`${styles["section"]} ${styles["clothes-section"]}`}>
             <h3>획득한 옷</h3>
-            <div className="clothes-grid">
-              <div className="clothes-item">
+            <div className={styles["clothes-grid"]}>
+              <div className={styles["clothes-item"]}>
                 <img src="/admin/img/example/clothes-tshirt.png" alt="친환경 티셔츠" />
                 <p>친환경 티셔츠</p>
               </div>
-              <div className="clothes-item">
+              <div className={styles["clothes-item"]}>
                 <img src="/admin/img/example/clothes-jeans.png" alt="지속가능 청바지" />
                 <p>지속가능 청바지</p>
               </div>
-              <div className="clothes-item">
+              <div className={styles["clothes-item"]}>
                 <img src="/admin/img/example/clothes-shoes.png" alt="재활용 운동화" />
                 <p>재활용 운동화</p>
               </div>

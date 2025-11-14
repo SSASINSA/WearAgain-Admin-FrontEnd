@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./SignUp.css";
+import styles from "./SignUp.module.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -309,19 +309,19 @@ const SignUp: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="signup-modal-overlay" onClick={handleCloseModal}>
-          <div className="signup-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="signup-modal-header">
+        <div className={styles["signup-modal-overlay"]} onClick={handleCloseModal}>
+          <div className={styles["signup-modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["signup-modal-header"]}>
               <h2>{modalTitle}</h2>
-              <button className="signup-modal-close" onClick={handleCloseModal}>
+              <button className={styles["signup-modal-close"]} onClick={handleCloseModal}>
                 ×
               </button>
             </div>
-            <div className="signup-modal-body">
+            <div className={styles["signup-modal-body"]}>
               <p style={{ whiteSpace: "pre-line" }}>{modalMessage}</p>
             </div>
-            <div className="signup-modal-footer">
-              <button className="signup-modal-btn" onClick={handleCloseModal}>
+            <div className={styles["signup-modal-footer"]}>
+              <button className={styles["signup-modal-btn"]} onClick={handleCloseModal}>
                 확인
               </button>
             </div>

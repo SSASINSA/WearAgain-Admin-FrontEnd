@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import "./StoreManagement.css";
+import styles from "./StoreManagement.module.css";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 
@@ -183,13 +183,13 @@ const StoreManagement: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader
-          title="상품 관리"
+          title="크레딧 상점 관리"
           subtitle="등록된 상품을 관리하고 새로운 상품을 추가하세요"
           rightSlot={
-            <button className="add-product-btn" onClick={() => navigate("/store/add")}>
+            <button className={styles["add-product-btn"]} onClick={() => navigate("/store/add")}>
               <span>+</span>
               상품 추가
             </button>
@@ -197,10 +197,10 @@ const StoreManagement: React.FC = () => {
         />
 
         {/* Search and Filter Bar */}
-        <div className="search-filter-bar">
-          <div className="search-filters">
-            <div className="search-input-container">
-              <div className="search-icon">
+        <div className={styles["search-filter-bar"]}>
+          <div className={styles["search-filters"]}>
+            <div className={styles["search-input-container"]}>
+              <div className={styles["search-icon"]}>
                 <img src="/admin/img/icon/search.svg" alt="검색" />
               </div>
               <input
@@ -208,41 +208,47 @@ const StoreManagement: React.FC = () => {
                 placeholder="상품명으로 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
+                className={styles["search-input"]}
               />
             </div>
-            <div className="category-select-container">
+            <div className={styles["category-select-container"]}>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="filter-select"
+                className={styles["filter-select"]}
               >
                 <option value="">전체 카테고리</option>
                 <option value="수선 도구">수선 도구</option>
                 <option value="환경 굿즈">환경 굿즈</option>
               </select>
-              <div className="category-select-icon">
+              <div className={styles["category-select-icon"]}>
                 <img src={dropdownIcon} alt="드롭다운" />
               </div>
             </div>
-            <div className="sort-select-container">
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+            <div className={styles["sort-select-container"]}>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles["filter-select"]}>
                 <option value="가격 낮은순">가격 낮은순</option>
                 <option value="가격 높은순">가격 높은순</option>
                 <option value="이름순">이름순</option>
               </select>
-              <div className="sort-select-icon">
+              <div className={styles["sort-select-icon"]}>
                 <img src={dropdownIcon} alt="드롭다운" />
               </div>
             </div>
           </div>
-          <div className="view-controls">
-            <span className="product-count">총 {products.length}개 상품</span>
-            <div className="view-toggle">
-              <button className={`view-btn ${viewMode === "grid" ? "active" : ""}`} onClick={() => setViewMode("grid")}>
+          <div className={styles["view-controls"]}>
+            <span className={styles["product-count"]}>총 {products.length}개 상품</span>
+            <div className={styles["view-toggle"]}>
+              <button
+                className={`${styles["view-btn"]} ${viewMode === "grid" ? styles["active"] : ""}`}
+                onClick={() => setViewMode("grid")}
+              >
                 ⊞
               </button>
-              <button className={`view-btn ${viewMode === "list" ? "active" : ""}`} onClick={() => setViewMode("list")}>
+              <button
+                className={`${styles["view-btn"]} ${viewMode === "list" ? styles["active"] : ""}`}
+                onClick={() => setViewMode("list")}
+              >
                 ☰
               </button>
             </div>
@@ -250,20 +256,20 @@ const StoreManagement: React.FC = () => {
         </div>
 
         {/* Products Section */}
-        <section className="products-section">
+        <section className={styles["products-section"]}>
           {/* Products Grid */}
-          <div className="products-container">
-            <div className={`products-grid ${viewMode}`}>
+          <div className={styles["products-container"]}>
+            <div className={`${styles["products-grid"]} ${styles[viewMode]}`}>
               {currentProducts.map((product) => (
-                <div key={product.id} className="product-card">
-                  <div className="product-image-container">
-                    <img src={product.image} alt={product.name} className="product-image" />
+                <div key={product.id} className={styles["product-card"]}>
+                  <div className={styles["product-image-container"]}>
+                    <img src={product.image} alt={product.name} className={styles["product-image"]} />
                   </div>
-                  <div className="product-info">
-                    <h3 className="product-name">{product.name}</h3>
-                    <div className="product-price-container">
-                      <span className="product-price">{product.price.toLocaleString()} C</span>
-                      <button className="product-menu-btn">⋯</button>
+                  <div className={styles["product-info"]}>
+                    <h3 className={styles["product-name"]}>{product.name}</h3>
+                    <div className={styles["product-price-container"]}>
+                      <span className={styles["product-price"]}>{product.price.toLocaleString()} C</span>
+                      <button className={styles["product-menu-btn"]}>⋯</button>
                     </div>
                   </div>
                 </div>
@@ -272,48 +278,48 @@ const StoreManagement: React.FC = () => {
           </div>
 
           {/* Pagination */}
-          <div className="pagination-container">
-          <div className="pagination">
-            <button
-              className="pagination-btn"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              ‹
-            </button>
-            <button
-              className={`pagination-btn ${currentPage === 1 ? "active" : ""}`}
-              onClick={() => handlePageChange(1)}
-            >
-              1
-            </button>
-            <button
-              className={`pagination-btn ${currentPage === 2 ? "active" : ""}`}
-              onClick={() => handlePageChange(2)}
-            >
-              2
-            </button>
-            <button
-              className={`pagination-btn ${currentPage === 3 ? "active" : ""}`}
-              onClick={() => handlePageChange(3)}
-            >
-              3
-            </button>
-            <span className="pagination-dots">...</span>
-            <button
-              className={`pagination-btn ${currentPage === 15 ? "active" : ""}`}
-              onClick={() => handlePageChange(15)}
-            >
-              15
-            </button>
-            <button
-              className="pagination-btn"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              ›
-            </button>
-          </div>
+          <div className={styles["pagination-container"]}>
+            <div className={styles["pagination"]}>
+              <button
+                className={styles["pagination-btn"]}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ‹
+              </button>
+              <button
+                className={`${styles["pagination-btn"]} ${currentPage === 1 ? styles["active"] : ""}`}
+                onClick={() => handlePageChange(1)}
+              >
+                1
+              </button>
+              <button
+                className={`${styles["pagination-btn"]} ${currentPage === 2 ? styles["active"] : ""}`}
+                onClick={() => handlePageChange(2)}
+              >
+                2
+              </button>
+              <button
+                className={`${styles["pagination-btn"]} ${currentPage === 3 ? styles["active"] : ""}`}
+                onClick={() => handlePageChange(3)}
+              >
+                3
+              </button>
+              <span className={styles["pagination-dots"]}>...</span>
+              <button
+                className={`${styles["pagination-btn"]} ${currentPage === 15 ? styles["active"] : ""}`}
+                onClick={() => handlePageChange(15)}
+              >
+                15
+              </button>
+              <button
+                className={styles["pagination-btn"]}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                ›
+              </button>
+            </div>
           </div>
         </section>
       </main>

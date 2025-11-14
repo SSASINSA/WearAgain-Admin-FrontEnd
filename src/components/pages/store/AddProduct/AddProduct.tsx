@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./AddProduct.css";
+import styles from "./AddProduct.module.css";
 
 const ICONS = {
   camera: "/admin/img/icon/camera.svg",
@@ -78,39 +78,39 @@ const AddProduct: React.FC = () => {
   };
 
   return (
-    <div className="add-product-page">
-      <div className="add-product-header">
-        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
-          ←
+    <div className={styles["add-product-page"]}>
+      <div className={styles["add-product-header"]}>
+        <button className={styles["back-btn"]} onClick={() => navigate(-1)} aria-label="뒤로가기">
+          <img src="/admin/img/icon/back-arrow.svg" alt="뒤로가기" />
         </button>
-        <div className="header-content">
-          <div className="header-info">
-            <h1>새 상품 등록</h1>
+        <div className={styles["header-content"]}>
+          <div className={styles["header-info"]}>
+            <h1>상품 등록</h1>
             <p>새로운 상품을 등록하고 판매를 시작하세요</p>
           </div>
-          <div className="header-actions">
-            <button className="temp-save-btn" onClick={handleTempSave}>
+          <div className={styles["header-actions"]}>
+            <button className={styles["temp-save-btn"]} onClick={handleTempSave}>
               임시저장
             </button>
-            <button className="submit-btn" onClick={handleSubmit}>
+            <button className={styles["submit-btn"]} onClick={handleSubmit}>
               상품 등록
             </button>
           </div>
         </div>
       </div>
 
-      <div className="add-product-content">
-        <div className="content-left">
-          <div className="section product-images">
-            <div className="section-header">
-              <div className="icon">
+      <div className={styles["add-product-content"]}>
+        <div className={styles["content-left"]}>
+          <div className={`${styles["section"]} ${styles["product-images"]}`}>
+            <div className={styles["section-header"]}>
+              <div className={styles["icon"]}>
                 <img src={ICONS.camera} alt="카메라 아이콘" />
               </div>
               <h2>상품 이미지</h2>
             </div>
-            <div className="image-grid">
+            <div className={styles["image-grid"]}>
               {images.map((image, index) => (
-                <div key={index} className="image-upload-box">
+                <div key={index} className={styles["image-upload-box"]}>
                   <input
                     type="file"
                     accept="image/*"
@@ -118,33 +118,33 @@ const AddProduct: React.FC = () => {
                     id={`image-${index}`}
                     hidden
                   />
-                  <label htmlFor={`image-${index}`} className="image-upload-label">
+                  <label htmlFor={`image-${index}`} className={styles["image-upload-label"]}>
                     {image.preview ? (
                       <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
                     ) : (
                       <>
-                        <img src={ICONS.imageAdd} alt="이미지 추가" className="upload-icon" />
-                        <span className="upload-text">{index === 0 ? "메인 이미지" : "추가 이미지"}</span>
+                        <img src={ICONS.imageAdd} alt="이미지 추가" className={styles["upload-icon"]} />
+                        <span className={styles["upload-text"]}>{index === 0 ? "메인 이미지" : "추가 이미지"}</span>
                       </>
                     )}
                   </label>
                 </div>
               ))}
             </div>
-            <div className="image-info">
-              <img src={ICONS.info} alt="정보" className="info-icon" />
+            <div className={styles["image-info"]}>
+              <img src={ICONS.info} alt="정보" className={styles["info-icon"]} />
               <p>최대 10장까지 업로드 가능합니다. 권장 크기: 1000x1000px</p>
             </div>
           </div>
 
-          <div className="section product-info">
-            <div className="section-header">
-              <div className="icon">
+          <div className={`${styles["section"]} ${styles["product-info"]}`}>
+            <div className={styles["section-header"]}>
+              <div className={styles["icon"]}>
                 <img src={ICONS.pencil} alt="연필 아이콘" />
               </div>
               <h2>상품 정보</h2>
             </div>
-            <div className="form-group">
+            <div className={styles["form-group"]}>
               <label>상품명</label>
               <input
                 type="text"
@@ -154,7 +154,7 @@ const AddProduct: React.FC = () => {
                 placeholder="상품명을 입력하세요"
               />
             </div>
-            <div className="form-group">
+            <div className={styles["form-group"]}>
               <label>상품 설명</label>
               <textarea
                 name="description"
@@ -164,9 +164,9 @@ const AddProduct: React.FC = () => {
                 rows={6}
               />
             </div>
-            <div className="form-group">
+            <div className={styles["form-group"]}>
               <label>상품 가격</label>
-              <div className="price-input-wrapper">
+              <div className={styles["price-input-wrapper"]}>
                 <input
                   type="number"
                   name="price"
@@ -174,87 +174,87 @@ const AddProduct: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="0"
                 />
-                <div className="price-suffix">
+                <div className={styles["price-suffix"]}>
                   <span>C</span>
                   <img src={ICONS.creditInfo} alt="크레딧 정보" />
                 </div>
               </div>
-              <p className="price-info">크레딧 단위로 가격을 설정하세요</p>
+              <p className={styles["price-info"]}>크레딧 단위로 가격을 설정하세요</p>
             </div>
           </div>
         </div>
 
-        <div className="content-right">
-          <div className="section preview-section">
+        <div className={styles["content-right"]}>
+          <div className={`${styles["section"]} ${styles["preview-section"]}`}>
             <h3>미리보기</h3>
-            <div className="preview-container">
-              <div className="preview-image">
+            <div className={styles["preview-container"]}>
+              <div className={styles["preview-image"]}>
                 {images[0].preview ? (
                   <img src={images[0].preview} alt="상품 미리보기" />
                 ) : (
-                  <div className="preview-placeholder">
+                  <div className={styles["preview-placeholder"]}>
                     <img src={ICONS.imagePlaceholder} alt="이미지 플레이스홀더" />
                   </div>
                 )}
               </div>
-              <div className="preview-info">
+              <div className={styles["preview-info"]}>
                 <h4>{productData.name || "상품명을 입력하세요"}</h4>
                 <p>{productData.description || "상품 설명이 여기에 표시됩니다..."}</p>
-                <div className="preview-price">
-                  <div className="price-display">
+                <div className={styles["preview-price"]}>
+                  <div className={styles["price-display"]}>
                     <span>{productData.price || "0"}</span>
                     <span>C</span>
                     <img src={ICONS.creditInfo} alt="크레딧 정보" />
                   </div>
-                  <button className="preview-buy-btn">구매하기</button>
+                  <button className={styles["preview-buy-btn"]}>구매하기</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="section quick-actions">
+          <div className={`${styles["section"]} ${styles["quick-actions"]}`}>
             <h3>빠른 작업</h3>
-            <div className="action-buttons">
+            <div className={styles["action-buttons"]}>
               <button
-                className={`action-btn ${pressedAction === "preview" ? "is-pressed" : ""}`}
+                className={`${styles["action-btn"]} ${pressedAction === "preview" ? styles["is-pressed"] : ""}`}
                 {...getPressHandlers("preview")}
               >
-                <img src={ICONS.eye} alt="미리보기" className="icon" />
+                <img src={ICONS.eye} alt="미리보기" className={styles["icon"]} />
                 미리보기
               </button>
               <button
-                className={`action-btn ${pressedAction === "copy" ? "is-pressed" : ""}`}
+                className={`${styles["action-btn"]} ${pressedAction === "copy" ? styles["is-pressed"] : ""}`}
                 {...getPressHandlers("copy")}
               >
-                <img src={ICONS.copy} alt="복사하기" className="icon" />
+                <img src={ICONS.copy} alt="복사하기" className={styles["icon"]} />
                 복사하기
               </button>
               <button
-                className={`action-btn ${pressedAction === "share" ? "is-pressed" : ""}`}
+                className={`${styles["action-btn"]} ${pressedAction === "share" ? styles["is-pressed"] : ""}`}
                 {...getPressHandlers("share")}
               >
-                <img src={ICONS.share} alt="공유하기" className="icon" />
+                <img src={ICONS.share} alt="공유하기" className={styles["icon"]} />
                 공유하기
               </button>
             </div>
           </div>
 
-          <div className="section tips-section">
-            <div className="tips-header">
-              <img src={ICONS.lightbulb} alt="팁" className="icon" />
+          <div className={`${styles["section"]} ${styles["tips-section"]}`}>
+            <div className={styles["tips-header"]}>
+              <img src={ICONS.lightbulb} alt="팁" className={styles["icon"]} />
               <h3>등록 팁</h3>
             </div>
-            <ul className="tips-list">
+            <ul className={styles["tips-list"]}>
               <li>
-                <img src={ICONS.checkCircle} alt="체크" className="bullet" />
+                <img src={ICONS.checkCircle} alt="체크" className={styles["bullet"]} />
                 고품질 이미지를 사용하세요
               </li>
               <li>
-                <img src={ICONS.checkCircle} alt="체크" className="bullet" />
+                <img src={ICONS.checkCircle} alt="체크" className={styles["bullet"]} />
                 상세한 설명을 작성하세요
               </li>
               <li>
-                <img src={ICONS.checkCircle} alt="체크" className="bullet" />
+                <img src={ICONS.checkCircle} alt="체크" className={styles["bullet"]} />
                 적정한 가격을 설정하세요
               </li>
             </ul>

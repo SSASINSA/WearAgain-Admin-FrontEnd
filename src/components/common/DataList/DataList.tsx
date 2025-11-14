@@ -1,6 +1,6 @@
 import React from "react";
 import DataListFooter from "../DataListFooter/DataListFooter";
-import "./DataList.css";
+import styles from "./DataList.module.css";
 
 export interface DataListColumn<T> {
   key: string;
@@ -42,19 +42,19 @@ function DataList<T>(props: DataListProps<T>) {
   } = props;
 
   return (
-    <div className="dl-container">
-      {renderFilters && <div className="dl-controls">{renderFilters()}</div>}
+    <div className={styles["dl-container"]}>
+      {renderFilters && <div className={styles["dl-controls"]}>{renderFilters()}</div>}
 
-      <div className="dl-table-container">
+      <div className={styles["dl-table-container"]}>
         {(headerTitle || headerRight) && (
-          <div className="dl-table-header">
+          <div className={styles["dl-table-header"]}>
             {headerTitle && <h3>{headerTitle}</h3>}
-            <div className="dl-table-info">{headerRight}</div>
+            <div className={styles["dl-table-info"]}>{headerRight}</div>
           </div>
         )}
 
-        <div className="dl-table-wrapper">
-          <table className="dl-table">
+        <div className={styles["dl-table-wrapper"]}>
+          <table className={styles["dl-table"]}>
             <thead>
               <tr>
                 {columns.map((col) => (

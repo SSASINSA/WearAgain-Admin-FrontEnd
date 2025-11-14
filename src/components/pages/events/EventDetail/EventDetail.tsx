@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import "./EventDetail.css";
+import styles from "./EventDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 
 const imgImg = "/admin/img/example/event-hero.png";
@@ -72,24 +72,24 @@ const EventDetail: React.FC = () => {
   }, []);
 
   return (
-    <div className="event-detail-page">
+    <div className={styles["event-detail-page"]}>
       <PageHeader title="행사 상세정보" />
 
-      <div className="event-detail-main" style={{ alignItems: "flex-start" }}>
-        <div className="event-detail-content">
+      <div className={styles["event-detail-main"]} style={{ alignItems: "flex-start" }}>
+        <div className={styles["event-detail-content"]}>
           {/* 행사 헤더 섹션 */}
-          <div className="event-hero-section">
-            <div className="event-hero-image">
+          <div className={styles["event-hero-section"]}>
+            <div className={styles["event-hero-image"]}>
               <img src={imgImg} alt="행사 이미지" />
-              <div className="image-overlay"></div>
+              <div className={styles["image-overlay"]}></div>
             </div>
-            <div className="event-hero-content">
-              <div className="event-tags">
-                <span className="tag environment">환경보호</span>
-                <span className="tag workshop">워크샵</span>
+            <div className={styles["event-hero-content"]}>
+              <div className={styles["event-tags"]}>
+                <span className={`${styles["tag"]} ${styles["environment"]}`}>환경보호</span>
+                <span className={`${styles["tag"]} ${styles["workshop"]}`}>워크샵</span>
               </div>
-              <h2 className="event-title">서울 강남구 옷 교환 파티</h2>
-              <p className="event-description">
+              <h2 className={styles["event-title"]}>서울 강남구 옷 교환 파티</h2>
+              <p className={styles["event-description"]}>
                 옷을 버리는 대신 교환함으로써 환경을 지키는 21%파티 행사입니다. 더 이상 입지 않는 옷을 가져와서 다른 사람의 옷과 교환하고, 
                 지속가능한 패션을 실천해보세요. 함께하면 환경도 지키고 새로운 스타일도 찾을 수 있습니다.
               </p>
@@ -97,36 +97,36 @@ const EventDetail: React.FC = () => {
           </div>
 
           {/* 행사 상세 정보 섹션 */}
-          <div className="event-details-section">
-            <h3 className="section-title">행사 상세 정보</h3>
-            <div className="event-details-grid">
-              <div className="detail-item">
-                <div className="detail-icon">
+          <div className={styles["event-details-section"]}>
+            <h3 className={styles["section-title"]}>행사 상세 정보</h3>
+            <div className={styles["event-details-grid"]}>
+              <div className={styles["detail-item"]}>
+                <div className={styles["detail-icon"]}>
                   <img src={imgFrame1} alt="날짜 아이콘" />
                 </div>
-                <div className="detail-content">
-                  <p className="detail-label">날짜 및 시간</p>
-                  <p className="detail-value">2024년 3월 15일 (금)</p>
-                  <p className="detail-value">오후 2:00 - 5:00 (3시간)</p>
+                <div className={styles["detail-content"]}>
+                  <p className={styles["detail-label"]}>날짜 및 시간</p>
+                  <p className={styles["detail-value"]}>2024년 3월 15일 (금)</p>
+                  <p className={styles["detail-value"]}>오후 2:00 - 5:00 (3시간)</p>
                 </div>
               </div>
-              <div className="detail-item">
-                <div className="detail-icon">
+              <div className={styles["detail-item"]}>
+                <div className={styles["detail-icon"]}>
                   <img src={imgFrame2} alt="위치 아이콘" />
                 </div>
-                <div className="detail-content">
-                  <p className="detail-label">위치</p>
-                  <p className="detail-value">서울시 강남구 테헤란로 123</p>
-                  <p className="detail-value">그린센터 2층 컨퍼런스룸</p>
+                <div className={styles["detail-content"]}>
+                  <p className={styles["detail-label"]}>위치</p>
+                  <p className={styles["detail-value"]}>서울시 강남구 테헤란로 123</p>
+                  <p className={styles["detail-value"]}>그린센터 2층 컨퍼런스룸</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* 이용 방법 섹션 */}
-          <div className="event-usage-section">
-            <h3 className="section-title">이용 방법</h3>
-            <ul className="usage-list">
+          <div className={styles["event-usage-section"]}>
+            <h3 className={styles["section-title"]}>이용 방법</h3>
+            <ul className={styles["usage-list"]}>
               <li>깨끗한 옷을 행사장으로 들고옵니다.</li>
               <li>행사장 입구에서 가져온 옷을 QR을 통해 등록합니다.</li>
               <li>등록 후 교환 티켓이 잘 들어왔는지 확인합니다.</li>
@@ -136,79 +136,79 @@ const EventDetail: React.FC = () => {
           </div>
 
           {/* 주의사항 섹션 */}
-          <div className="event-precaution-section">
-            <h3 className="section-title">주의사항</h3>
-            <ul className="precaution-list">
+          <div className={styles["event-precaution-section"]}>
+            <h3 className={styles["section-title"]}>주의사항</h3>
+            <ul className={styles["precaution-list"]}>
               <li>가져온 옷은 반드시 세탁 필수!</li>
               <li>행사장 내에서 음식물 섭취는 제한 될 수 있습니다.</li>
             </ul>
           </div>
 
           {/* 행사 결과 섹션 */}
-          <div className="event-results-section">
-            <h3 className="section-title">행사 결과</h3>
-            <div className="results-grid">
-              <div className="result-item">
-                <div className="result-icon">
+          <div className={styles["event-results-section"]}>
+            <h3 className={styles["section-title"]}>행사 결과</h3>
+            <div className={styles["results-grid"]}>
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame3} alt="참가자 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">156</p>
-                  <p className="result-label">참가자 수</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>156</p>
+                  <p className={styles["result-label"]}>참가자 수</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame4} alt="CO2 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">2,340</p>
-                  <p className="result-label">CO₂ 절감량 (kg)</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>2,340</p>
+                  <p className={styles["result-label"]}>CO₂ 절감량 (kg)</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame5} alt="에너지 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">1,890</p>
-                  <p className="result-label">에너지 절감량 (kWh)</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>1,890</p>
+                  <p className={styles["result-label"]}>에너지 절감량 (kWh)</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame6} alt="물 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">4,567</p>
-                  <p className="result-label">물 절약량 (L)</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>4,567</p>
+                  <p className={styles["result-label"]}>물 절약량 (L)</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame10} alt="의류 교환량 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">312</p>
-                  <p className="result-label">의류 교환량 (벌)</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>312</p>
+                  <p className={styles["result-label"]}>의류 교환량 (벌)</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame11} alt="교환율 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">85.2%</p>
-                  <p className="result-label">교환율</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>85.2%</p>
+                  <p className={styles["result-label"]}>교환율</p>
                 </div>
               </div>
-              <div className="result-item">
-                <div className="result-icon">
+              <div className={styles["result-item"]}>
+                <div className={styles["result-icon"]}>
                   <img src={imgFrame12} alt="만족도 아이콘" />
                 </div>
-                <div className="result-content">
-                  <p className="result-number">4.6</p>
-                  <p className="result-label">만족도 (5점 만점)</p>
+                <div className={styles["result-content"]}>
+                  <p className={styles["result-number"]}>4.6</p>
+                  <p className={styles["result-label"]}>만족도 (5점 만점)</p>
                 </div>
               </div>
             </div>
@@ -216,45 +216,45 @@ const EventDetail: React.FC = () => {
         </div>
 
         {/* 사이드바 - 스태프 코드 발급 */}
-        <div className="event-detail-sidebar" ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
+        <div className={styles["event-detail-sidebar"]} ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            <div className="staff-code-section">
-            <div className="staff-code-content">
-              <div className="staff-code-icon">
+            <div className={styles["staff-code-section"]}>
+            <div className={styles["staff-code-content"]}>
+              <div className={styles["staff-code-icon"]}>
                 <img src={imgFrame7} alt="스태프 코드 아이콘" />
               </div>
-              <h4 className="staff-code-title">스태프 코드 발급</h4>
-              <p className="staff-code-description">행사 운영진을 위한 전용 코드를 발급받으세요</p>
+              <h4 className={styles["staff-code-title"]}>스태프 코드 발급</h4>
+              <p className={styles["staff-code-description"]}>행사 운영진을 위한 전용 코드를 발급받으세요</p>
             </div>
-            <button className="staff-code-button">
+            <button className={styles["staff-code-button"]}>
               <img src={imgFrame8} alt="발급 아이콘" />
               스태프 코드 발급
             </button>
-            <div className="staff-code-notice">
+            <div className={styles["staff-code-notice"]}>
               <img src={imgFrame9} alt="알림 아이콘" />
               <p>코드는 행사 당일에만 유효합니다</p>
             </div>
             </div>
 
             {/* 행사 정보 섹션 */}
-            <div className="event-info-section">
-              <h4 className="info-title">행사 정보</h4>
-              <div className="info-list">
-                <div className="info-item">
-                  <span className="info-label">상태</span>
-                  <span className="info-value status-completed">완료</span>
+            <div className={styles["event-info-section"]}>
+              <h4 className={styles["info-title"]}>행사 정보</h4>
+              <div className={styles["info-list"]}>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>상태</span>
+                  <span className={`${styles["info-value"]} ${styles["status-completed"]}`}>완료</span>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">카테고리</span>
-                  <span className="info-value">환경보호</span>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>카테고리</span>
+                  <span className={styles["info-value"]}>환경보호</span>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">주최자</span>
-                  <span className="info-value">그린라이프</span>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>주최자</span>
+                  <span className={styles["info-value"]}>그린라이프</span>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">참가비</span>
-                  <span className="info-value">무료</span>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>참가비</span>
+                  <span className={styles["info-value"]}>무료</span>
                 </div>
               </div>
             </div>

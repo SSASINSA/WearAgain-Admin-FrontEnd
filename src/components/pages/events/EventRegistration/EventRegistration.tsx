@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import DaumPostcode from "react-daum-postcode";
 import "react-datepicker/dist/react-datepicker.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import "./EventRegistration.css";
+import styles from "./EventRegistration.module.css";
 
 const heroIcon = "/admin/img/icon/calendar-plus.svg";
 const eventNameIcon = "/admin/img/icon/star.svg";
@@ -16,6 +16,21 @@ const saveIcon = "/admin/img/icon/save.svg";
 const registerIcon = "/admin/img/icon/calendar-plus.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
+
+// Custom input component for DatePicker with icon
+const DateInputWithIcon = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & { iconSrc: string; onIconClick: () => void }
+>(({ iconSrc, onIconClick, ...props }, ref) => {
+  return (
+    <div className={styles["date-input-wrapper"]}>
+      <input ref={ref} {...props} />
+      <img src={iconSrc} alt="달력" className={styles["input-icon"]} onClick={onIconClick} />
+    </div>
+  );
+});
+
+DateInputWithIcon.displayName = "DateInputWithIcon";
 
 const EventRegistration: React.FC = () => {
   const startDatePickerRef = useRef<DatePicker>(null);
@@ -83,28 +98,28 @@ const EventRegistration: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader title="행사 등록" subtitle="새로운 행사를 등록하고 관리하세요" />
 
-        <div className="event-registration-content">
+        <div className={styles["event-registration-content"]}>
           {/* 헤더 섹션 */}
-          <div className="hero-section">
-            <div className="hero-icon">
+          <div className={styles["hero-section"]}>
+            <div className={styles["hero-icon"]}>
               <img src={heroIcon} alt="행사 등록" />
             </div>
-            <h1 className="hero-title">새로운 행사 등록</h1>
-            <p className="hero-description">
+            <h1 className={styles["hero-title"]}>새로운 행사 등록</h1>
+            <p className={styles["hero-description"]}>
               옷 교환을 통해 환경을 지키는 21%파티 행사를 등록하고 참가자들과 함께 지속가능한 패션을 실천해보세요
             </p>
           </div>
 
           {/* 등록 폼 섹션 */}
-          <div className="registration-form-container">
-            <form className="registration-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">
-                  <img src={eventNameIcon} alt="행사 이름" className="label-icon" />
+          <div className={styles["registration-form-container"]}>
+            <form className={styles["registration-form"]} onSubmit={handleSubmit}>
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventNameIcon} alt="행사 이름" className={styles["label-icon"]} />
                   행사 이름
                 </label>
                 <input
@@ -112,14 +127,14 @@ const EventRegistration: React.FC = () => {
                   name="eventName"
                   value={formData.eventName}
                   onChange={handleInputChange}
-                  placeholder="예: 서울 강남구 옷 교환 파티"
-                  className="form-input"
+                  placeholder="행사명"
+                  className={styles["form-input"]}
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
-                  <img src={eventContentIcon} alt="행사 내용" className="label-icon" />
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="행사 내용" className={styles["label-icon"]} />
                   행사 내용
                 </label>
                 <textarea
@@ -127,83 +142,81 @@ const EventRegistration: React.FC = () => {
                   value={formData.eventDescription}
                   onChange={handleInputChange}
                   placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요..."
-                  className="form-textarea"
+                  className={styles["form-textarea"]}
                   rows={6}
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">
-                    <img src={eventDateIcon} alt="행사 시작일" className="label-icon" />
+              <div className={styles["form-row"]}>
+                <div className={styles["form-group"]}>
+                  <label className={styles["form-label"]}>
+                    <img src={eventDateIcon} alt="행사 시작일" className={styles["label-icon"]} />
                     행사 시작일
                   </label>
-                  <div className="date-input-container">
+                  <div className={styles["date-input-container"]}>
                     <DatePicker
                       ref={startDatePickerRef}
                       selected={formData.eventStartDate}
                       onChange={handleStartDateChange}
                       dateFormat="yyyy-MM-dd"
-                      className="form-input"
                       placeholderText="YYYY-MM-DD"
                       minDate={new Date()}
-                    />
-                    <img
-                      src={eventDateIcon}
-                      alt="달력"
-                      className="input-icon"
-                      onClick={() => {
-                        startDatePickerRef.current?.setOpen(true);
-                      }}
+                      customInput={
+                        <DateInputWithIcon
+                          iconSrc={eventDateIcon}
+                          onIconClick={() => {
+                            startDatePickerRef.current?.setOpen(true);
+                          }}
+                        />
+                      }
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">
-                    <img src={eventDateIcon} alt="행사 종료일" className="label-icon" />
+                <div className={styles["form-group"]}>
+                  <label className={styles["form-label"]}>
+                    <img src={eventDateIcon} alt="행사 종료일" className={styles["label-icon"]} />
                     행사 종료일
                   </label>
-                  <div className="date-input-container">
+                  <div className={styles["date-input-container"]}>
                     <DatePicker
                       ref={endDatePickerRef}
                       selected={formData.eventEndDate}
                       onChange={handleEndDateChange}
                       dateFormat="yyyy-MM-dd"
-                      className="form-input"
                       placeholderText="YYYY-MM-DD"
                       minDate={formData.eventStartDate || new Date()}
-                    />
-                    <img
-                      src={eventDateIcon}
-                      alt="달력"
-                      className="input-icon"
-                      onClick={() => {
-                        endDatePickerRef.current?.setOpen(true);
-                      }}
+                      customInput={
+                        <DateInputWithIcon
+                          iconSrc={eventDateIcon}
+                          onIconClick={() => {
+                            endDatePickerRef.current?.setOpen(true);
+                          }}
+                        />
+                      }
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
-                  <img src={eventLocationIcon} alt="행사 위치" className="label-icon" />
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventLocationIcon} alt="행사 위치" className={styles["label-icon"]} />
                   행사 위치
                 </label>
-                <div className="location-input-container">
+                <div className={styles["location-input-container"]}>
                   <input
                     type="text"
                     name="eventLocation"
                     value={formData.eventLocation}
                     onChange={handleInputChange}
-                    placeholder="예: 서울 강남구 그린센터"
-                    className="form-input"
+                    placeholder="도로명 주소"
+                    className={styles["form-input"]}
                   />
                   <img
                     src={locationSearchIcon}
                     alt="위치 검색"
-                    className="input-icon"
+                    className={styles["input-icon"]}
                     onClick={() => setIsAddressModalOpen(true)}
                   />
                 </div>
@@ -213,17 +226,17 @@ const EventRegistration: React.FC = () => {
                   value={formData.eventLocationDetail}
                   onChange={handleInputChange}
                   placeholder="상세 주소"
-                  className="form-input"
+                  className={styles["form-input"]}
                   style={{ marginTop: "2px" }}
                 />
               </div>
 
-              <div className="form-actions">
-                <button type="button" className="save-draft-btn" onClick={handleSaveDraft}>
+              <div className={styles["form-actions"]}>
+                <button type="button" className={styles["save-draft-btn"]} onClick={handleSaveDraft}>
                   <img src={saveIcon} alt="저장" />
                   임시저장
                 </button>
-                <button type="submit" className="register-btn">
+                <button type="submit" className={styles["register-btn"]}>
                   <img src={registerIcon} alt="등록" />
                   행사 등록하기
                 </button>
@@ -232,23 +245,23 @@ const EventRegistration: React.FC = () => {
           </div>
 
           {/* 팁 섹션 */}
-          <div className="tips-section">
-            <div className="tips-icon">
+          <div className={styles["tips-section"]}>
+            <div className={styles["tips-icon"]}>
               <img src={lightbulbIcon} alt="팁" />
             </div>
-            <div className="tips-content">
-              <h3 className="tips-title">행사 등록 팁</h3>
-              <ul className="tips-list">
-                <li className="tip-item">
-                  <img src={checkIcon} alt="체크" className="tip-icon" />
+            <div className={styles["tips-content"]}>
+              <h3 className={styles["tips-title"]}>행사 등록 팁</h3>
+              <ul className={styles["tips-list"]}>
+                <li className={styles["tip-item"]}>
+                  <img src={checkIcon} alt="체크" className={styles["tip-icon"]} />
                   <span>행사 이름은 지역명과 '옷 교환' 키워드를 포함하여 명확하게 작성해주세요</span>
                 </li>
-                <li className="tip-item">
-                  <img src={checkIcon} alt="체크" className="tip-icon" />
+                <li className={styles["tip-item"]}>
+                  <img src={checkIcon} alt="체크" className={styles["tip-icon"]} />
                   <span>행사 내용에는 옷 교환 방법, 가져올 옷의 조건, 환경 임팩트 등을 포함해주세요</span>
                 </li>
-                <li className="tip-item">
-                  <img src={checkIcon} alt="체크" className="tip-icon" />
+                <li className={styles["tip-item"]}>
+                  <img src={checkIcon} alt="체크" className={styles["tip-icon"]} />
                   <span>정확한 날짜와 시간을 입력하여 참가자들이 옷을 미리 준비할 수 있도록 해주세요</span>
                 </li>
               </ul>
@@ -258,8 +271,8 @@ const EventRegistration: React.FC = () => {
       </main>
 
       {isAddressModalOpen && (
-        <div className="address-modal-overlay" onClick={() => setIsAddressModalOpen(false)}>
-          <div className="address-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className={styles["address-modal-overlay"]} onClick={() => setIsAddressModalOpen(false)}>
+          <div className={styles["address-modal-content"]} onClick={(e) => e.stopPropagation()}>
             <DaumPostcode onComplete={handleAddressComplete} autoClose={false} />
           </div>
         </div>

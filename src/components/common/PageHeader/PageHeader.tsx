@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./PageHeader.css";
+import styles from "./PageHeader.module.css";
 
 interface PageHeaderProps {
   title: string;
@@ -15,26 +15,26 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightSlot }) =
   const { pathname } = useLocation();
   const showBack = !HIDE_BACK_ON.includes(pathname);
 
-  const headerClass = `page-header${showBack ? " has-back" : ""}`;
+  const headerClass = `${styles["page-header"]}${showBack ? ` ${styles["has-back"]}` : ""}`;
   return (
     <header className={headerClass}>
       {showBack && (
-        <button className="back-btn" onClick={() => navigate(-1)} aria-label="뒤로가기">
+        <button className={styles["back-btn"]} onClick={() => navigate(-1)} aria-label="뒤로가기">
           <img src="/admin/img/icon/back-arrow.svg" alt="뒤로가기" />
         </button>
       )}
-      <div className="header-content">
-        <div className="header-info">
+      <div className={styles["header-content"]}>
+        <div className={styles["header-info"]}>
           <h1>{title}</h1>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        <div className="header-actions">
+        <div className={styles["header-actions"]}>
           {rightSlot}
-          <button className="notification-btn">
+          <button className={styles["notification-btn"]}>
             <img src="/admin/img/icon/bell.svg" alt="알림" />
-            <span className="notification-badge">3</span>
+            <span className={styles["notification-badge"]}>3</span>
           </button>
-          <div className="user-avatar">
+          <div className={styles["user-avatar"]}>
             <img src="/admin/img/example/admin-avatar.png" alt="관리자" />
           </div>
         </div>

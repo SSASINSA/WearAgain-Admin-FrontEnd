@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PostsManagement.css";
+import styles from "./PostsManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
 
@@ -82,11 +82,11 @@ const PostsManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <span className="status-badge active">활성</span>;
+        return <span className={`${styles["status-badge"]} ${styles["active"]}`}>활성</span>;
       case "inactive":
-        return <span className="status-badge inactive">비활성</span>;
+        return <span className={`${styles["status-badge"]} ${styles["inactive"]}`}>비활성</span>;
       case "reported":
-        return <span className="status-badge reported">신고됨</span>;
+        return <span className={`${styles["status-badge"]} ${styles["reported"]}`}>신고됨</span>;
       default:
         return null;
     }
@@ -95,11 +95,11 @@ const PostsManagement: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader title="게시글 관리" subtitle="등록된 게시글을 관리하고 편집할 수 있습니다" />
 
-        <div className="dashboard-content">
+        <div className={styles["dashboard-content"]}>
           <DataList
             headerTitle="게시글 목록"
             headerRight={
@@ -112,20 +112,20 @@ const PostsManagement: React.FC = () => {
               </>
             }
             renderFilters={() => (
-              <div className={`filter-section ${isFilterOpen ? "is-open" : "is-collapsed"}`}>
-                <div className="filter-header">
+              <div className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+                <div className={styles["filter-header"]}>
                   <h3>필터 및 검색</h3>
                   <button
-                    className={`filter-toggle ${isFilterOpen ? "open" : ""}`}
+                    className={`${styles["filter-toggle"]} ${isFilterOpen ? styles["open"] : ""}`}
                     aria-expanded={isFilterOpen}
                     onClick={() => setIsFilterOpen((v) => !v)}
                   >
                     ▼
                   </button>
                 </div>
-                <div className={`filter-controls ${isFilterOpen ? "is-open" : ""}`}>
-                  <div className="search-container">
-                    <div className="search-icon">
+                <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                  <div className={styles["search-container"]}>
+                    <div className={styles["search-icon"]}>
                       <img src="/admin/img/icon/search.svg" alt="검색" />
                     </div>
                     <input
@@ -133,31 +133,31 @@ const PostsManagement: React.FC = () => {
                       placeholder="게시글 제목 또는 내용으로 검색..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="search-input"
+                      className={styles["search-input"]}
                     />
                   </div>
-                  <div className="status-select-container">
+                  <div className={styles["status-select-container"]}>
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value)}
-                      className="status-select"
+                      className={styles["status-select"]}
                     >
                       <option value="all">전체 상태</option>
                       <option value="active">활성</option>
                       <option value="inactive">비활성</option>
                       <option value="reported">신고됨</option>
                     </select>
-                    <div className="status-select-icon">
+                    <div className={styles["status-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
                     </div>
                   </div>
-                  <div className="sort-select-container">
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+                  <div className={styles["sort-select-container"]}>
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles["sort-select"]}>
                       <option value="latest">최신순</option>
                       <option value="oldest">오래된순</option>
                       <option value="title">제목순</option>
                     </select>
-                    <div className="sort-select-icon">
+                    <div className={styles["sort-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
                     </div>
                   </div>
@@ -169,9 +169,9 @@ const PostsManagement: React.FC = () => {
                 key: "title",
                 title: "제목",
                 width: 200,
-                className: "title-cell",
+                className: styles["title-cell"],
                 render: (row: any) => (
-                  <span className="clickable" onClick={() => navigate(`/posts/${row.id}`, { state: row })}>
+                  <span className={styles["clickable"]} onClick={() => navigate(`/posts/${row.id}`, { state: row })}>
                     {row.title}
                   </span>
                 ),
@@ -180,14 +180,14 @@ const PostsManagement: React.FC = () => {
                 key: "content",
                 title: "내용",
                 width: 370,
-                className: "content-cell",
+                className: styles["content-cell"],
                 render: (row: any) => row.content,
               },
               {
                 key: "date",
                 title: "작성일",
                 width: 120,
-                className: "date-cell",
+                className: styles["date-cell"],
                 render: (row: any) => (
                   <div>
                     <div>{row.date.split("-")[0]}-</div>
@@ -199,10 +199,11 @@ const PostsManagement: React.FC = () => {
               {
                 key: "actions",
                 title: "작업",
-                width: 100,
+                width: 60,
                 align: "center",
+                className: styles["actions-cell"],
                 render: () => (
-                  <button className="action-btn delete" title="삭제">
+                  <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
                     <img src="/admin/img/icon/delete.svg" alt="삭제" />
                   </button>
                 ),

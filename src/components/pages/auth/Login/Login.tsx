@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authUtils } from "utils/auth";
-import "./Login.css";
+import styles from "./Login.module.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -217,19 +217,19 @@ const Login: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="login-modal-overlay" onClick={handleCloseModal}>
-          <div className="login-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="login-modal-header">
+        <div className={styles["login-modal-overlay"]} onClick={handleCloseModal}>
+          <div className={styles["login-modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["login-modal-header"]}>
               <h2>{modalTitle}</h2>
-              <button className="login-modal-close" onClick={handleCloseModal}>
+              <button className={styles["login-modal-close"]} onClick={handleCloseModal}>
                 ×
               </button>
             </div>
-            <div className="login-modal-body">
+            <div className={styles["login-modal-body"]}>
               <p style={{ whiteSpace: "pre-line" }}>{modalMessage}</p>
             </div>
-            <div className="login-modal-footer">
-              <button className="login-modal-btn" onClick={handleCloseModal}>
+            <div className={styles["login-modal-footer"]}>
+              <button className={styles["login-modal-btn"]} onClick={handleCloseModal}>
                 확인
               </button>
             </div>

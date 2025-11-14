@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import "./EventsManagement.css";
+import styles from "./EventsManagement.module.css";
 
 const searchIcon = "/admin/img/icon/search.svg";
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
@@ -114,11 +114,11 @@ const EventsManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <span className="status-badge active">진행중</span>;
+        return <span className={`${styles["status-badge"]} ${styles["active"]}`}>진행중</span>;
       case "completed":
-        return <span className="status-badge completed">완료</span>;
+        return <span className={`${styles["status-badge"]} ${styles["completed"]}`}>완료</span>;
       case "upcoming":
-        return <span className="status-badge upcoming">예정</span>;
+        return <span className={`${styles["status-badge"]} ${styles["upcoming"]}`}>예정</span>;
       default:
         return null;
     }
@@ -133,15 +133,15 @@ const EventsManagement: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader title="행사 관리" subtitle="등록된 행사를 확인하고 관리할 수 있습니다" />
 
-        <div className="dashboard-content">
-          <div className="events-controls">
-            <div className="search-filter-section">
-              <div className="search-input-container">
-                <div className="search-icon">
+        <div className={styles["dashboard-content"]}>
+          <div className={styles["events-controls"]}>
+            <div className={styles["search-filter-section"]}>
+              <div className={styles["search-input-container"]}>
+                <div className={styles["search-icon"]}>
                   <img src={searchIcon} alt="검색" />
                 </div>
                 <input
@@ -149,82 +149,85 @@ const EventsManagement: React.FC = () => {
                   placeholder="행사 검색..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
+                  className={styles["search-input"]}
                 />
               </div>
-              <div className="status-select-container">
+              <div className={styles["status-select-container"]}>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="status-select"
+                  className={styles["status-select"]}
                 >
                   <option value="all">전체 상태</option>
                   <option value="active">진행중</option>
                   <option value="upcoming">예정</option>
                   <option value="completed">완료</option>
                 </select>
-                <div className="status-select-icon">
+                <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
                 </div>
               </div>
             </div>
-            <button className="add-event-btn" onClick={() => navigate("/events/register")}>
+            <button className={styles["add-event-btn"]} onClick={() => navigate("/events/register")}>
               <img src={plusIcon} alt="" />새 행사 만들기
             </button>
           </div>
 
-          <div className="events-grid">
+          <div className={styles["events-grid"]}>
             {currentEvents.map((event) => (
-              <div key={event.id} className="event-card">
-                <div className="event-card-content">
-                  <div className="event-header">
-                    <h3 className="event-title">{event.title}</h3>
+              <div key={event.id} className={styles["event-card"]}>
+                <div className={styles["event-card-content"]}>
+                  <div className={styles["event-header"]}>
+                    <h3 className={styles["event-title"]}>{event.title}</h3>
                     {getStatusBadge(event.status)}
                   </div>
 
-                  <div className="event-details">
-                    <div className="event-detail">
-                      <span className="detail-icon">
+                  <div className={styles["event-details"]}>
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
                         <img src={calendarIcon} alt="날짜" />
                       </span>
-                      <span className="detail-text">{event.date}</span>
+                      <span className={styles["detail-text"]}>{event.date}</span>
                     </div>
-                    <div className="event-detail">
-                      <span className="detail-icon">
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
                         <img src={locationIcon} alt="위치" />
                       </span>
-                      <span className="detail-text">{event.location}</span>
+                      <span className={styles["detail-text"]}>{event.location}</span>
                     </div>
                   </div>
 
-                  <div className="event-stats">
-                    <div className="stat-item">
-                      <span className="stat-icon">
+                  <div className={styles["event-stats"]}>
+                    <div className={styles["stat-item"]}>
+                      <span className={styles["stat-icon"]}>
                         <img src={participantIcon} alt="참가자" />
                       </span>
-                      <span className="stat-text">참가자 {event.participants}명</span>
+                      <span className={styles["stat-text"]}>참가자 {event.participants}명</span>
                     </div>
-                    <div className="stat-item">
-                      <span className="stat-icon">
+                    <div className={styles["stat-item"]}>
+                      <span className={styles["stat-icon"]}>
                         <img src={staffIcon} alt="스태프" />
                       </span>
-                      <span className="stat-text">스태프 {event.staff}명</span>
+                      <span className={styles["stat-text"]}>스태프 {event.staff}명</span>
                     </div>
                   </div>
 
-                  <div className="event-actions">
-                    <button className="action-btn primary" onClick={() => handleViewDetails(event.id)}>
+                  <div className={styles["event-actions"]}>
+                    <button
+                      className={`${styles["action-btn"]} ${styles["primary"]}`}
+                      onClick={() => handleViewDetails(event.id)}
+                    >
                       <img src={detailIcon} alt="" />
                       상세보기
                     </button>
-                    <div className="action-icons-group">
-                      <button className="action-btn secondary">
+                    <div className={styles["action-icons-group"]}>
+                      <button className={`${styles["action-btn"]} ${styles["secondary"]}`}>
                         <img src={editIcon} alt="수정" />
                       </button>
-                      <button className="action-btn secondary">
+                      <button className={`${styles["action-btn"]} ${styles["secondary"]}`}>
                         <img src={qrIcon} alt="QR" />
                       </button>
-                      <button className="action-btn secondary delete">
+                      <button className={`${styles["action-btn"]} ${styles["secondary"]} ${styles["delete"]}`}>
                         <img src={deleteIcon} alt="삭제" />
                       </button>
                     </div>
@@ -234,13 +237,13 @@ const EventsManagement: React.FC = () => {
             ))}
           </div>
 
-          <div className="pagination-section">
-            <div className="pagination-info">
+          <div className={styles["pagination-section"]}>
+            <div className={styles["pagination-info"]}>
               총 {filteredEvents.length}개 행사 중 {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)}개 표시
             </div>
-            <div className="pagination-controls">
+            <div className={styles["pagination-controls"]}>
               <button
-                className="pagination-btn"
+                className={styles["pagination-btn"]}
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
@@ -249,14 +252,14 @@ const EventsManagement: React.FC = () => {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
-                  className={`pagination-btn ${currentPage === page ? "active" : ""}`}
+                  className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
                   onClick={() => setCurrentPage(page)}
                 >
                   {page}
                 </button>
               ))}
               <button
-                className="pagination-btn"
+                className={styles["pagination-btn"]}
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
