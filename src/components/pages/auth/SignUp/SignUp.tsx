@@ -124,34 +124,16 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div
-      className="bg-white w-full h-screen min-h-[700px] grid relative overflow-x-auto"
-      style={{ gridTemplateColumns: "minmax(0, 1fr) 560px", minWidth: "1280px" }}
-    >
-      <img className="absolute inset-y-0 left-0 h-full w-auto object-cover" alt="Rectangle" src={HERO_BG} />
-
-      <div className="hidden lg:block absolute w-[41.34%] h-[16.05%] top-[12.73%] left-[8.27%]">
-        <div className="flex flex-col w-[95.52%] h-[78.68%] items-end absolute top-[21.32%] left-[4.48%]">
-          <p className="self-stretch [font-family:'Poppins-SemiBold',Helvetica] font-normal text-transparent text-[48px] tracking-[-0.96px] leading-[66px] relative mt-[-1.00px]">
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">당신</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">이 </span>
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">다시 입을 때</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">까지 </span>
-            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">연구</span>
-            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">합니다</span>
-          </p>
-        </div>
-      </div>
-
-      <div className="col-start-2 flex h-full justify-center bg-white z-10" style={{ minWidth: "560px" }}>
-        <div className="my-auto w-[403px] flex flex-col items-stretch gap-10">
+    <div className="bg-white w-full h-screen min-h-[700px] flex relative overflow-hidden">
+      <div className="flex h-full justify-center items-center bg-white z-10 px-6" style={{ width: "35%", minWidth: "400px", flexShrink: 0 }}>
+        <div className="w-[403px] flex flex-col items-stretch gap-10">
           <h1 className="relative w-fit [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-[#171725] text-3xl text-center tracking-[0.10px] leading-[normal]">
             회원가입
           </h1>
 
-          <form className="flex flex-col items-start w-full relative" onSubmit={handleSubmit}>
-            <div className="flex flex-col items-end gap-8 relative w-full">
-              <div className="flex flex-col items-start gap-4 relative w-full">
+          <form className="inline-flex flex-col items-start relative w-full" onSubmit={handleSubmit}>
+            <div className="inline-flex flex-col items-end gap-8 relative flex-[0_0_auto] w-full">
+              <div className="inline-flex flex-col items-start gap-4 relative flex-[0_0_auto] w-full">
                 <div className="flex flex-col items-center gap-6 relative self-stretch w-full flex-[0_0_auto]">
                   <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
                     <label className="flex items-center gap-4 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] mt-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
@@ -165,7 +147,7 @@ const SignUp: React.FC = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="이메일"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative flex-1 min-w-0 bg-transparent border-0 outline-none tracking-[0.10px]"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
                         aria-label="이메일"
                         required
                       />
@@ -182,7 +164,7 @@ const SignUp: React.FC = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="이름"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative flex-1 min-w-0 bg-transparent border-0 outline-none tracking-[0.10px]"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
                         aria-label="이름"
                         required
                       />
@@ -200,7 +182,7 @@ const SignUp: React.FC = () => {
                         value={formData.password}
                         onChange={handleInputChange}
                         placeholder="비밀번호"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative flex-1 min-w-0 bg-transparent border-0 outline-none tracking-[0.10px]"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
                         aria-label="비밀번호"
                         required
                       />
@@ -238,7 +220,7 @@ const SignUp: React.FC = () => {
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         placeholder="비밀번호 재입력"
-                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative flex-1 min-w-0 bg-transparent border-0 outline-none tracking-[0.10px]"
+                        className="mt-[-0.80px] [font-family:'Poppins-Medium',Helvetica] font-semibold text-[#171725] placeholder:text-[#9699b7] placeholder:font-medium text-base leading-[normal] relative w-fit tracking-[0.10px] flex-1 bg-transparent border-0 outline-none"
                         aria-label="비밀번호 재입력"
                         required
                       />
@@ -290,10 +272,10 @@ const SignUp: React.FC = () => {
                 </div>
               </div>
 
-              <div className="relative w-[401px] h-[32px]" />
+              <div className="relative w-[401px] h-[12px]" />
             </div>
 
-            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto] mt-[-32px]">
+            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto]">
               <div className="mt-[-1.00px] [font-family:'Poppins-Regular',Helvetica] font-normal text-[#969ab8] text-[15px] text-center leading-6 whitespace-nowrap relative w-fit tracking-[0.10px]">
                 이미 계정이 있으신가요?
               </div>
@@ -305,6 +287,23 @@ const SignUp: React.FC = () => {
               </Link>
             </div>
           </form>
+        </div>
+      </div>
+
+      <div className="relative" style={{ width: "65%", flexShrink: 1, minWidth: "700px" }}>
+        <img className="h-full w-full object-cover" alt="Rectangle" src={HERO_BG} />
+      </div>
+
+      <div className="hidden lg:block absolute bottom-[71.22%] left-1/2 right-[8.66%] top-[12.73%] z-20">
+        <div className="flex flex-col items-end absolute bottom-0 left-[4.48%] right-0 top-[21.32%]">
+          <p className="[font-family:'Poppins-SemiBold',Helvetica] font-normal text-[#3a424a] text-[48px] tracking-[-0.96px] leading-[66px] relative min-w-full w-[min-content]">
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">당신</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">이 </span>
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">다시 입을 때</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">까지 </span>
+            <span className="font-semibold text-[#3062d4] tracking-[-0.20px]">연구</span>
+            <span className="[font-family:'Poppins-Regular',Helvetica] text-[#3a424a] tracking-[-0.20px]">합니다</span>
+          </p>
         </div>
       </div>
 
