@@ -64,7 +64,7 @@ const SignUp: React.FC = () => {
 
     if (!API_BASE_URL) {
       setModalTitle("네트워크 오류");
-      setModalMessage("API 서버 주소가 설정되지 않았습니다. 환경변수를 확인해주세요.");
+      setModalMessage("네트워크 연결에 실패했습니다.");
       setShowModal(true);
       return;
     }
