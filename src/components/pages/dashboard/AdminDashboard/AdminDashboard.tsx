@@ -92,16 +92,12 @@ const PartyRanking: React.FC<PartyRankingProps> = ({
       </div>
       <div className="party-details">
         <h4 className="party-name">{name}</h4>
-        <p className="party-stats">
-          참가자 {participants}명 • 교환량 {exchanges}벌 • 교환율 {rate}%
-        </p>
+        <div className="party-stats">
+          <span className="stat-badge stat-badge-participants">참가자 {participants}명</span>
+          <span className="stat-badge stat-badge-exchanges">교환량 {exchanges}벌</span>
+          <span className="stat-badge stat-badge-rate">교환율 {rate}%</span>
+        </div>
       </div>
-    </div>
-    <div className="party-rating">
-      <p className="rating-score" style={{ color: isTop ? "#06b0b7" : "#374151" }}>
-        {rating}점
-      </p>
-      <p className="rating-label">만족도</p>
     </div>
   </div>
 );
@@ -160,7 +156,7 @@ const AdminDashboard: React.FC = () => {
 
   const impactData = [
     {
-      title: "전체 CO2(kg) 절감량",
+      title: "CO2(kg) 절감량",
       value: "12,847",
       description: "승용차 54,231km 주행량과 동일",
       icon: "/admin/img/icon/co2.svg",
@@ -253,7 +249,7 @@ const AdminDashboard: React.FC = () => {
           </section>
 
           <section className="impact-section">
-            <h2>전체 누적 환경 임팩트</h2>
+            <h2>누적 환경 임팩트</h2>
             <div className="impact-grid">
               {impactData.map((impact, index) => (
                 <ImpactCard key={index} {...impact} />
