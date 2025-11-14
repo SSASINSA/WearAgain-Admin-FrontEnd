@@ -200,15 +200,15 @@ const EventsManagement: React.FC = () => {
                   <div className="event-stats">
                     <div className="stat-item">
                       <span className="stat-icon">
-                        <img src={staffIcon} alt="스태프" />
-                      </span>
-                      <span className="stat-text">스태프 {event.staff}명</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-icon">
                         <img src={participantIcon} alt="참가자" />
                       </span>
                       <span className="stat-text">참가자 {event.participants}명</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-icon">
+                        <img src={staffIcon} alt="스태프" />
+                      </span>
+                      <span className="stat-text">스태프 {event.staff}명</span>
                     </div>
                   </div>
 
