@@ -151,7 +151,7 @@ const AdminDashboard: React.FC = () => {
       iconBg: "rgba(6, 176, 183, 0.1)",
     },
     {
-      title: "지원 파티 횟수",
+      title: "파티 개최자",
       value: "342",
       change: "+5%",
       changeType: "positive" as const,

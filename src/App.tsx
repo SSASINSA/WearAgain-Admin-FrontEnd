@@ -5,6 +5,7 @@ import AdminDashboard from "./components/pages/dashboard/AdminDashboard/AdminDas
 import EventsManagement from "./components/pages/events/EventsManagement/EventsManagement";
 import EventDetail from "./components/pages/events/EventDetail/EventDetail";
 import EventRegistration from "./components/pages/events/EventRegistration/EventRegistration";
+import EventEdit from "./components/pages/events/EventEdit/EventEdit";
 import EventApproval from "./components/pages/admin/EventApproval/EventApproval";
 import EventApprovalDetail from "./components/pages/admin/EventApprovalDetail/EventApprovalDetail";
 import PostsManagement from "./components/pages/posts/PostsManagement/PostsManagement";
@@ -45,20 +46,29 @@ function App() {
             }
           />
           <Route
-            path="/events/:id"
-            element={
-              <ProtectedRoute>
-                <Navigation />
-                <EventDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/events/register"
             element={
               <ProtectedRoute>
                 <Navigation />
                 <EventRegistration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id/edit"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <EventEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <EventDetail />
               </ProtectedRoute>
             }
           />
