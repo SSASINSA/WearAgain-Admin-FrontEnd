@@ -15,7 +15,6 @@ const imgFrame8 = "/admin/img/icon/code-generate.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
 const imgFrame10 = "/admin/img/icon/clothes.svg";
 const imgFrame11 = "/admin/img/icon/exchange-rate.svg";
-const imgFrame12 = "/admin/img/icon/star.svg";
 
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -200,15 +199,6 @@ const EventDetail: React.FC = () => {
                 <div className={styles["result-content"]}>
                   <p className={styles["result-number"]}>85.2%</p>
                   <p className={styles["result-label"]}>교환율</p>
-                </div>
-              </div>
-              <div className={styles["result-item"]}>
-                <div className={styles["result-icon"]}>
-                  <img src={imgFrame12} alt="만족도 아이콘" />
-                </div>
-                <div className={styles["result-content"]}>
-                  <p className={styles["result-number"]}>4.6</p>
-                  <p className={styles["result-label"]}>만족도 (5점 만점)</p>
                 </div>
               </div>
             </div>

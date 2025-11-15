@@ -12,8 +12,6 @@ const staffIcon = "/admin/img/icon/staff.svg";
 const participantIcon = "/admin/img/icon/user-group.svg";
 const detailIcon = "/admin/img/icon/detail.svg";
 const editIcon = "/admin/img/icon/edit.svg";
-const deleteIcon = "/admin/img/icon/trash.svg";
-const qrIcon = "/admin/img/icon/qr-code.svg";
 const prevIcon = "/admin/img/icon/chevron-left.svg";
 const nextIcon = "/admin/img/icon/arrow-right.svg";
 
@@ -132,6 +130,10 @@ const EventsManagement: React.FC = () => {
     navigate(`/events/${eventId}`);
   };
 
+  const handleEdit = (eventId: number) => {
+    navigate(`/events/${eventId}/edit`);
+  };
+
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
@@ -221,14 +223,11 @@ const EventsManagement: React.FC = () => {
                       상세보기
                     </button>
                     <div className={styles["action-icons-group"]}>
-                      <button className={`${styles["action-btn"]} ${styles["secondary"]}`}>
+                      <button
+                        className={`${styles["action-btn"]} ${styles["secondary"]}`}
+                        onClick={() => handleEdit(event.id)}
+                      >
                         <img src={editIcon} alt="수정" />
-                      </button>
-                      <button className={`${styles["action-btn"]} ${styles["secondary"]}`}>
-                        <img src={qrIcon} alt="QR" />
-                      </button>
-                      <button className={`${styles["action-btn"]} ${styles["secondary"]} ${styles["delete"]}`}>
-                        <img src={deleteIcon} alt="삭제" />
                       </button>
                     </div>
                   </div>

@@ -5,7 +5,7 @@ import styles from "./PageHeader.module.css";
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  rightSlot?: React.ReactNode; // 알림 왼쪽에 추가 버튼 등 배치
+  rightSlot?: React.ReactNode; // 사용자 아바타 왼쪽에 추가 버튼 등 배치
 }
 
 const HIDE_BACK_ON: string[] = ["/", "/events", "/posts", "/store", "/repair", "/approval", "/events/approval"]; // 네비 5개 루트 + 관리자 계정 관리, 행사등록 승인
@@ -30,10 +30,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightSlot }) =
         </div>
         <div className={styles["header-actions"]}>
           {rightSlot}
-          <button className={styles["notification-btn"]}>
-            <img src="/admin/img/icon/bell.svg" alt="알림" />
-            <span className={styles["notification-badge"]}>3</span>
-          </button>
           <div className={styles["user-avatar"]}>
             <img src="/admin/img/example/admin-avatar.png" alt="관리자" />
           </div>
