@@ -12,6 +12,8 @@ import PostsManagement from "./components/pages/posts/PostsManagement/PostsManag
 import PostDetail from "./components/pages/posts/PostDetail/PostDetail";
 import StoreManagement from "./components/pages/store/StoreManagement/StoreManagement";
 import AddProduct from "./components/pages/store/AddProduct/AddProduct";
+import ProductDetail from "./components/pages/store/ProductDetail/ProductDetail";
+import ProductEdit from "./components/pages/store/ProductEdit/ProductEdit";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
@@ -123,6 +125,24 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <AddProduct />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/:id/edit"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <ProductEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/:id"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <ProductDetail />
               </ProtectedRoute>
             }
           />

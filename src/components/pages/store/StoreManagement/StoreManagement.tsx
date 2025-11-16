@@ -261,7 +261,12 @@ const StoreManagement: React.FC = () => {
           <div className={styles["products-container"]}>
             <div className={`${styles["products-grid"]} ${styles[viewMode]}`}>
               {currentProducts.map((product) => (
-                <div key={product.id} className={styles["product-card"]}>
+                <div
+                  key={product.id}
+                  className={styles["product-card"]}
+                  onClick={() => navigate(`/store/${product.id}`, { state: product })}
+                  style={{ cursor: "pointer" }}
+                >
                   <div className={styles["product-image-container"]}>
                     <img src={product.image} alt={product.name} className={styles["product-image"]} />
                   </div>
@@ -269,7 +274,14 @@ const StoreManagement: React.FC = () => {
                     <h3 className={styles["product-name"]}>{product.name}</h3>
                     <div className={styles["product-price-container"]}>
                       <span className={styles["product-price"]}>{product.price.toLocaleString()} C</span>
-                      <button className={styles["product-menu-btn"]}>⋯</button>
+                      <button
+                        className={styles["product-menu-btn"]}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        ⋯
+                      </button>
                     </div>
                   </div>
                 </div>
