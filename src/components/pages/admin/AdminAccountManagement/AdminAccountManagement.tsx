@@ -1,10 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./AdminAccountManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import apiRequest from "utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
+interface SignupRequestResponse {
+  signupRequestId: number;
+  email: string;
+  name: string;
+  requestedRole: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  reason: string | null;
+  rejectionReason: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+  reviewer: string | null;
+}
+
+interface SignupRequestsApiResponse {
+  items: SignupRequestResponse[];
+}
 
 interface AdminAccountRequest {
   id: number;
@@ -28,55 +46,68 @@ const AdminAccountManagement: React.FC = () => {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [adminAccountRequests, setAdminAccountRequests] = useState<AdminAccountRequest[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const adminAccountRequests: AdminAccountRequest[] = [
-    {
-      id: 1,
-      userId: "admin01",
-      email: "hong@example.com",
-      requestDate: "2024-01-15 14:32:15",
-      status: "pending",
-      description:
-        "다시입다연구소 신입 홍길동입니다! 관리자 계정 생성 요청드립니다! 제 부서는 시스템 관리팀이고, 주로 사용자 지원 및 시스템 모니터링 업무를 담당하게 됩니다. 빠른 승인 부탁드립니다.",
-    },
-    {
-      id: 2,
-      userId: "admin02",
-      email: "kim@example.com",
-      requestDate: "2024-01-14 09:15:42",
-      status: "pending",
-      description:
-        "다시입다연구소 신입 김철수입니다! 계정 생성 요청드립니다! 제 부서는 컨텐츠 관리팀입니다. 게시글 모더레이션 및 커뮤니티 관리 업무를 수행하기 위해 관리자 권한이 필요합니다.",
-    },
-    {
-      id: 3,
-      userId: "admin03",
-      email: "lee@example.com",
-      requestDate: "2024-01-13 16:48:03",
-      status: "approved",
-      description:
-        "다시입다연구소 신입 이영희입니다! 계정 생성 요청드립니다! 제 부서는 행사 기획팀이고, 이벤트 등록 및 관리 업무를 담당합니다.",
-    },
-    {
-      id: 4,
-      userId: "admin04",
-      email: "park@example.com",
-      requestDate: "2024-01-12 11:22:57",
-      status: "rejected",
-      reason: "정보 불일치",
-      description:
-        "다시입다연구소 신입 박민수입니다! 계정 생성 요청드립니다! 제 부서는 마케팅팀이고, 홍보 및 광고 관리 업무를 수행하기 위해 관리자 계정이 필요합니다.",
-    },
-    {
-      id: 5,
-      userId: "admin05",
-      email: "jung@example.com",
-      requestDate: "2024-01-11 13:07:29",
-      status: "pending",
-      description:
-        "다시입다연구소 신입 정수진입니다! 계정 생성 요청드립니다! 제 부서는 고객 지원팀입니다. 고객 문의 응답 및 지원 업무를 담당하기 위해 관리자 권한이 필요합니다.",
-    },
-  ];
+  const transformApiResponse = (apiResponse: SignupRequestResponse): AdminAccountRequest => {
+    const statusMap: Record<string, "pending" | "approved" | "rejected"> = {
+      PENDING: "pending",
+      APPROVED: "approved",
+      REJECTED: "rejected",
+    };
+
+    const formatDate = (dateString: string): string => {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    return {
+      id: apiResponse.signupRequestId,
+      userId: apiResponse.name,
+      email: apiResponse.email,
+      requestDate: formatDate(apiResponse.createdAt),
+      status: statusMap[apiResponse.status] || "pending",
+      reason: apiResponse.rejectionReason || undefined,
+      description: apiResponse.reason || undefined,
+    };
+  };
+
+  const fetchSignupRequests = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await apiRequest("/admin/auth/signup-requests", {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "승인 요청 목록을 가져오는데 실패했습니다.");
+      }
+
+      const data: SignupRequestsApiResponse = await response.json();
+      const transformedData = data.items.map(transformApiResponse);
+      setAdminAccountRequests(transformedData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "승인 요청 목록을 가져오는데 실패했습니다.";
+      setError(errorMessage);
+      console.error("Error fetching signup requests:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSignupRequests();
+  }, [fetchSignupRequests]);
 
   const filteredRequests = adminAccountRequests.filter((request) => {
     const matchesStatus = selectedStatus === "all" || request.status === selectedStatus;
@@ -125,21 +156,23 @@ const AdminAccountManagement: React.FC = () => {
     setShowRejectModal(true);
   };
 
-  const handleApproveConfirm = () => {
+  const handleApproveConfirm = async () => {
     if (selectedRequestId !== null) {
       console.log("승인:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 승인되었습니다.`);
       setShowApproveModal(false);
       setSelectedRequestId(null);
+      await fetchSignupRequests();
     }
   };
 
-  const handleRejectConfirm = () => {
+  const handleRejectConfirm = async () => {
     if (selectedRequestId !== null) {
       console.log("거부:", selectedRequestId);
       alert(`관리자 계정 ID ${selectedRequestId}가 거부되었습니다.`);
       setShowRejectModal(false);
       setSelectedRequestId(null);
+      await fetchSignupRequests();
     }
   };
 
@@ -178,7 +211,11 @@ const AdminAccountManagement: React.FC = () => {
           <div className={styles["dl-container"]}>
             {isFilterOpen && (
               <div className={styles["dl-controls"]}>
-                <div className={`${styles["admin-account-filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+                <div
+                  className={`${styles["admin-account-filter-section"]} ${
+                    isFilterOpen ? styles["is-open"] : styles["is-collapsed"]
+                  }`}
+                >
                   <div className={styles["admin-account-filter-header"]}>
                     <h3>필터 및 검색</h3>
                     <button
@@ -189,7 +226,9 @@ const AdminAccountManagement: React.FC = () => {
                       ▼
                     </button>
                   </div>
-                  <div className={`${styles["admin-account-filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                  <div
+                    className={`${styles["admin-account-filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}
+                  >
                     <div className={styles["admin-account-search-container"]}>
                       <div className={styles["admin-account-search-icon"]}>
                         <img src="/admin/img/icon/search.svg" alt="검색" />
@@ -249,148 +288,177 @@ const AdminAccountManagement: React.FC = () => {
               </div>
 
               <div className={styles["dl-table-wrapper"]}>
-                <table className={styles["dl-table"]}>
-                  <thead>
-                    <tr>
-                      {[
-                        { key: "expand", title: "", width: 20 },
-                        { key: "userId", title: "아이디", width: 120 },
-                        { key: "email", title: "이메일", width: 180 },
-                        { key: "requestDate", title: "신청일", width: 150 },
-                        { key: "detail", title: "상세 설명", width: 280 },
-                        { key: "status", title: "상태", width: 100 },
-                        { key: "actions", title: "작업", width: 100 },
-                      ].map((col) => (
-                        <th
-                          key={col.key}
-                          style={{
-                            width: col.key === "actions" ? 100 : col.width,
-                            textAlign: col.key === "actions" ? "center" : col.key === "detail" ? "left" : "left",
-                          }}
-                        >
-                          {col.title}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentRequests.map((row) => (
-                      <React.Fragment key={row.id}>
+                {isLoading ? (
+                  <div style={{ padding: "40px", textAlign: "center" }}>로딩 중...</div>
+                ) : error ? (
+                  <div style={{ padding: "40px", textAlign: "center", color: "#ef4444" }}>
+                    {error}
+                    <button
+                      onClick={fetchSignupRequests}
+                      style={{ marginTop: "16px", padding: "8px 16px", cursor: "pointer" }}
+                    >
+                      다시 시도
+                    </button>
+                  </div>
+                ) : (
+                  <table className={styles["dl-table"]}>
+                    <thead>
+                      <tr>
+                        {[
+                          { key: "expand", title: "", width: 20 },
+                          { key: "userId", title: "아이디", width: 120 },
+                          { key: "email", title: "이메일", width: 180 },
+                          { key: "requestDate", title: "신청일", width: 150 },
+                          { key: "detail", title: "상세 설명", width: 280 },
+                          { key: "status", title: "상태", width: 100 },
+                          { key: "actions", title: "작업", width: 100 },
+                        ].map((col) => (
+                          <th
+                            key={col.key}
+                            style={{
+                              width: col.key === "actions" ? 100 : col.width,
+                              textAlign: col.key === "actions" ? "center" : col.key === "detail" ? "left" : "left",
+                            }}
+                          >
+                            {col.title}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentRequests.length === 0 ? (
                         <tr>
-                          <td style={{ textAlign: "center", padding: "8px 2px 8px 8px" }}>
-                            <button
-                              className={styles["admin-account-expand-btn"]}
-                              onClick={() => handleToggleRow(row.id)}
-                              title={expandedRows.has(row.id) ? "접기" : "펼치기"}
-                            >
-                              <span
-                                className={`${styles["admin-account-expand-icon"]} ${expandedRows.has(row.id) ? styles["expanded"] : ""}`}
-                              >
-                                ▼
-                              </span>
-                            </button>
-                          </td>
-                          <td className={styles["admin-account-userid-cell"]} style={{ paddingLeft: "4px" }}>
-                            {row.userId}
-                          </td>
-                          <td className={styles["admin-account-email-cell"]}>{row.email}</td>
-                          <td className={styles["admin-account-date-cell"]}>
-                            {(() => {
-                              const [datePart, timePart] = row.requestDate.split(" ");
-                              const [year, month, day] = datePart.split("-");
-                              const [hour, minute, second] = timePart.split(":");
-                              return (
-                                <div>
-                                  <div>
-                                    {year}-{month}-{day}
-                                  </div>
-                                  <div>
-                                    {hour}:{minute}:{second}
-                                  </div>
-                                </div>
-                              );
-                            })()}
-                          </td>
-                          <td className={styles["admin-account-description-cell"]}>
-                            <div className={styles["admin-account-description-wrapper"]}>
-                              <span className={styles["admin-account-description-text"]} title={row.description || ""}>
-                                {row.description || "상세 설명이 없습니다."}
-                              </span>
-                              {row.description && (
-                                <button
-                                  className={styles["admin-account-detail-btn"]}
-                                  onClick={() => handleViewDetail(row)}
-                                  title="전체 보기"
-                                >
-                                  <img src="/admin/img/icon/detail.svg" alt="전체 보기" />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                          <td>{getStatusBadge(row.status)}</td>
-                          <td style={{ textAlign: "center" }}>
-                            <div className={styles["admin-account-action-buttons"]}>
-                              {row.status === "pending" && (
-                                <>
-                                  <button
-                                    className={`${styles["admin-account-action-btn"]} ${styles["approve"]}`}
-                                    title="승인"
-                                    onClick={() => handleApproveClick(row.id)}
-                                  >
-                                    승인
-                                  </button>
-                                  <button
-                                    className={`${styles["admin-account-action-btn"]} ${styles["reject"]}`}
-                                    title="거부"
-                                    onClick={() => handleRejectClick(row.id)}
-                                  >
-                                    거부
-                                  </button>
-                                </>
-                              )}
-                            </div>
+                          <td colSpan={7} style={{ padding: "40px", textAlign: "center" }}>
+                            승인 요청이 없습니다.
                           </td>
                         </tr>
-                        {expandedRows.has(row.id) && (
-                          <tr className={styles["admin-account-expanded-row"]}>
-                            <td colSpan={7} className={styles["admin-account-expanded-content"]}>
-                              <div className={styles["admin-account-expanded-info"]}>
-                                <div className={styles["admin-account-expanded-item"]}>
-                                  <span className={styles["admin-account-expanded-label"]}>아이디:</span>
-                                  <span className={styles["admin-account-expanded-value"]}>{row.userId}</span>
-                                </div>
-                                <div className={styles["admin-account-expanded-item"]}>
-                                  <span className={styles["admin-account-expanded-label"]}>이메일:</span>
-                                  <span className={styles["admin-account-expanded-value"]}>{row.email}</span>
-                                </div>
-                                <div className={styles["admin-account-expanded-item"]}>
-                                  <span className={styles["admin-account-expanded-label"]}>신청일:</span>
-                                  <span className={styles["admin-account-expanded-value"]}>{row.requestDate}</span>
-                                </div>
-                                <div className={styles["admin-account-expanded-item"]}>
-                                  <span className={styles["admin-account-expanded-label"]}>상태:</span>
-                                  <span className={styles["admin-account-expanded-value"]}>{getStatusBadge(row.status)}</span>
-                                </div>
-                                <div className={styles["admin-account-expanded-item"]}>
-                                  <span className={styles["admin-account-expanded-label"]}>상세 설명:</span>
-                                  <span className={styles["admin-account-expanded-value"]}>
+                      ) : (
+                        currentRequests.map((row) => (
+                          <React.Fragment key={row.id}>
+                            <tr>
+                              <td style={{ textAlign: "center", padding: "8px 2px 8px 8px" }}>
+                                <button
+                                  className={styles["admin-account-expand-btn"]}
+                                  onClick={() => handleToggleRow(row.id)}
+                                  title={expandedRows.has(row.id) ? "접기" : "펼치기"}
+                                >
+                                  <span
+                                    className={`${styles["admin-account-expand-icon"]} ${
+                                      expandedRows.has(row.id) ? styles["expanded"] : ""
+                                    }`}
+                                  >
+                                    ▼
+                                  </span>
+                                </button>
+                              </td>
+                              <td className={styles["admin-account-userid-cell"]} style={{ paddingLeft: "4px" }}>
+                                {row.userId}
+                              </td>
+                              <td className={styles["admin-account-email-cell"]}>{row.email}</td>
+                              <td className={styles["admin-account-date-cell"]}>
+                                {(() => {
+                                  const [datePart, timePart] = row.requestDate.split(" ");
+                                  const [year, month, day] = datePart.split("-");
+                                  const [hour, minute, second] = timePart.split(":");
+                                  return (
+                                    <div>
+                                      <div>
+                                        {year}-{month}-{day}
+                                      </div>
+                                      <div>
+                                        {hour}:{minute}:{second}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </td>
+                              <td className={styles["admin-account-description-cell"]}>
+                                <div className={styles["admin-account-description-wrapper"]}>
+                                  <span
+                                    className={styles["admin-account-description-text"]}
+                                    title={row.description || ""}
+                                  >
                                     {row.description || "상세 설명이 없습니다."}
                                   </span>
+                                  {row.description && (
+                                    <button
+                                      className={styles["admin-account-detail-btn"]}
+                                      onClick={() => handleViewDetail(row)}
+                                      title="전체 보기"
+                                    >
+                                      <img src="/admin/img/icon/detail.svg" alt="전체 보기" />
+                                    </button>
+                                  )}
                                 </div>
-                                {row.reason && (
-                                  <div className={styles["admin-account-expanded-item"]}>
-                                    <span className={styles["admin-account-expanded-label"]}>거부 사유:</span>
-                                    <span className={styles["admin-account-expanded-value"]}>{row.reason}</span>
+                              </td>
+                              <td>{getStatusBadge(row.status)}</td>
+                              <td style={{ textAlign: "center" }}>
+                                <div className={styles["admin-account-action-buttons"]}>
+                                  {row.status === "pending" && (
+                                    <>
+                                      <button
+                                        className={`${styles["admin-account-action-btn"]} ${styles["approve"]}`}
+                                        title="승인"
+                                        onClick={() => handleApproveClick(row.id)}
+                                      >
+                                        승인
+                                      </button>
+                                      <button
+                                        className={`${styles["admin-account-action-btn"]} ${styles["reject"]}`}
+                                        title="거부"
+                                        onClick={() => handleRejectClick(row.id)}
+                                      >
+                                        거부
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                            {expandedRows.has(row.id) && (
+                              <tr className={styles["admin-account-expanded-row"]}>
+                                <td colSpan={7} className={styles["admin-account-expanded-content"]}>
+                                  <div className={styles["admin-account-expanded-info"]}>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>아이디:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>{row.userId}</span>
+                                    </div>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>이메일:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>{row.email}</span>
+                                    </div>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>신청일:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>{row.requestDate}</span>
+                                    </div>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>상태:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>
+                                        {getStatusBadge(row.status)}
+                                      </span>
+                                    </div>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>상세 설명:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>
+                                        {row.description || "상세 설명이 없습니다."}
+                                      </span>
+                                    </div>
+                                    {row.reason && (
+                                      <div className={styles["admin-account-expanded-item"]}>
+                                        <span className={styles["admin-account-expanded-label"]}>거부 사유:</span>
+                                        <span className={styles["admin-account-expanded-value"]}>{row.reason}</span>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
 
               <DataListFooter
