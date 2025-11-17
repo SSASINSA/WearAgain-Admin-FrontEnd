@@ -1,21 +1,22 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DaumPostcode from "react-daum-postcode";
 import "react-datepicker/dist/react-datepicker.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import styles from "./EventRegistration.module.css";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import styles from "./EventEdit.module.css";
 
-const heroIcon = "/admin/img/icon/calendar-plus.svg";
+const heroIcon = "/admin/img/icon/edit.svg";
 const eventNameIcon = "/admin/img/icon/star.svg";
 const eventContentIcon = "/admin/img/icon/document.svg";
 const eventDateIcon = "/admin/img/icon/calendar.svg";
-const eventTimeIcon = "/admin/img/icon/clock.svg";
 const eventLocationIcon = "/admin/img/icon/location-pin.svg";
 const locationSearchIcon = "/admin/img/icon/search.svg";
 const staffIcon = "/admin/img/icon/staff.svg";
 const participantIcon = "/admin/img/icon/user-group.svg";
 const saveIcon = "/admin/img/icon/save.svg";
-const registerIcon = "/admin/img/icon/calendar-plus.svg";
+const updateIcon = "/admin/img/icon/edit.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
 
@@ -34,7 +35,9 @@ const DateInputWithIcon = React.forwardRef<
 
 DateInputWithIcon.displayName = "DateInputWithIcon";
 
-const EventRegistration: React.FC = () => {
+const EventEdit: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const startDatePickerRef = useRef<DatePicker>(null);
   const endDatePickerRef = useRef<DatePicker>(null);
   const [formData, setFormData] = useState({
@@ -48,6 +51,35 @@ const EventRegistration: React.FC = () => {
     participantCount: "",
   });
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // 기존 행사 데이터 로드 (실제로는 API 호출)
+  useEffect(() => {
+    if (id) {
+      // TODO: API에서 행사 데이터 가져오기
+      // 현재는 mock 데이터로 설정
+      const mockEvent = {
+        eventName: "서울 강남구 옷 교환 파티",
+        eventDescription: "옷을 버리는 대신 교환하는 환경 보호 행사",
+        eventStartDate: new Date("2024-03-15"),
+        eventEndDate: new Date("2024-03-16"),
+        eventLocation: "서울 강남구 그린센터",
+        eventLocationDetail: "1층 대강당",
+        staffCount: "12",
+        participantCount: "250",
+      };
+      setFormData({
+        eventName: mockEvent.eventName,
+        eventDescription: mockEvent.eventDescription,
+        eventStartDate: mockEvent.eventStartDate,
+        eventEndDate: mockEvent.eventEndDate,
+        eventLocation: mockEvent.eventLocation,
+        eventLocationDetail: mockEvent.eventLocationDetail,
+        staffCount: mockEvent.staffCount,
+        participantCount: mockEvent.participantCount,
+      });
+    }
+  }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -105,31 +137,45 @@ const EventRegistration: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("행사 등록:", formData);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmUpdate = () => {
+    console.log("행사 수정:", formData);
+    // TODO: API 호출로 행사 수정
+    alert("행사가 수정되었습니다.");
+    setShowConfirmModal(false);
+    navigate(`/events/${id}`);
+  };
+
+  const handleCancelUpdate = () => {
+    setShowConfirmModal(false);
   };
 
   const handleSaveDraft = () => {
     console.log("임시저장:", formData);
+    // TODO: API 호출로 임시저장
+    alert("임시저장되었습니다.");
   };
 
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
-        <PageHeader title="행사 등록" subtitle="새로운 행사를 등록하고 관리하세요" />
+        <PageHeader title="행사 수정" subtitle="행사 정보를 수정하고 관리하세요" />
 
         <div className={styles["event-registration-content"]}>
           {/* 헤더 섹션 */}
           <div className={styles["hero-section"]}>
             <div className={styles["hero-icon"]}>
-              <img src={heroIcon} alt="행사 등록" />
+              <img src={heroIcon} alt="행사 수정" />
             </div>
-            <h1 className={styles["hero-title"]}>새로운 행사 등록</h1>
+            <h1 className={styles["hero-title"]}>행사 정보 수정</h1>
             <p className={styles["hero-description"]}>
-              옷 교환을 통해 환경을 지키는 21%파티 행사를 등록하고 참가자들과 함께 지속가능한 패션을 실천해보세요
+              등록된 행사 정보를 수정하여 더 나은 옷 교환 행사를 만들어보세요
             </p>
           </div>
 
-          {/* 등록 폼 섹션 */}
+          {/* 수정 폼 섹션 */}
           <div className={styles["registration-form-container"]}>
             <form className={styles["registration-form"]} onSubmit={handleSubmit}>
               <div className={styles["form-group"]}>
@@ -175,7 +221,6 @@ const EventRegistration: React.FC = () => {
                       onChange={handleStartDateChange}
                       dateFormat="yyyy-MM-dd"
                       placeholderText="YYYY-MM-DD"
-                      minDate={new Date()}
                       customInput={
                         <DateInputWithIcon
                           iconSrc={eventDateIcon}
@@ -200,7 +245,7 @@ const EventRegistration: React.FC = () => {
                       onChange={handleEndDateChange}
                       dateFormat="yyyy-MM-dd"
                       placeholderText="YYYY-MM-DD"
-                      minDate={formData.eventStartDate || new Date()}
+                      minDate={formData.eventStartDate || undefined}
                       customInput={
                         <DateInputWithIcon
                           iconSrc={eventDateIcon}
@@ -284,8 +329,8 @@ const EventRegistration: React.FC = () => {
                   임시저장
                 </button>
                 <button type="submit" className={styles["register-btn"]}>
-                  <img src={registerIcon} alt="등록" />
-                  행사 등록하기
+                  <img src={updateIcon} alt="수정" />
+                  행사 수정하기
                 </button>
               </div>
             </form>
@@ -297,7 +342,7 @@ const EventRegistration: React.FC = () => {
               <img src={lightbulbIcon} alt="팁" />
             </div>
             <div className={styles["tips-content"]}>
-              <h3 className={styles["tips-title"]}>행사 등록 팁</h3>
+              <h3 className={styles["tips-title"]}>행사 수정 팁</h3>
               <ul className={styles["tips-list"]}>
                 <li className={styles["tip-item"]}>
                   <img src={checkIcon} alt="체크" className={styles["tip-icon"]} />
@@ -324,8 +369,20 @@ const EventRegistration: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="행사 수정 확인"
+        message="행사 정보를 수정하시겠습니까?"
+        confirmText="수정"
+        cancelText="취소"
+        onConfirm={handleConfirmUpdate}
+        onCancel={handleCancelUpdate}
+        type="approve"
+      />
     </div>
   );
 };
 
-export default EventRegistration;
+export default EventEdit;
+

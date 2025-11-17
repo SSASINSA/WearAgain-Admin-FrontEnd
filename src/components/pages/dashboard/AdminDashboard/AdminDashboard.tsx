@@ -1,5 +1,5 @@
 import React from "react";
-import "./AdminDashboard.css";
+import styles from "./AdminDashboard.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 
 interface StatCardProps {
@@ -12,15 +12,19 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, changeType, icon, iconBg }) => (
-  <div className="stat-card">
-    <div className="stat-card-header">
-      <div className="stat-icon" style={{ backgroundColor: iconBg }}>
+  <div className={styles["stat-card"]}>
+    <div className={styles["stat-card-header"]}>
+      <div className={styles["stat-icon"]} style={{ backgroundColor: iconBg }}>
         <img src={icon} alt="" />
       </div>
-      <span className={`stat-change ${changeType === "positive" ? "positive" : "negative"}`}>{change}</span>
+      <span
+        className={`${styles["stat-change"]} ${changeType === "positive" ? styles["positive"] : styles["negative"]}`}
+      >
+        {change}
+      </span>
     </div>
-    <h4 className="stat-title">{title}</h4>
-    <p className="stat-value">{value}</p>
+    <h4 className={styles["stat-title"]}>{title}</h4>
+    <p className={styles["stat-value"]}>{value}</p>
   </div>
 );
 
@@ -45,22 +49,22 @@ const ImpactCard: React.FC<ImpactCardProps> = ({
   borderColor,
   badge,
 }) => (
-  <div className="impact-card" style={{ backgroundColor: bgColor, borderColor }}>
-    <div className="impact-card-header">
-      <div className="impact-icon" style={{ backgroundColor: color }}>
+  <div className={styles["impact-card"]} style={{ backgroundColor: bgColor, borderColor }}>
+    <div className={styles["impact-card-header"]}>
+      <div className={styles["impact-icon"]} style={{ backgroundColor: color }}>
         <img src={icon} alt="" />
       </div>
-      <span className="impact-badge" style={{ backgroundColor: "#ffffff", color }}>
+      <span className={styles["impact-badge"]} style={{ backgroundColor: "#ffffff", color }}>
         {badge}
       </span>
     </div>
-    <p className="impact-title" style={{ color }}>
+    <p className={styles["impact-title"]} style={{ color }}>
       {title}
     </p>
-    <p className="impact-value" style={{ color }}>
+    <p className={styles["impact-value"]} style={{ color }}>
       {value}
     </p>
-    <p className="impact-description" style={{ color }}>
+    <p className={styles["impact-description"]} style={{ color }}>
       {description}
     </p>
   </div>
@@ -85,23 +89,21 @@ const PartyRanking: React.FC<PartyRankingProps> = ({
   rating,
   isTop = false,
 }) => (
-  <div className={`party-ranking ${isTop ? "top-party" : ""}`}>
-    <div className="party-info">
-      <div className="party-rank" style={{ backgroundColor: isTop ? "#06b0b7" : "#9ca3af" }}>
+  <div className={`${styles["party-ranking"]} ${isTop ? styles["top-party"] : ""}`}>
+    <div className={styles["party-info"]}>
+      <div className={styles["party-rank"]} style={{ backgroundColor: isTop ? "#06b0b7" : "#9ca3af" }}>
         {rank}
       </div>
-      <div className="party-details">
-        <h4 className="party-name">{name}</h4>
-        <p className="party-stats">
-          참가자 {participants}명 • 교환량 {exchanges}벌 • 교환율 {rate}%
-        </p>
+      <div className={styles["party-details"]}>
+        <h4 className={styles["party-name"]}>{name}</h4>
+        <div className={styles["party-stats"]}>
+          <span className={`${styles["stat-badge"]} ${styles["stat-badge-participants"]}`}>
+            참가자 {participants}명
+          </span>
+          <span className={`${styles["stat-badge"]} ${styles["stat-badge-exchanges"]}`}>교환량 {exchanges}벌</span>
+          <span className={`${styles["stat-badge"]} ${styles["stat-badge-rate"]}`}>교환율 {rate}%</span>
+        </div>
       </div>
-    </div>
-    <div className="party-rating">
-      <p className="rating-score" style={{ color: isTop ? "#06b0b7" : "#374151" }}>
-        {rating}점
-      </p>
-      <p className="rating-label">만족도</p>
     </div>
   </div>
 );
@@ -149,7 +151,7 @@ const AdminDashboard: React.FC = () => {
       iconBg: "rgba(6, 176, 183, 0.1)",
     },
     {
-      title: "지원 파티 횟수",
+      title: "파티 개최자",
       value: "342",
       change: "+5%",
       changeType: "positive" as const,
@@ -160,7 +162,7 @@ const AdminDashboard: React.FC = () => {
 
   const impactData = [
     {
-      title: "전체 CO2(kg) 절감량",
+      title: "CO2(kg) 절감량",
       value: "12,847",
       description: "승용차 54,231km 주행량과 동일",
       icon: "/admin/img/icon/co2.svg",
@@ -236,37 +238,37 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader title="대시보드" subtitle="전체 현황과 통계를 한눈에 확인하세요" />
 
-        <div className="dashboard-content">
-          <section className="stats-title-section">
+        <div className={styles["dashboard-content"]}>
+          <section className={styles["stats-title-section"]}>
             <h2>전체 행사 현황</h2>
           </section>
-          <section className="stats-cards-section">
-            <div className="stats-grid">
+          <section className={styles["stats-cards-section"]}>
+            <div className={styles["stats-grid"]}>
               {statsData.map((stat, index) => (
                 <StatCard key={index} {...stat} />
               ))}
             </div>
           </section>
 
-          <section className="impact-section">
-            <h2>전체 누적 환경 임팩트</h2>
-            <div className="impact-grid">
+          <section className={styles["impact-section"]}>
+            <h2>누적 환경 임팩트</h2>
+            <div className={styles["impact-grid"]}>
               {impactData.map((impact, index) => (
                 <ImpactCard key={index} {...impact} />
               ))}
             </div>
           </section>
 
-          <section className="ranking-section">
-            <div className="ranking-header">
+          <section className={styles["ranking-section"]}>
+            <div className={styles["ranking-header"]}>
               <h2>인기 21% 파티 현황</h2>
-              <p className="update-time">실시간 업데이트</p>
+              <p className={styles["update-time"]}>실시간 업데이트</p>
             </div>
-            <div className="ranking-list">
+            <div className={styles["ranking-list"]}>
               {partyRankings.map((party, index) => (
                 <PartyRanking key={index} {...party} />
               ))}

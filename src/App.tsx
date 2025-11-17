@@ -5,12 +5,15 @@ import AdminDashboard from "./components/pages/dashboard/AdminDashboard/AdminDas
 import EventsManagement from "./components/pages/events/EventsManagement/EventsManagement";
 import EventDetail from "./components/pages/events/EventDetail/EventDetail";
 import EventRegistration from "./components/pages/events/EventRegistration/EventRegistration";
+import EventEdit from "./components/pages/events/EventEdit/EventEdit";
 import EventApproval from "./components/pages/admin/EventApproval/EventApproval";
 import EventApprovalDetail from "./components/pages/admin/EventApprovalDetail/EventApprovalDetail";
 import PostsManagement from "./components/pages/posts/PostsManagement/PostsManagement";
 import PostDetail from "./components/pages/posts/PostDetail/PostDetail";
 import StoreManagement from "./components/pages/store/StoreManagement/StoreManagement";
 import AddProduct from "./components/pages/store/AddProduct/AddProduct";
+import ProductDetail from "./components/pages/store/ProductDetail/ProductDetail";
+import ProductEdit from "./components/pages/store/ProductEdit/ProductEdit";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
@@ -45,20 +48,29 @@ function App() {
             }
           />
           <Route
-            path="/events/:id"
-            element={
-              <ProtectedRoute>
-                <Navigation />
-                <EventDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/events/register"
             element={
               <ProtectedRoute>
                 <Navigation />
                 <EventRegistration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id/edit"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <EventEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <EventDetail />
               </ProtectedRoute>
             }
           />
@@ -113,6 +125,24 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <AddProduct />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/:id/edit"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <ProductEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/:id"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <ProductDetail />
               </ProtectedRoute>
             }
           />

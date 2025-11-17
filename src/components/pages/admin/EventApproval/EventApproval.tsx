@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
-import "./EventApproval.css";
+import styles from "./EventApproval.module.css";
 
 const searchIcon = "/admin/img/icon/search.svg";
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 const calendarIcon = "/admin/img/icon/calendar.svg";
 const locationIcon = "/admin/img/icon/location.svg";
 const detailIcon = "/admin/img/icon/detail.svg";
-const approveIcon = "/admin/img/icon/check-approve.svg";
-const rejectIcon = "/admin/img/icon/x-reject.svg";
 const prevIcon = "/admin/img/icon/chevron-left.svg";
 const nextIcon = "/admin/img/icon/arrow-right.svg";
 
@@ -32,9 +29,6 @@ const EventApproval: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const itemsPerPage = 9;
 
   const events: Event[] = [
@@ -106,63 +100,29 @@ const EventApproval: React.FC = () => {
     navigate(`/events/approval/${eventId}`);
   };
 
-  const handleApproveClick = (eventId: number) => {
-    setSelectedEventId(eventId);
-    setShowApproveModal(true);
-  };
-
-  const handleRejectClick = (eventId: number) => {
-    setSelectedEventId(eventId);
-    setShowRejectModal(true);
-  };
-
-  const handleApproveConfirm = () => {
-    if (selectedEventId !== null) {
-      console.log("승인:", selectedEventId);
-      alert(`행사 ID ${selectedEventId}가 승인되었습니다.`);
-      setShowApproveModal(false);
-      setSelectedEventId(null);
-    }
-  };
-
-  const handleRejectConfirm = () => {
-    if (selectedEventId !== null) {
-      console.log("거부:", selectedEventId);
-      alert(`행사 ID ${selectedEventId}가 거부되었습니다.`);
-      setShowRejectModal(false);
-      setSelectedEventId(null);
-    }
-  };
-
-  const handleModalCancel = () => {
-    setShowApproveModal(false);
-    setShowRejectModal(false);
-    setSelectedEventId(null);
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <span className="status-badge pending">승인 대기</span>;
+        return <span className={`${styles["status-badge"]} ${styles["pending"]}`}>승인 대기</span>;
       case "approved":
-        return <span className="status-badge approved">승인됨</span>;
+        return <span className={`${styles["status-badge"]} ${styles["approved"]}`}>승인됨</span>;
       case "rejected":
-        return <span className="status-badge rejected">거부됨</span>;
+        return <span className={`${styles["status-badge"]} ${styles["rejected"]}`}>거부됨</span>;
       default:
         return null;
     }
   };
 
   return (
-    <div className="admin-dashboard">
-      <main className="main-content">
+    <div className={styles["admin-dashboard"]}>
+      <main className={styles["main-content"]}>
         <PageHeader title="행사등록 승인" subtitle="하위 관리자가 등록한 행사를 확인하고 승인할 수 있습니다" />
 
-        <div className="dashboard-content">
-          <div className="events-controls">
-            <div className="search-filter-section">
-              <div className="search-input-container">
-                <div className="search-icon">
+        <div className={styles["dashboard-content"]}>
+          <div className={styles["events-controls"]}>
+            <div className={styles["search-filter-section"]}>
+              <div className={styles["search-input-container"]}>
+                <div className={styles["search-icon"]}>
                   <img src={searchIcon} alt="검색" />
                 </div>
                 <input
@@ -170,84 +130,76 @@ const EventApproval: React.FC = () => {
                   placeholder="행사 검색..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
+                  className={styles["search-input"]}
                 />
               </div>
-              <div className="status-select-container">
+              <div className={styles["status-select-container"]}>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="status-select"
+                  className={styles["status-select"]}
                 >
                   <option value="all">전체 상태</option>
                   <option value="pending">승인 대기</option>
                   <option value="approved">승인됨</option>
                   <option value="rejected">거부됨</option>
                 </select>
-                <div className="status-select-icon">
+                <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="events-grid">
+          <div className={styles["events-grid"]}>
             {currentEvents.map((event) => (
-              <div key={event.id} className="event-card">
-                <div className="event-card-content">
-                  <div className="event-header">
-                    <h3 className="event-title">{event.title}</h3>
+              <div key={event.id} className={styles["event-card"]}>
+                <div className={styles["event-card-content"]}>
+                  <div className={styles["event-header"]}>
+                    <h3 className={styles["event-title"]}>{event.title}</h3>
                     {getStatusBadge(event.status)}
                   </div>
 
-                  <div className="event-details">
-                    <div className="event-detail">
-                      <span className="detail-icon">
+                  <div className={styles["event-details"]}>
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
                         <img src={calendarIcon} alt="날짜" />
                       </span>
-                      <span className="detail-text">{event.date}</span>
+                      <span className={styles["detail-text"]}>{event.date}</span>
                     </div>
-                    <div className="event-detail">
-                      <span className="detail-icon">
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
                         <img src={locationIcon} alt="위치" />
                       </span>
-                      <span className="detail-text">{event.location}</span>
+                      <span className={styles["detail-text"]}>{event.location}</span>
                     </div>
                   </div>
 
-                  <div className="event-registration-info">
-                    <span className="registration-text">등록자: {event.registeredBy}</span>
-                    <span className="registration-text">등록일: {event.registeredDate}</span>
-                    <span className="registration-text">스태프: {event.staff}명</span>
-                    <span className="registration-text">최대 신청 참가자: {event.maxParticipants}명</span>
+                  <div className={styles["event-registration-info"]}>
+                    <span className={styles["registration-text"]}>등록자: {event.registeredBy}</span>
+                    <span className={styles["registration-text"]}>등록일: {event.registeredDate}</span>
+                    <span className={styles["registration-text"]}>스태프: {event.staff}명</span>
+                    <span className={styles["registration-text"]}>최대 신청 참가자: {event.maxParticipants}명</span>
                   </div>
 
-                  <div className="event-actions">
-                    <button className="action-btn primary" onClick={() => handleViewDetails(event.id)}>
+                  <div className={styles["event-actions"]}>
+                    <button className={`${styles["action-btn"]} ${styles["primary"]}`} onClick={() => handleViewDetails(event.id)}>
                       <img src={detailIcon} alt="" />
                       상세보기
                     </button>
-                    <div className="action-icons-group">
-                      <button className="action-btn secondary approve" onClick={() => handleApproveClick(event.id)} title="승인">
-                        <img src={approveIcon} alt="승인" />
-                      </button>
-                      <button className="action-btn secondary reject" onClick={() => handleRejectClick(event.id)} title="거부">
-                        <img src={rejectIcon} alt="거부" />
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="pagination-section">
-            <div className="pagination-info">
+          <div className={styles["pagination-section"]}>
+            <div className={styles["pagination-info"]}>
               총 {filteredEvents.length}개 행사 중 {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)}개 표시
             </div>
-            <div className="pagination-controls">
+            <div className={styles["pagination-controls"]}>
               <button
-                className="pagination-btn"
+                className={styles["pagination-btn"]}
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
@@ -256,14 +208,14 @@ const EventApproval: React.FC = () => {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
-                  className={`pagination-btn ${currentPage === page ? "active" : ""}`}
+                  className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
                   onClick={() => setCurrentPage(page)}
                 >
                   {page}
                 </button>
               ))}
               <button
-                className="pagination-btn"
+                className={styles["pagination-btn"]}
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
@@ -273,31 +225,8 @@ const EventApproval: React.FC = () => {
           </div>
         </div>
       </main>
-
-      <ConfirmModal
-        isOpen={showApproveModal}
-        title="행사 승인"
-        message="이 행사를 승인하시겠습니까?"
-        confirmText="승인"
-        cancelText="취소"
-        onConfirm={handleApproveConfirm}
-        onCancel={handleModalCancel}
-        type="approve"
-      />
-
-      <ConfirmModal
-        isOpen={showRejectModal}
-        title="행사 거부"
-        message="이 행사를 거부하시겠습니까?"
-        confirmText="거부"
-        cancelText="취소"
-        onConfirm={handleRejectConfirm}
-        onCancel={handleModalCancel}
-        type="reject"
-      />
     </div>
   );
 };
 
 export default EventApproval;
-

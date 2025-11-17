@@ -11,7 +11,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 105px; 
+  padding-top: 105px;
 }
 
 .dashboard-content {
@@ -52,6 +52,8 @@
   height: 16px;
   background: transparent;
   display: block;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
 }
 
 .search-input {
@@ -84,7 +86,7 @@
 
 .status-select {
   width: 123px;
-  height: 42px;
+  height: 37px;
   padding: 0 36px 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -118,6 +120,39 @@
   height: 12px;
 }
 
+.add-event-btn {
+  background: linear-gradient(90deg, #06b0b7 0%, #642c8d 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 15px 28px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-event-btn img {
+  display: none;
+}
+
+.add-event-btn::before {
+  content: "+";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.add-event-btn:hover {
+  opacity: 0.9;
+}
+
 .events-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -135,6 +170,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 320px;
 }
 
 .event-card:hover {
@@ -143,7 +179,7 @@
 }
 
 .event-card-content {
-  padding: 24px 8px 24px 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -153,42 +189,43 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .event-title {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
   color: #1f2937;
   margin: 0;
   flex: 1;
+  line-height: 1.4;
 }
 
 .status-badge {
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.status-badge.pending {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-badge.approved {
+.status-badge.active {
   background-color: #dcfce7;
   color: #166534;
 }
 
-.status-badge.rejected {
-  background-color: #fee2e2;
-  color: #991b1b;
+.status-badge.completed {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-badge.upcoming {
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .event-details {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .event-detail {
@@ -223,7 +260,7 @@
 .event-stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
   min-width: 0;
   padding-right: 140px;
 }
@@ -231,44 +268,32 @@
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
   white-space: nowrap;
 }
 
 .stat-icon {
-  font-size: 14px;
-  display: flex;
   align-items: center;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  display: flex;
+  font-size: 20px;
+  height: 48px;
   justify-content: center;
-  background: none;
+  width: 48px;
 }
 
 .stat-icon img {
-  width: 17.5px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   display: block;
 }
 
 .stat-text {
+  color: #6b7280;
   font-size: 14px;
-  color: #6b7280;
-}
-
-.event-registration-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #f9fafb;
-  border-radius: 8px;
-}
-
-.registration-text {
-  font-size: 12px;
-  color: #6b7280;
 }
 
 .event-actions {
@@ -318,6 +343,7 @@
   justify-content: center;
   min-height: 48px;
   max-width: none;
+  min-width: 200px;
 }
 
 .action-btn.primary img {
@@ -356,10 +382,10 @@
 }
 
 .pagination-section {
-  position: relative; 
+  position: relative;
   display: block;
   margin-top: 32px;
-  min-height: 44px; 
+  min-height: 44px;
 }
 
 .pagination-info {
@@ -475,4 +501,3 @@
     align-self: flex-end;
   }
 }
-

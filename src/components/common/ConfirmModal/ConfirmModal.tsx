@@ -1,5 +1,5 @@
 import React from "react";
-import "./ConfirmModal.css";
+import styles from "./ConfirmModal.module.css";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -25,20 +25,20 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="confirm-modal-overlay" onClick={onCancel}>
-      <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="confirm-modal-header">
-          <h2 className="confirm-modal-title">{title}</h2>
+    <div className={styles["confirm-modal-overlay"]} onClick={onCancel}>
+      <div className={styles["confirm-modal-content"]} onClick={(e) => e.stopPropagation()}>
+        <div className={styles["confirm-modal-header"]}>
+          <h2 className={styles["confirm-modal-title"]}>{title}</h2>
         </div>
-        <div className="confirm-modal-body">
-          <p className="confirm-modal-message">{message}</p>
+        <div className={styles["confirm-modal-body"]}>
+          <p className={styles["confirm-modal-message"]}>{message}</p>
         </div>
-        <div className="confirm-modal-footer">
-          <button className="confirm-modal-btn cancel-btn" onClick={onCancel}>
+        <div className={styles["confirm-modal-footer"]}>
+          <button className={`${styles["confirm-modal-btn"]} ${styles["cancel-btn"]}`} onClick={onCancel}>
             {cancelText}
           </button>
           <button
-            className={`confirm-modal-btn confirm-btn ${type}`}
+            className={`${styles["confirm-modal-btn"]} ${styles["confirm-btn"]} ${styles[type]}`}
             onClick={onConfirm}
           >
             {confirmText}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Pagination from "../Pagination/Pagination";
-import "./DataListFooter.css";
+import styles from "./DataListFooter.module.css";
 
 interface DataListFooterProps {
   pageSize: number;
@@ -56,9 +56,9 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
   }, [pageSize, leftWidth, leftMarginRight]);
 
   return (
-    <div className={`dl-footer ${className ? className : ""}`}>
-      <div className="dl-items" ref={leftRef}>
-        <select className="dl-items-select" value={pageSize} onChange={(e) => onPageSizeChange(Number(e.target.value))}>
+    <div className={`${styles["dl-footer"]} ${className ? className : ""}`}>
+      <div className={styles["dl-items"]} ref={leftRef}>
+        <select className={styles["dl-items-select"]} value={pageSize} onChange={(e) => onPageSizeChange(Number(e.target.value))}>
           {pageSizeOptions.map((opt) => (
             <option key={opt} value={opt}>
               {opt}개씩 보기
@@ -71,7 +71,7 @@ const DataListFooter: React.FC<DataListFooterProps> = ({
         currentPage={currentPage}
         totalPages={totalPages}
         onChange={onPageChange}
-        className="dl-pagination"
+        className={styles["dl-pagination"]}
       />
     </div>
   );

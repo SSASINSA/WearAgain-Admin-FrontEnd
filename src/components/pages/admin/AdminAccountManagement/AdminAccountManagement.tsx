@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./AdminAccountManagement.css";
+import styles from "./AdminAccountManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
@@ -105,11 +105,11 @@ const AdminAccountManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <span className="admin-account-status-badge pending">대기중</span>;
+        return <span className={`${styles["admin-account-status-badge"]} ${styles["pending"]}`}>대기중</span>;
       case "approved":
-        return <span className="admin-account-status-badge approved">승인됨</span>;
+        return <span className={`${styles["admin-account-status-badge"]} ${styles["approved"]}`}>승인됨</span>;
       case "rejected":
-        return <span className="admin-account-status-badge rejected">거부됨</span>;
+        return <span className={`${styles["admin-account-status-badge"]} ${styles["rejected"]}`}>거부됨</span>;
       default:
         return null;
     }
@@ -170,28 +170,28 @@ const AdminAccountManagement: React.FC = () => {
   };
 
   return (
-    <div className="admin-account-dashboard">
-      <main className="admin-account-main-content">
+    <div className={styles["admin-account-dashboard"]}>
+      <main className={styles["admin-account-main-content"]}>
         <PageHeader title="관리자 계정 관리" subtitle="관리자 계정 신청을 검토하고 승인/거부할 수 있습니다" />
 
-        <div className="admin-account-dashboard-content">
-          <div className="dl-container">
+        <div className={styles["admin-account-dashboard-content"]}>
+          <div className={styles["dl-container"]}>
             {isFilterOpen && (
-              <div className="dl-controls">
-                <div className={`admin-account-filter-section ${isFilterOpen ? "is-open" : "is-collapsed"}`}>
-                  <div className="admin-account-filter-header">
+              <div className={styles["dl-controls"]}>
+                <div className={`${styles["admin-account-filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+                  <div className={styles["admin-account-filter-header"]}>
                     <h3>필터 및 검색</h3>
                     <button
-                      className={`admin-account-filter-toggle ${isFilterOpen ? "open" : ""}`}
+                      className={`${styles["admin-account-filter-toggle"]} ${isFilterOpen ? styles["open"] : ""}`}
                       aria-expanded={isFilterOpen}
                       onClick={() => setIsFilterOpen((v) => !v)}
                     >
                       ▼
                     </button>
                   </div>
-                  <div className={`admin-account-filter-controls ${isFilterOpen ? "is-open" : ""}`}>
-                    <div className="admin-account-search-container">
-                      <div className="admin-account-search-icon">
+                  <div className={`${styles["admin-account-filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                    <div className={styles["admin-account-search-container"]}>
+                      <div className={styles["admin-account-search-icon"]}>
                         <img src="/admin/img/icon/search.svg" alt="검색" />
                       </div>
                       <input
@@ -199,35 +199,35 @@ const AdminAccountManagement: React.FC = () => {
                         placeholder="아이디 또는 이메일로 검색..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-account-search-input"
+                        className={styles["admin-account-search-input"]}
                       />
                     </div>
-                    <div className="admin-account-status-select-container">
+                    <div className={styles["admin-account-status-select-container"]}>
                       <select
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="admin-account-status-select"
+                        className={styles["admin-account-status-select"]}
                       >
                         <option value="all">전체 상태</option>
                         <option value="pending">대기중</option>
                         <option value="approved">승인됨</option>
                         <option value="rejected">거부됨</option>
                       </select>
-                      <div className="admin-account-status-select-icon">
+                      <div className={styles["admin-account-status-select-icon"]}>
                         <img src={dropdownIcon} alt="드롭다운" />
                       </div>
                     </div>
-                    <div className="admin-account-sort-select-container">
+                    <div className={styles["admin-account-sort-select-container"]}>
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="admin-account-sort-select"
+                        className={styles["admin-account-sort-select"]}
                       >
                         <option value="latest">최신순</option>
                         <option value="oldest">오래된순</option>
                         <option value="id">아이디순</option>
                       </select>
-                      <div className="admin-account-sort-select-icon">
+                      <div className={styles["admin-account-sort-select-icon"]}>
                         <img src={dropdownIcon} alt="드롭다운" />
                       </div>
                     </div>
@@ -236,10 +236,10 @@ const AdminAccountManagement: React.FC = () => {
               </div>
             )}
 
-            <div className="dl-table-container">
-              <div className="dl-table-header">
+            <div className={styles["dl-table-container"]}>
+              <div className={styles["dl-table-header"]}>
                 <h3>승인 요청 목록</h3>
-                <div className="dl-table-info">
+                <div className={styles["dl-table-info"]}>
                   <span>총 {filteredRequests.length}개 요청</span>
                   <span>|</span>
                   <span>
@@ -248,8 +248,8 @@ const AdminAccountManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div className="dl-table-wrapper">
-                <table className="dl-table">
+              <div className={styles["dl-table-wrapper"]}>
+                <table className={styles["dl-table"]}>
                   <thead>
                     <tr>
                       {[
@@ -279,22 +279,22 @@ const AdminAccountManagement: React.FC = () => {
                         <tr>
                           <td style={{ textAlign: "center", padding: "8px 2px 8px 8px" }}>
                             <button
-                              className="admin-account-expand-btn"
+                              className={styles["admin-account-expand-btn"]}
                               onClick={() => handleToggleRow(row.id)}
                               title={expandedRows.has(row.id) ? "접기" : "펼치기"}
                             >
                               <span
-                                className={`admin-account-expand-icon ${expandedRows.has(row.id) ? "expanded" : ""}`}
+                                className={`${styles["admin-account-expand-icon"]} ${expandedRows.has(row.id) ? styles["expanded"] : ""}`}
                               >
                                 ▼
                               </span>
                             </button>
                           </td>
-                          <td className="admin-account-userid-cell" style={{ paddingLeft: "4px" }}>
+                          <td className={styles["admin-account-userid-cell"]} style={{ paddingLeft: "4px" }}>
                             {row.userId}
                           </td>
-                          <td className="admin-account-email-cell">{row.email}</td>
-                          <td className="admin-account-date-cell">
+                          <td className={styles["admin-account-email-cell"]}>{row.email}</td>
+                          <td className={styles["admin-account-date-cell"]}>
                             {(() => {
                               const [datePart, timePart] = row.requestDate.split(" ");
                               const [year, month, day] = datePart.split("-");
@@ -311,14 +311,14 @@ const AdminAccountManagement: React.FC = () => {
                               );
                             })()}
                           </td>
-                          <td className="admin-account-description-cell">
-                            <div className="admin-account-description-wrapper">
-                              <span className="admin-account-description-text" title={row.description || ""}>
+                          <td className={styles["admin-account-description-cell"]}>
+                            <div className={styles["admin-account-description-wrapper"]}>
+                              <span className={styles["admin-account-description-text"]} title={row.description || ""}>
                                 {row.description || "상세 설명이 없습니다."}
                               </span>
                               {row.description && (
                                 <button
-                                  className="admin-account-detail-btn"
+                                  className={styles["admin-account-detail-btn"]}
                                   onClick={() => handleViewDetail(row)}
                                   title="전체 보기"
                                 >
@@ -329,18 +329,18 @@ const AdminAccountManagement: React.FC = () => {
                           </td>
                           <td>{getStatusBadge(row.status)}</td>
                           <td style={{ textAlign: "center" }}>
-                            <div className="admin-account-action-buttons">
+                            <div className={styles["admin-account-action-buttons"]}>
                               {row.status === "pending" && (
                                 <>
                                   <button
-                                    className="admin-account-action-btn approve"
+                                    className={`${styles["admin-account-action-btn"]} ${styles["approve"]}`}
                                     title="승인"
                                     onClick={() => handleApproveClick(row.id)}
                                   >
                                     승인
                                   </button>
                                   <button
-                                    className="admin-account-action-btn reject"
+                                    className={`${styles["admin-account-action-btn"]} ${styles["reject"]}`}
                                     title="거부"
                                     onClick={() => handleRejectClick(row.id)}
                                   >
@@ -352,35 +352,35 @@ const AdminAccountManagement: React.FC = () => {
                           </td>
                         </tr>
                         {expandedRows.has(row.id) && (
-                          <tr className="admin-account-expanded-row">
-                            <td colSpan={7} className="admin-account-expanded-content">
-                              <div className="admin-account-expanded-info">
-                                <div className="admin-account-expanded-item">
-                                  <span className="admin-account-expanded-label">아이디:</span>
-                                  <span className="admin-account-expanded-value">{row.userId}</span>
+                          <tr className={styles["admin-account-expanded-row"]}>
+                            <td colSpan={7} className={styles["admin-account-expanded-content"]}>
+                              <div className={styles["admin-account-expanded-info"]}>
+                                <div className={styles["admin-account-expanded-item"]}>
+                                  <span className={styles["admin-account-expanded-label"]}>아이디:</span>
+                                  <span className={styles["admin-account-expanded-value"]}>{row.userId}</span>
                                 </div>
-                                <div className="admin-account-expanded-item">
-                                  <span className="admin-account-expanded-label">이메일:</span>
-                                  <span className="admin-account-expanded-value">{row.email}</span>
+                                <div className={styles["admin-account-expanded-item"]}>
+                                  <span className={styles["admin-account-expanded-label"]}>이메일:</span>
+                                  <span className={styles["admin-account-expanded-value"]}>{row.email}</span>
                                 </div>
-                                <div className="admin-account-expanded-item">
-                                  <span className="admin-account-expanded-label">신청일:</span>
-                                  <span className="admin-account-expanded-value">{row.requestDate}</span>
+                                <div className={styles["admin-account-expanded-item"]}>
+                                  <span className={styles["admin-account-expanded-label"]}>신청일:</span>
+                                  <span className={styles["admin-account-expanded-value"]}>{row.requestDate}</span>
                                 </div>
-                                <div className="admin-account-expanded-item">
-                                  <span className="admin-account-expanded-label">상태:</span>
-                                  <span className="admin-account-expanded-value">{getStatusBadge(row.status)}</span>
+                                <div className={styles["admin-account-expanded-item"]}>
+                                  <span className={styles["admin-account-expanded-label"]}>상태:</span>
+                                  <span className={styles["admin-account-expanded-value"]}>{getStatusBadge(row.status)}</span>
                                 </div>
-                                <div className="admin-account-expanded-item">
-                                  <span className="admin-account-expanded-label">상세 설명:</span>
-                                  <span className="admin-account-expanded-value">
+                                <div className={styles["admin-account-expanded-item"]}>
+                                  <span className={styles["admin-account-expanded-label"]}>상세 설명:</span>
+                                  <span className={styles["admin-account-expanded-value"]}>
                                     {row.description || "상세 설명이 없습니다."}
                                   </span>
                                 </div>
                                 {row.reason && (
-                                  <div className="admin-account-expanded-item">
-                                    <span className="admin-account-expanded-label">거부 사유:</span>
-                                    <span className="admin-account-expanded-value">{row.reason}</span>
+                                  <div className={styles["admin-account-expanded-item"]}>
+                                    <span className={styles["admin-account-expanded-label"]}>거부 사유:</span>
+                                    <span className={styles["admin-account-expanded-value"]}>{row.reason}</span>
                                   </div>
                                 )}
                               </div>
@@ -409,41 +409,41 @@ const AdminAccountManagement: React.FC = () => {
       </main>
 
       {selectedDetail && (
-        <div className="admin-account-modal-overlay" onClick={handleCloseModal}>
-          <div className="admin-account-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-account-modal-header">
+        <div className={styles["admin-account-modal-overlay"]} onClick={handleCloseModal}>
+          <div className={styles["admin-account-modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["admin-account-modal-header"]}>
               <h2>상세 정보</h2>
-              <button className="admin-account-modal-close" onClick={handleCloseModal}>
+              <button className={styles["admin-account-modal-close"]} onClick={handleCloseModal}>
                 ×
               </button>
             </div>
-            <div className="admin-account-modal-body">
-              <div className="admin-account-modal-row">
-                <span className="admin-account-modal-label">아이디:</span>
-                <span className="admin-account-modal-value">{selectedDetail.userId}</span>
+            <div className={styles["admin-account-modal-body"]}>
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>아이디:</span>
+                <span className={styles["admin-account-modal-value"]}>{selectedDetail.userId}</span>
               </div>
-              <div className="admin-account-modal-row">
-                <span className="admin-account-modal-label">이메일:</span>
-                <span className="admin-account-modal-value">{selectedDetail.email}</span>
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>이메일:</span>
+                <span className={styles["admin-account-modal-value"]}>{selectedDetail.email}</span>
               </div>
-              <div className="admin-account-modal-row">
-                <span className="admin-account-modal-label">신청일:</span>
-                <span className="admin-account-modal-value">{selectedDetail.requestDate}</span>
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>신청일:</span>
+                <span className={styles["admin-account-modal-value"]}>{selectedDetail.requestDate}</span>
               </div>
-              <div className="admin-account-modal-row">
-                <span className="admin-account-modal-label">상태:</span>
-                <span className="admin-account-modal-value">{getStatusBadge(selectedDetail.status)}</span>
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>상태:</span>
+                <span className={styles["admin-account-modal-value"]}>{getStatusBadge(selectedDetail.status)}</span>
               </div>
-              <div className="admin-account-modal-row">
-                <span className="admin-account-modal-label">상세 설명:</span>
-                <div className="admin-account-modal-description">
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>상세 설명:</span>
+                <div className={styles["admin-account-modal-description"]}>
                   {selectedDetail.description || "상세 설명이 없습니다."}
                 </div>
               </div>
               {selectedDetail.reason && (
-                <div className="admin-account-modal-row">
-                  <span className="admin-account-modal-label">거부 사유:</span>
-                  <span className="admin-account-modal-value">{selectedDetail.reason}</span>
+                <div className={styles["admin-account-modal-row"]}>
+                  <span className={styles["admin-account-modal-label"]}>거부 사유:</span>
+                  <span className={styles["admin-account-modal-value"]}>{selectedDetail.reason}</span>
                 </div>
               )}
             </div>

@@ -1,0 +1,552 @@
+.admin-dashboard {
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  background-color: #f9fafb;
+  width: calc(100vw - 280px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 105px;
+}
+
+.event-registration-content {
+  padding: 32px 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-section {
+  text-align: center;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.hero-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
+  border-radius: 16px;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.hero-icon img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
+  border: none;
+  outline: none;
+}
+
+.hero-icon img svg {
+  border: none;
+}
+
+.hero-title {
+  font-size: 28px;
+  font-weight: 400;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  line-height: 1.1;
+}
+
+.hero-description {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 545px;
+  margin: 0 auto;
+}
+
+.registration-form-container {
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+}
+
+.form-row > .form-group {
+  min-width: 0;
+  width: 100%;
+}
+
+.form-row > .form-group > .date-input-container {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.form-row > .form-group > .date-input-container > * {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.form-row > .form-group > .date-input-container > div {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.form-row > .form-group > .date-input-container .react-datepicker-wrapper {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.form-row > .form-group > .date-input-container .react-datepicker__input-container {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.form-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+}
+
+.registration-form .form-group .form-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.event-registration-content .form-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.label-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* 행사 수정 페이지에서 스태프와 참가자 아이콘 색상 변경 */
+.label-icon.icon-colored {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%) contrast(101%);
+}
+
+.form-input {
+  width: 100%;
+  height: 64px;
+  padding: 0 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 18px;
+  color: #1f2937;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #06b0b7;
+  box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
+}
+
+.form-input::placeholder {
+  color: #adaebc;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 204px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 18px;
+  color: #1f2937;
+  background-color: white;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #06b0b7;
+  box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
+}
+
+.form-textarea::placeholder {
+  color: #adaebc;
+}
+
+.date-input-container,
+.time-input-container,
+.location-input-container {
+  position: relative;
+  width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.date-input-wrapper {
+  position: relative;
+  width: 100% !important;
+  display: block !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.date-input-wrapper input {
+  width: 100% !important;
+  height: 56px;
+  padding: 16px 50px 16px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #111827;
+  background-color: #fff;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.date-input-wrapper input:focus {
+  outline: none;
+  border-color: #06b0b7;
+  box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
+}
+
+.date-input-wrapper input::placeholder {
+  color: #adaebc;
+}
+
+.date-input-wrapper .input-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.input-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.date-input-container .input-icon {
+  z-index: 10;
+  right: 20px;
+  pointer-events: auto;
+}
+
+.date-input-container .input-icon:hover,
+.time-input-container .input-icon:hover,
+.location-input-container .input-icon:hover {
+  filter: none !important;
+  transition: none !important;
+}
+
+.date-input-container .react-datepicker-wrapper {
+  width: 100% !important;
+  position: relative;
+  z-index: 0;
+  display: block !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.date-input-container .react-datepicker__input-container {
+  width: 100% !important;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+  display: block !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.date-input-container .react-datepicker__input-container input {
+  width: 100%;
+  height: 56px;
+  padding: 16px 50px 16px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #111827;
+  background-color: #fff;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 0;
+  pointer-events: auto;
+}
+
+.date-input-container .react-datepicker__input-container input[readonly] {
+  cursor: pointer;
+}
+
+.date-input-container .react-datepicker__input-container input:focus {
+  outline: none;
+  border-color: #06b0b7;
+  box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
+}
+
+.date-input-container .react-datepicker__input-container input::placeholder {
+  color: #adaebc;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.save-draft-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 64px;
+  padding: 0 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  background-color: white;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-draft-btn:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.save-draft-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.register-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 64px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.register-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 176, 183, 0.3);
+}
+
+.register-btn img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.tips-section {
+  background: linear-gradient(135deg, rgba(6, 176, 183, 0.1) 0%, rgba(100, 44, 141, 0.1) 100%);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.tips-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tips-icon img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.tips-content {
+  flex: 1;
+}
+
+.tips-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.tip-icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100vw;
+  }
+
+  .event-registration-content {
+    padding: 24px 16px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+  .registration-form-container {
+    padding: 24px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .save-draft-btn,
+  .register-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tips-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+  }
+
+  .form-input,
+  .form-textarea {
+    font-size: 16px;
+  }
+
+  .form-label {
+    font-size: 16px;
+  }
+}
+
+.address-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.address-modal-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+

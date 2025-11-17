@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./AddProduct.module.css";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import styles from "../AddProduct/AddProduct.module.css";
 
 const ICONS = {
   camera: "/admin/img/icon/camera.svg",
@@ -44,16 +44,32 @@ interface OptionCombination {
   status: string;
 }
 
-const AddProduct: React.FC = () => {
+interface ProductState {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  status: "판매중" | "품절" | "판매완료";
+  image: string;
+  description: string;
+  stock: number;
+  createdAt: string;
+}
+
+const ProductEdit: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
+  const state = (location.state || {}) as Partial<ProductState>;
+
   const [productData, setProductData] = useState({
-    name: "",
-    description: "",
-    price: "",
+    name: state.name || "",
+    description: state.description || "",
+    price: state.price?.toString() || "",
   });
 
   const [images, setImages] = useState<ProductImage[]>([
-    { file: null, preview: "" },
+    { file: null, preview: state.image || "" },
     { file: null, preview: "" },
     { file: null, preview: "" },
     { file: null, preview: "" },
@@ -65,8 +81,27 @@ const AddProduct: React.FC = () => {
   const [optionCombinations, setOptionCombinations] = useState<OptionCombination[]>([]);
   const [isCombinedOption, setIsCombinedOption] = useState(false);
   const [requiredOptions, setRequiredOptions] = useState(false);
-  const [quantity, setQuantity] = useState<string>("");
+  const [quantity, setQuantity] = useState<string>(state.stock?.toString() || "");
   const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state) {
+      setProductData({
+        name: state.name || "",
+        description: state.description || "",
+        price: state.price?.toString() || "",
+      });
+      setQuantity(state.stock?.toString() || "");
+      if (state.image) {
+        setImages([
+          { file: null, preview: state.image },
+          { file: null, preview: "" },
+          { file: null, preview: "" },
+          { file: null, preview: "" },
+        ]);
+      }
+    }
+  }, [state]);
 
   const getPressHandlers = (id: string) => ({
     onMouseDown: () => setPressedAction(id),
@@ -104,7 +139,8 @@ const AddProduct: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("상품 등록:", { ...productData, images, options, optionCombinations, quantity });
+    console.log("상품 수정:", { id, ...productData, images, options, optionCombinations, quantity });
+    navigate(`/store/${id}`);
   };
 
   const handleAddOption = () => {
@@ -237,15 +273,15 @@ const AddProduct: React.FC = () => {
         </button>
         <div className={styles["header-content"]}>
           <div className={styles["header-info"]}>
-            <h1>상품 등록</h1>
-            <p>새로운 상품을 등록하고 판매를 시작하세요</p>
+            <h1>상품 수정</h1>
+            <p>상품 정보를 수정하고 변경사항을 저장하세요</p>
           </div>
           <div className={styles["header-actions"]}>
             <button className={styles["temp-save-btn"]} onClick={handleTempSave}>
               임시저장
             </button>
             <button className={styles["submit-btn"]} onClick={handleSubmit}>
-              상품 등록
+              상품 수정
             </button>
           </div>
         </div>
@@ -625,7 +661,7 @@ const AddProduct: React.FC = () => {
           <div className={`${styles["section"]} ${styles["tips-section"]}`}>
             <div className={styles["tips-header"]}>
               <img src={ICONS.lightbulb} alt="팁" className={styles["icon"]} />
-              <h3>등록 팁</h3>
+              <h3>수정 팁</h3>
             </div>
             <ul className={styles["tips-list"]}>
               <li>
@@ -648,4 +684,5 @@ const AddProduct: React.FC = () => {
   );
 };
 
-export default AddProduct;
+export default ProductEdit;
+

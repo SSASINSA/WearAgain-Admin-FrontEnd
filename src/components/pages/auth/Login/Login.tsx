@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authUtils } from "utils/auth";
-import "./Login.css";
+import styles from "./Login.module.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -86,15 +86,15 @@ const Login: React.FC = () => {
 
   return (
     <div className="bg-white w-full h-screen min-h-[700px] flex relative overflow-hidden">
-      <div className="flex-1 flex h-full justify-center items-center bg-white z-10 px-6">
+      <div className="flex h-full justify-center items-center bg-white z-10 px-6" style={{ width: "35%", minWidth: "400px", flexShrink: 0 }}>
         <div className="w-[403px] flex flex-col items-stretch gap-10">
           <h1 className="relative w-fit [font-family:'Poppins-SemiBold',Helvetica] font-semibold text-[#171725] text-3xl text-center tracking-[0.10px] leading-[normal]">
             로그인
           </h1>
 
-          <form className="inline-flex flex-col h-[270px] items-start relative" onSubmit={handleSubmit}>
-            <div className="inline-flex flex-col items-end gap-8 relative flex-[0_0_auto]">
-              <div className="inline-flex flex-col items-start gap-4 relative flex-[0_0_auto]">
+          <form className="inline-flex flex-col h-[270px] items-start relative w-full" onSubmit={handleSubmit}>
+            <div className="inline-flex flex-col items-end gap-8 relative flex-[0_0_auto] w-full">
+              <div className="inline-flex flex-col items-start gap-4 relative flex-[0_0_auto] w-full">
                 <div className="flex flex-col items-center gap-6 relative self-stretch w-full flex-[0_0_auto]">
                   <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
                     <label className="flex items-center gap-4 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] relative self-stretch w-full flex-[0_0_auto] mt-[-0.80px] ml-[-0.80px] mr-[-0.80px] bg-white rounded-lg border-[1.6px] border-solid border-[#e0e2e9]">
@@ -193,8 +193,8 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative flex-shrink-0">
-        <img className="h-full w-auto object-cover" alt="Rectangle" src={HERO_BG} />
+      <div className="relative" style={{ width: "65%", flexShrink: 1, minWidth: "700px" }}>
+        <img className="h-full w-full object-cover" alt="Rectangle" src={HERO_BG} />
       </div>
 
       <div className="hidden lg:block absolute bottom-[71.22%] left-1/2 right-[8.66%] top-[12.73%] z-20">
@@ -217,19 +217,19 @@ const Login: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="login-modal-overlay" onClick={handleCloseModal}>
-          <div className="login-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="login-modal-header">
+        <div className={styles["login-modal-overlay"]} onClick={handleCloseModal}>
+          <div className={styles["login-modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["login-modal-header"]}>
               <h2>{modalTitle}</h2>
-              <button className="login-modal-close" onClick={handleCloseModal}>
+              <button className={styles["login-modal-close"]} onClick={handleCloseModal}>
                 ×
               </button>
             </div>
-            <div className="login-modal-body">
+            <div className={styles["login-modal-body"]}>
               <p style={{ whiteSpace: "pre-line" }}>{modalMessage}</p>
             </div>
-            <div className="login-modal-footer">
-              <button className="login-modal-btn" onClick={handleCloseModal}>
+            <div className={styles["login-modal-footer"]}>
+              <button className={styles["login-modal-btn"]} onClick={handleCloseModal}>
                 확인
               </button>
             </div>
