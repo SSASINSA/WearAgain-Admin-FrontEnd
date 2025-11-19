@@ -143,6 +143,7 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .admin-account-filter-controls.is-open {
@@ -363,6 +364,9 @@
   transition: all 0.2s;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+  min-width: fit-content;
+  flex-shrink: 0;
 }
 
 .admin-account-action-btn.approve {
@@ -407,9 +411,9 @@
 
 .admin-account-dashboard-content .dl-table-wrapper .dl-table th:nth-child(7),
 .admin-account-dashboard-content .dl-table-wrapper .dl-table td:nth-child(7) {
-  min-width: 100px !important;
-  width: 100px !important;
-  max-width: 100px !important;
+  min-width: 120px !important;
+  width: 120px !important;
+  max-width: 120px !important;
   padding: 16px 8px !important;
 }
 
@@ -552,18 +556,22 @@
 
 @media (max-width: 1200px) {
   .admin-account-filter-controls {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .admin-account-search-container {
-    order: 1;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .admin-account-status-select-container,
+  .admin-account-sort-select-container {
+    flex-shrink: 0;
   }
 
   .admin-account-status-select,
   .admin-account-sort-select {
-    order: 2;
-    min-width: auto;
+    min-width: 120px;
   }
 }
 
