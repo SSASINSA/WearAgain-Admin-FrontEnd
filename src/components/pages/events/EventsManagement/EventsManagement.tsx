@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "utils/api";
 import styles from "./EventsManagement.module.css";
 
 const searchIcon = "/admin/img/icon/search.svg";
@@ -14,6 +15,32 @@ const detailIcon = "/admin/img/icon/detail.svg";
 const editIcon = "/admin/img/icon/edit.svg";
 const prevIcon = "/admin/img/icon/chevron-left.svg";
 const nextIcon = "/admin/img/icon/arrow-right.svg";
+
+interface EventApiResponse {
+  eventId: number;
+  title: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  totalCapacity: number;
+  appliedCount: number;
+  remainingCount: number;
+  organizerName: string;
+  organizerContact: string;
+  organizerAdminId: number;
+  organizerAdminEmail: string;
+  organizerAdminName: string;
+}
+
+interface EventAdminListResponse {
+  events: EventApiResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
 
 interface Event {
   id: number;
@@ -30,84 +57,112 @@ const EventsManagement: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 9;
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [pageSize] = useState<number>(9);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [hasNext, setHasNext] = useState<boolean>(false);
 
-  const events: Event[] = [
-    {
-      id: 1,
-      title: "서울 강남구 옷 교환 파티",
-      date: "2024.03.15 - 2024.03.16",
-      location: "서울 강남구 그린센터",
-      participants: 250,
-      staff: 12,
-      status: "active",
-      description: "옷을 버리는 대신 교환하는 환경 보호 행사",
-    },
-    {
-      id: 2,
-      title: "부산 해운대 옷 교환 행사",
-      date: "2024.04.20 - 2024.04.21",
-      location: "부산 해운대구 문화센터",
-      participants: 180,
-      staff: 8,
-      status: "upcoming",
-      description: "지속가능한 패션을 위한 옷 교환 행사",
-    },
-    {
-      id: 3,
-      title: "서울 DDP 옷 교환 데이",
-      date: "2024.02.28 - 2024.02.28",
-      location: "서울 DDP 디자인랩",
-      participants: 320,
-      staff: 15,
-      status: "completed",
-      description: "환경을 지키는 옷 교환 행사",
-    },
-    {
-      id: 4,
-      title: "서울 마포구 옷 교환 파티",
-      date: "2024.03.15 - 2024.03.16",
-      location: "서울 마포구 문화복합공간",
-      participants: 250,
-      staff: 12,
-      status: "active",
-      description: "21%파티 옷 교환으로 환경 보호하기",
-    },
-    {
-      id: 5,
-      title: "인천 송도 옷 교환 행사",
-      date: "2024.04.20 - 2024.04.21",
-      location: "인천 송도국제도시 컨벤션센터",
-      participants: 180,
-      staff: 8,
-      status: "upcoming",
-      description: "옷 교환을 통한 지속가능한 패션 실천",
-    },
-    {
-      id: 6,
-      title: "대전 유성구 옷 교환 데이",
-      date: "2024.02.28 - 2024.02.28",
-      location: "대전 유성구 과학문화센터",
-      participants: 320,
-      staff: 15,
-      status: "completed",
-      description: "환경 보호를 위한 옷 교환 행사",
-    },
-  ];
+  const mapApiStatusToDisplayStatus = (apiStatus: string): "active" | "completed" | "upcoming" => {
+    switch (apiStatus.toUpperCase()) {
+      case "OPEN":
+        return "active";
+      case "CLOSED":
+        return "completed";
+      case "UPCOMING":
+        return "upcoming";
+      default:
+        return "active";
+    }
+  };
+
+  const formatDateRange = (startDate: string, endDate: string): string => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}.${month}.${day}`;
+    };
+    return `${formatDate(start)} - ${formatDate(end)}`;
+  };
+
+  const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
+    switch (displayStatus) {
+      case "active":
+        return "OPEN";
+      case "upcoming":
+        return "UPCOMING";
+      case "completed":
+        return "CLOSED";
+      default:
+        return null;
+    }
+  };
+
+  const fetchEvents = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      const apiStatus = mapDisplayStatusToApiStatus(selectedStatus);
+      if (apiStatus) {
+        params.append("status", apiStatus);
+      }
+      params.append("page", String(currentPage));
+      params.append("size", String(pageSize));
+
+      const response = await apiRequest(`/admin/events?${params.toString()}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 목록을 가져오는데 실패했습니다.");
+      }
+
+      const data: EventAdminListResponse = await response.json();
+      const transformedEvents = data.events.map((apiEvent) => {
+        const displayStatus = mapApiStatusToDisplayStatus(apiEvent.status);
+        return {
+          id: apiEvent.eventId,
+          title: apiEvent.title,
+          date: formatDateRange(apiEvent.startDate, apiEvent.endDate),
+          location: apiEvent.location,
+          participants: apiEvent.appliedCount,
+          staff: 0,
+          status: displayStatus,
+          description: "",
+        };
+      });
+      setEvents(transformedEvents);
+      setTotalElements(data.totalElements);
+      setTotalPages(data.totalPages);
+      setHasNext(data.hasNext);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "행사 목록을 가져오는데 실패했습니다.";
+      setError(errorMessage);
+      console.error("Error fetching events:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedStatus, currentPage, pageSize]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const filteredEvents = events.filter((event) => {
-    const matchesStatus = selectedStatus === "all" || event.status === selectedStatus;
     const matchesSearch =
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.location.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
+    return matchesSearch;
   });
-
-  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentEvents = filteredEvents.slice(startIndex, endIndex);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -122,8 +177,9 @@ const EventsManagement: React.FC = () => {
     }
   };
 
-  const getStatusCount = (status: string) => {
-    return events.filter((event) => event.status === status).length;
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    setCurrentPage(0);
   };
 
   const handleViewDetails = (eventId: number) => {
@@ -157,7 +213,7 @@ const EventsManagement: React.FC = () => {
               <div className={styles["status-select-container"]}>
                 <select
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  onChange={(e) => handleStatusChange(e.target.value)}
                   className={styles["status-select"]}
                 >
                   <option value="all">전체 상태</option>
@@ -175,97 +231,115 @@ const EventsManagement: React.FC = () => {
             </button>
           </div>
 
-          <div className={styles["events-grid"]}>
-            {currentEvents.map((event) => (
-              <div key={event.id} className={styles["event-card"]}>
-                <div className={styles["event-card-content"]}>
-                  <div className={styles["event-header"]}>
-                    <h3 className={styles["event-title"]}>{event.title}</h3>
-                    {getStatusBadge(event.status)}
-                  </div>
+          {isLoading && (
+            <div className={styles["loading-container"]}>
+              <p>로딩 중...</p>
+            </div>
+          )}
 
-                  <div className={styles["event-details"]}>
-                    <div className={styles["event-detail"]}>
-                      <span className={styles["detail-icon"]}>
-                        <img src={calendarIcon} alt="날짜" />
-                      </span>
-                      <span className={styles["detail-text"]}>{event.date}</span>
-                    </div>
-                    <div className={styles["event-detail"]}>
-                      <span className={styles["detail-icon"]}>
-                        <img src={locationIcon} alt="위치" />
-                      </span>
-                      <span className={styles["detail-text"]}>{event.location}</span>
+          {error && (
+            <div className={styles["error-container"]}>
+              <p>{error}</p>
+              <button onClick={fetchEvents}>다시 시도</button>
+            </div>
+          )}
+
+          {!isLoading && !error && (
+            <>
+              <div className={styles["events-grid"]}>
+                {filteredEvents.map((event) => (
+                  <div key={event.id} className={styles["event-card"]}>
+                    <div className={styles["event-card-content"]}>
+                      <div className={styles["event-header"]}>
+                        <h3 className={styles["event-title"]}>{event.title}</h3>
+                        {getStatusBadge(event.status)}
+                      </div>
+
+                      <div className={styles["event-details"]}>
+                        <div className={styles["event-detail"]}>
+                          <span className={styles["detail-icon"]}>
+                            <img src={calendarIcon} alt="날짜" />
+                          </span>
+                          <span className={styles["detail-text"]}>{event.date}</span>
+                        </div>
+                        <div className={styles["event-detail"]}>
+                          <span className={styles["detail-icon"]}>
+                            <img src={locationIcon} alt="위치" />
+                          </span>
+                          <span className={styles["detail-text"]}>{event.location}</span>
+                        </div>
+                      </div>
+
+                      <div className={styles["event-stats"]}>
+                        <div className={styles["stat-item"]}>
+                          <span className={styles["stat-icon"]}>
+                            <img src={participantIcon} alt="참가자" />
+                          </span>
+                          <span className={styles["stat-text"]}>참가자 {event.participants}명</span>
+                        </div>
+                        <div className={styles["stat-item"]}>
+                          <span className={styles["stat-icon"]}>
+                            <img src={staffIcon} alt="스태프" />
+                          </span>
+                          <span className={styles["stat-text"]}>스태프 {event.staff}명</span>
+                        </div>
+                      </div>
+
+                      <div className={styles["event-actions"]}>
+                        <button
+                          className={`${styles["action-btn"]} ${styles["primary"]}`}
+                          onClick={() => handleViewDetails(event.id)}
+                        >
+                          <img src={detailIcon} alt="" />
+                          상세보기
+                        </button>
+                        <div className={styles["action-icons-group"]}>
+                          <button
+                            className={`${styles["action-btn"]} ${styles["secondary"]}`}
+                            onClick={() => handleEdit(event.id)}
+                          >
+                            <img src={editIcon} alt="수정" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className={styles["event-stats"]}>
-                    <div className={styles["stat-item"]}>
-                      <span className={styles["stat-icon"]}>
-                        <img src={participantIcon} alt="참가자" />
-                      </span>
-                      <span className={styles["stat-text"]}>참가자 {event.participants}명</span>
-                    </div>
-                    <div className={styles["stat-item"]}>
-                      <span className={styles["stat-icon"]}>
-                        <img src={staffIcon} alt="스태프" />
-                      </span>
-                      <span className={styles["stat-text"]}>스태프 {event.staff}명</span>
-                    </div>
-                  </div>
-
-                  <div className={styles["event-actions"]}>
+              <div className={styles["pagination-section"]}>
+                <div className={styles["pagination-info"]}>
+                  총 {totalElements}개 행사 중 {currentPage * pageSize + 1}-
+                  {Math.min((currentPage + 1) * pageSize, totalElements)}개 표시
+                </div>
+                <div className={styles["pagination-controls"]}>
+                  <button
+                    className={styles["pagination-btn"]}
+                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                    disabled={currentPage === 0}
+                  >
+                    <img src={prevIcon} alt="이전" />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i).map((page) => (
                     <button
-                      className={`${styles["action-btn"]} ${styles["primary"]}`}
-                      onClick={() => handleViewDetails(event.id)}
+                      key={page}
+                      className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
+                      onClick={() => setCurrentPage(page)}
                     >
-                      <img src={detailIcon} alt="" />
-                      상세보기
+                      {page + 1}
                     </button>
-                    <div className={styles["action-icons-group"]}>
-                      <button
-                        className={`${styles["action-btn"]} ${styles["secondary"]}`}
-                        onClick={() => handleEdit(event.id)}
-                      >
-                        <img src={editIcon} alt="수정" />
-                      </button>
-                    </div>
-                  </div>
+                  ))}
+                  <button
+                    className={styles["pagination-btn"]}
+                    onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                    disabled={!hasNext}
+                  >
+                    <img src={nextIcon} alt="다음" />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className={styles["pagination-section"]}>
-            <div className={styles["pagination-info"]}>
-              총 {filteredEvents.length}개 행사 중 {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)}개 표시
-            </div>
-            <div className={styles["pagination-controls"]}>
-              <button
-                className={styles["pagination-btn"]}
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-              >
-                <img src={prevIcon} alt="이전" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                className={styles["pagination-btn"]}
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-              >
-                <img src={nextIcon} alt="다음" />
-              </button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </main>
     </div>
