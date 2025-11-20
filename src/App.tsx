@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Navigation from "./components/layout/Navigation/Navigation";
 import AdminDashboard from "./components/pages/dashboard/AdminDashboard/AdminDashboard";
 import EventsManagement from "./components/pages/events/EventsManagement/EventsManagement";
@@ -26,8 +27,9 @@ import "./styles/App.css";
 
 function App() {
   return (
-    <div className="App">
-      <Router basename="/admin">
+    <AuthProvider>
+      <div className="App">
+        <Router basename="/admin">
         <Routes>
           <Route
             path="/"
@@ -200,7 +202,8 @@ function App() {
           />
         </Routes>
       </Router>
-    </div>
+      </div>
+    </AuthProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authUtils } from "utils/auth";
+import { useAuth } from "../../../../contexts/AuthContext";
 import styles from "./Login.module.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -13,6 +14,7 @@ const EYE_ICON = PUBLIC_URL + "/img/icon/eye.svg";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { fetchRole } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +57,7 @@ const Login: React.FC = () => {
             tokenType: data.tokenType || "Bearer",
             expiresIn: data.expiresIn || 1800,
           });
+          await fetchRole();
           setModalTitle("로그인 성공");
           setModalMessage("로그인에 성공했습니다!");
           setShowModal(true);

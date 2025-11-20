@@ -52,6 +52,7 @@ const refreshAccessToken = async (): Promise<TokenResponse | null> => {
       } else {
         authUtils.clearTokens();
         if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("authTokenExpired"));
           window.location.href = "/admin/login";
         }
         return null;
@@ -59,6 +60,7 @@ const refreshAccessToken = async (): Promise<TokenResponse | null> => {
     } catch (error) {
       authUtils.clearTokens();
       if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("authTokenExpired"));
         window.location.href = "/admin/login";
       }
       return null;
@@ -110,7 +112,14 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}): P
             headers,
           });
         } else {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("authTokenExpired"));
+          }
           throw new Error("토큰 재발급에 실패했습니다.");
+        }
+      } else if (response.status === 401 || response.status === 403) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("authTokenExpired"));
         }
       }
     } catch (error) {

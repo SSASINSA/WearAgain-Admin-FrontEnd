@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authUtils } from "utils/auth";
+import { useAuth } from "../../../contexts/AuthContext";
 import styles from "./Navigation.module.css";
 
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { role, clearRole } = useAuth();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(authUtils.isAuthenticated());
 
   const handleLogout = () => {
     authUtils.clearTokens();
+    clearRole();
     setIsAuthenticated(false);
     navigate("/login");
   };
@@ -76,30 +79,32 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           ))}
-          <li className={`${styles["nav-dropdown"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>
-            <button
-              className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
-              onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-            >
-              <img src="/admin/img/icon/user-icon.svg" alt="" />
-              <span>최고 관리자</span>
-              <span className={`${styles["dropdown-arrow"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>▼</span>
-            </button>
-            <ul className={styles["nav-dropdown-menu"]}>
-              <li className={location.pathname === "/approval" ? styles["active"] : ""}>
-                <Link to="/approval" className={styles["nav-dropdown-item"]}>
-                  <img src="/admin/img/icon/check-circle.svg" alt="" />
-                  <span>관리자 계정 승인</span>
-                </Link>
-              </li>
-              <li className={location.pathname === "/events/approval" ? styles["active"] : ""}>
-                <Link to="/events/approval" className={styles["nav-dropdown-item"]}>
-                  <img src="/admin/img/icon/check-circle.svg" alt="" />
-                  <span>행사등록 승인</span>
-                </Link>
-              </li>
-            </ul>
-          </li>
+          {role === "SUPER_ADMIN" && (
+            <li className={`${styles["nav-dropdown"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>
+              <button
+                className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
+                onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+              >
+                <img src="/admin/img/icon/user-icon.svg" alt="" />
+                <span>최고 관리자</span>
+                <span className={`${styles["dropdown-arrow"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>▼</span>
+              </button>
+              <ul className={styles["nav-dropdown-menu"]}>
+                <li className={location.pathname === "/approval" ? styles["active"] : ""}>
+                  <Link to="/approval" className={styles["nav-dropdown-item"]}>
+                    <img src="/admin/img/icon/check-circle.svg" alt="" />
+                    <span>관리자 계정 승인</span>
+                  </Link>
+                </li>
+                <li className={location.pathname === "/events/approval" ? styles["active"] : ""}>
+                  <Link to="/events/approval" className={styles["nav-dropdown-item"]}>
+                    <img src="/admin/img/icon/check-circle.svg" alt="" />
+                    <span>행사등록 승인</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+          )}
           <li className={`${styles["nav-dropdown"]} ${isTestDropdownOpen ? styles["open"] : ""}`}>
             <button className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`} onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}>
               <img src="/admin/img/icon/user-icon.svg" alt="" />
