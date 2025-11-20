@@ -12,7 +12,7 @@ interface SignupRequestResponse {
   email: string;
   name: string;
   requestedRole: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
   reason: string | null;
   rejectionReason: string | null;
   createdAt: string;
@@ -29,7 +29,7 @@ interface AdminAccountRequest {
   userId: string;
   email: string;
   requestDate: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "expired";
   reason?: string;
   description?: string;
 }
@@ -51,10 +51,11 @@ const AdminAccountManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const transformApiResponse = (apiResponse: SignupRequestResponse): AdminAccountRequest => {
-    const statusMap: Record<string, "pending" | "approved" | "rejected"> = {
+    const statusMap: Record<string, "pending" | "approved" | "rejected" | "expired"> = {
       PENDING: "pending",
       APPROVED: "approved",
       REJECTED: "rejected",
+      EXPIRED: "expired",
     };
 
     const formatDate = (dateString: string): string => {
@@ -141,6 +142,8 @@ const AdminAccountManagement: React.FC = () => {
         return <span className={`${styles["admin-account-status-badge"]} ${styles["approved"]}`}>승인됨</span>;
       case "rejected":
         return <span className={`${styles["admin-account-status-badge"]} ${styles["rejected"]}`}>거부됨</span>;
+      case "expired":
+        return <span className={`${styles["admin-account-status-badge"]} ${styles["expired"]}`}>만료됨</span>;
       default:
         return null;
     }
@@ -157,22 +160,52 @@ const AdminAccountManagement: React.FC = () => {
   };
 
   const handleApproveConfirm = async () => {
-    if (selectedRequestId !== null) {
-      console.log("승인:", selectedRequestId);
-      alert(`관리자 계정 ID ${selectedRequestId}가 승인되었습니다.`);
+    if (selectedRequestId === null) return;
+
+    try {
+      const response = await apiRequest(`/admin/auth/signup-requests/${selectedRequestId}/approve`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "승인 요청 처리에 실패했습니다.");
+      }
+
+      const data = await response.json();
+      alert(`관리자 계정이 승인되었습니다.\n이메일: ${data.email}\n역할: ${data.role}`);
       setShowApproveModal(false);
       setSelectedRequestId(null);
       await fetchSignupRequests();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "승인 요청 처리에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error approving signup request:", err);
     }
   };
 
   const handleRejectConfirm = async () => {
-    if (selectedRequestId !== null) {
-      console.log("거부:", selectedRequestId);
-      alert(`관리자 계정 ID ${selectedRequestId}가 거부되었습니다.`);
+    if (selectedRequestId === null) return;
+
+    try {
+      const response = await apiRequest(`/admin/auth/signup-requests/${selectedRequestId}/reject`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "거부 요청 처리에 실패했습니다.");
+      }
+
+      const data = await response.json();
+      alert(data.message || "관리자 계정 신청이 거부되었습니다.");
       setShowRejectModal(false);
       setSelectedRequestId(null);
       await fetchSignupRequests();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "거부 요청 처리에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error rejecting signup request:", err);
     }
   };
 
@@ -251,6 +284,7 @@ const AdminAccountManagement: React.FC = () => {
                         <option value="pending">대기중</option>
                         <option value="approved">승인됨</option>
                         <option value="rejected">거부됨</option>
+                        <option value="expired">만료됨</option>
                       </select>
                       <div className={styles["admin-account-status-select-icon"]}>
                         <img src={dropdownIcon} alt="드롭다운" />
