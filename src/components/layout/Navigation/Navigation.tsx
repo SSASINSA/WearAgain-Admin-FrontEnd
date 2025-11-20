@@ -7,7 +7,7 @@ import styles from "./Navigation.module.css";
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, clearRole } = useAuth();
+  const { role, isLoading: isRoleLoading, clearRole } = useAuth();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(authUtils.isAuthenticated());
@@ -79,7 +79,7 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           ))}
-          {role === "SUPER_ADMIN" && (
+          {!isRoleLoading && role === "SUPER_ADMIN" && (
             <li className={`${styles["nav-dropdown"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>
               <button
                 className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
@@ -106,7 +106,10 @@ const Navigation: React.FC = () => {
             </li>
           )}
           <li className={`${styles["nav-dropdown"]} ${isTestDropdownOpen ? styles["open"] : ""}`}>
-            <button className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`} onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}>
+            <button
+              className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
+              onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}
+            >
               <img src="/admin/img/icon/user-icon.svg" alt="" />
               <span>테스트용(삭제 예정)</span>
               <span className={`${styles["dropdown-arrow"]} ${isTestDropdownOpen ? styles["open"] : ""}`}>▼</span>

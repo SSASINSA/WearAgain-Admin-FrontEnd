@@ -57,7 +57,11 @@ const Login: React.FC = () => {
             tokenType: data.tokenType || "Bearer",
             expiresIn: data.expiresIn || 1800,
           });
-          await fetchRole();
+          try {
+            await fetchRole();
+          } catch (error) {
+            console.error("역할 조회 실패:", error);
+          }
           setModalTitle("로그인 성공");
           setModalMessage("로그인에 성공했습니다!");
           setShowModal(true);

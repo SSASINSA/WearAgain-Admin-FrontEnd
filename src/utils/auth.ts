@@ -17,7 +17,12 @@ export interface TokenResponse {
 
 const encrypt = (text: string): string => {
   try {
-    const base64 = btoa(unescape(encodeURIComponent(text)));
+    const utf8Bytes = new TextEncoder().encode(text);
+    let binaryString = "";
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binaryString += String.fromCharCode(utf8Bytes[i]);
+    }
+    const base64 = btoa(binaryString);
 
     let encrypted = "";
     for (let i = 0; i < base64.length; i++) {
@@ -42,7 +47,12 @@ const decrypt = (encryptedText: string): string => {
       decrypted += String.fromCharCode(base64.charCodeAt(i) ^ keyChar.charCodeAt(0));
     }
 
-    return decodeURIComponent(escape(atob(decrypted)));
+    const decodedBase64 = atob(decrypted);
+    const utf8Bytes = new Uint8Array(decodedBase64.length);
+    for (let i = 0; i < decodedBase64.length; i++) {
+      utf8Bytes[i] = decodedBase64.charCodeAt(i);
+    }
+    return new TextDecoder().decode(utf8Bytes);
   } catch (error) {
     console.error("복호화 실패:", error);
     return encryptedText;
