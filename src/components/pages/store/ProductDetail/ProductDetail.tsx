@@ -1,75 +1,64 @@
-import React, { useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ProductDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "../../../../utils/api";
 
-interface ProductState {
+interface ProductImage {
   id: number;
-  name: string;
-  price: number;
-  category: string;
-  status: "판매중" | "품절" | "판매완료";
-  image: string;
-  description: string;
-  stock: number;
-  createdAt: string;
+  imageUrl: string;
+  sortOrder: number;
 }
 
-const MOCK_PRODUCTS: ProductState[] = [
-  {
-    id: 1,
-    name: "바느질 도구 세트",
-    price: 25000,
-    category: "수선 도구",
-    status: "판매중",
-    image: "/admin/img/icon/product-placeholder.svg",
-    description: "의류 수선에 필요한 기본 바느질 도구 세트입니다.",
-    stock: 15,
-    createdAt: "2024-01-15",
-  },
-  {
-    id: 2,
-    name: "재봉실 세트 (다양한 색상)",
-    price: 8000,
-    category: "수선 도구",
-    status: "판매중",
-    image: "/admin/img/icon/product-placeholder.svg",
-    description: "다양한 색상의 재봉실 세트입니다.",
-    stock: 20,
-    createdAt: "2024-01-14",
-  },
-];
+interface ProductDetail {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
+  images: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation();
-  const state = (location.state || {}) as Partial<ProductState>;
-
-  const mock = MOCK_PRODUCTS.find((p) => p.id === Number(id));
-  const display: ProductState = {
-    id: state.id ?? mock?.id ?? Number(id) ?? 0,
-    name: state.name ?? mock?.name ?? "상품명",
-    price: state.price ?? mock?.price ?? 0,
-    category: state.category ?? mock?.category ?? "카테고리",
-    status: state.status ?? mock?.status ?? "판매중",
-    image: state.image ?? mock?.image ?? "/admin/img/icon/product-placeholder.svg",
-    description: state.description ?? mock?.description ?? "상품 설명이 없습니다.",
-    stock: state.stock ?? mock?.stock ?? 0,
-    createdAt: state.createdAt ?? mock?.createdAt ?? "-",
-  };
-
-  const renderStatus = (status: string) => {
-    if (status === "판매중")
-      return <span className={`${styles["status-badge"]} ${styles["selling"]}`}>판매중</span>;
-    if (status === "품절") return <span className={`${styles["status-badge"]} ${styles["sold-out"]}`}>품절</span>;
-    if (status === "판매완료")
-      return <span className={`${styles["status-badge"]} ${styles["sold"]}`}>판매완료</span>;
-    return null;
-  };
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      try {
+        const response = await apiRequest(`/admin/store/items/${id}`, {
+          method: "GET",
+        });
+
+        if (response.ok) {
+          const data: ProductDetail = await response.json();
+          setProduct(data);
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("상품 상세 조회 실패:", errorData);
+          setProduct(null);
+        }
+      } catch (error) {
+        console.error("상품 상세 조회 중 오류:", error);
+        setProduct(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
 
   useEffect(() => {
     const headerOffsetPx = 120;
@@ -120,65 +109,92 @@ const ProductDetail: React.FC = () => {
     };
   }, []);
 
+  const renderStatus = (status: string) => {
+    if (status === "ACTIVE")
+      return <span className={`${styles["status-badge"]} ${styles["selling"]}`}>판매중</span>;
+    if (status === "INACTIVE")
+      return <span className={`${styles["status-badge"]} ${styles["sold-out"]}`}>판매중지</span>;
+    if (status === "DELETED")
+      return <span className={`${styles["status-badge"]} ${styles["sold"]}`}>삭제됨</span>;
+    return null;
+  };
+
+  const getMainImage = (): string => {
+    if (product?.images && product.images.length > 0) {
+      const sortedImages = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder);
+      return sortedImages[0].imageUrl;
+    }
+    return "/admin/img/icon/product-placeholder.svg";
+  };
+
+  if (isLoading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (!product) {
+    return <div>상품을 찾을 수 없습니다.</div>;
+  }
+
   return (
     <div className={styles["product-detail-page"]}>
       <PageHeader title="상품 상세" subtitle="상품의 상세 정보를 확인하고 관리할 수 있습니다" />
 
       <div className={styles["product-detail-main"]} style={{ alignItems: "flex-start" }}>
         <div className={styles["product-detail-content"]}>
-          {/* 상품 헤더 섹션 */}
           <div className={styles["product-hero-section"]}>
             <div className={styles["product-hero-image"]}>
-              <img src={display.image} alt={display.name} />
+              <img src={getMainImage()} alt={product.name} />
               <div className={styles["image-overlay"]}></div>
             </div>
             <div className={styles["product-hero-content"]}>
               <div className={styles["product-tags"]}>
-                {renderStatus(display.status)}
-                <span className={`${styles["tag"]} ${styles["category"]}`}>{display.category}</span>
+                {renderStatus(product.status)}
+                <span className={`${styles["tag"]} ${styles["category"]}`}>{product.category}</span>
               </div>
-              <h2 className={styles["product-title"]}>{display.name}</h2>
-              <p className={styles["product-description"]}>{display.description}</p>
+              <h2 className={styles["product-title"]}>{product.name}</h2>
+              <p className={styles["product-description"]}>{product.description || "설명이 없습니다."}</p>
               <div className={styles["product-price-display"]}>
                 <span className={styles["price-label"]}>가격</span>
-                <span className={styles["price-value"]}>{display.price.toLocaleString()} C</span>
+                <span className={styles["price-value"]}>{product.price.toLocaleString()} C</span>
               </div>
             </div>
           </div>
 
-          {/* 상품 상세 정보 섹션 */}
           <div className={styles["product-details-section"]}>
             <h3 className={styles["section-title"]}>상품 상세 정보</h3>
             <div className={styles["product-details-grid"]}>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>상품 ID</p>
-                <p className={styles["detail-value"]}>{display.id}</p>
+                <p className={styles["detail-value"]}>{product.id}</p>
               </div>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>카테고리</p>
-                <p className={styles["detail-value"]}>{display.category}</p>
+                <p className={styles["detail-value"]}>{product.category}</p>
               </div>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>재고</p>
-                <p className={styles["detail-value"]}>{display.stock}개</p>
+                <p className={styles["detail-value"]}>{product.stock}개</p>
               </div>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>등록일</p>
-                <p className={styles["detail-value"]}>{display.createdAt}</p>
+                <p className={styles["detail-value"]}>
+                  {new Date(product.createdAt).toLocaleDateString("ko-KR")}
+                </p>
               </div>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>상태</p>
-                <p className={styles["detail-value"]}>{display.status}</p>
+                <p className={styles["detail-value"]}>
+                  {product.status === "ACTIVE" ? "판매중" : product.status === "INACTIVE" ? "판매중지" : "삭제됨"}
+                </p>
               </div>
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>가격</p>
-                <p className={styles["detail-value"]}>{display.price.toLocaleString()} C</p>
+                <p className={styles["detail-value"]}>{product.price.toLocaleString()} C</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 사이드바 - 상품 수정 */}
         <div
           className={styles["product-detail-sidebar"]}
           ref={sidebarRef}
@@ -194,7 +210,7 @@ const ProductDetail: React.FC = () => {
             </div>
             <button
               className={styles["staff-code-button"]}
-              onClick={() => navigate(`/store/${id}/edit`, { state: display })}
+              onClick={() => navigate(`/store/${id}/edit`)}
             >
               <img src="/admin/img/icon/code-generate.svg" alt="수정 아이콘" />
               수정하기
