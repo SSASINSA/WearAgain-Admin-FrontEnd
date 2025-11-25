@@ -10,7 +10,7 @@ const Navigation: React.FC = () => {
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
 
   useEffect(() => {
-    if (location.pathname === "/approval" || location.pathname === "/events/approval") {
+    if (location.pathname === "/admin-users") {
       setIsAdminDropdownOpen(true);
     }
     if (location.pathname === "/login" || location.pathname === "/signup") {
@@ -43,6 +43,16 @@ const Navigation: React.FC = () => {
       path: "/repair",
       icon: "/admin/img/icon/participants.svg",
       label: "참가자 관리",
+    },
+    {
+      path: "/approval",
+      icon: "/admin/img/icon/check-circle.svg",
+      label: "관리자 계정 승인",
+    },
+    {
+      path: "/events/approval",
+      icon: "/admin/img/icon/check-circle.svg",
+      label: "행사등록 승인",
     },
   ];
 
@@ -85,16 +95,10 @@ const Navigation: React.FC = () => {
                 <span className={`${styles["dropdown-arrow"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>▼</span>
               </button>
               <ul className={styles["nav-dropdown-menu"]}>
-                <li className={location.pathname === "/approval" ? styles["active"] : ""}>
-                  <Link to="/approval" className={styles["nav-dropdown-item"]}>
-                    <img src="/admin/img/icon/check-circle.svg" alt="" />
-                    <span>관리자 계정 승인</span>
-                  </Link>
-                </li>
-                <li className={location.pathname === "/events/approval" ? styles["active"] : ""}>
-                  <Link to="/events/approval" className={styles["nav-dropdown-item"]}>
-                    <img src="/admin/img/icon/check-circle.svg" alt="" />
-                    <span>행사등록 승인</span>
+                <li className={location.pathname === "/admin-users" ? styles["active"] : ""}>
+                  <Link to="/admin-users" className={styles["nav-dropdown-item"]}>
+                    <img src="/admin/img/icon/user-icon.svg" alt="" />
+                    <span>관리자 계정 목록</span>
                   </Link>
                 </li>
               </ul>
