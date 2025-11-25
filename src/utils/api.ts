@@ -81,7 +81,7 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}): P
     ...existingHeaders,
   };
 
-  if (!headers["Content-Type"] && options.body) {
+  if (!headers["Content-Type"] && options.body && !(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 

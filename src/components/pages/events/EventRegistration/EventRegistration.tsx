@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DaumPostcode from "react-daum-postcode";
 import "react-datepicker/dist/react-datepicker.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "utils/api";
 import styles from "./EventRegistration.module.css";
 
 const heroIcon = "/admin/img/icon/calendar-plus.svg";
@@ -18,6 +20,9 @@ const saveIcon = "/admin/img/icon/save.svg";
 const registerIcon = "/admin/img/icon/calendar-plus.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
+const cameraIcon = "/admin/img/icon/camera.svg";
+const imageAddIcon = "/admin/img/icon/image-add.svg";
+const infoIcon = "/admin/img/icon/info-circle.svg";
 
 // Custom input component for DatePicker with icon
 const DateInputWithIcon = React.forwardRef<
@@ -34,7 +39,63 @@ const DateInputWithIcon = React.forwardRef<
 
 DateInputWithIcon.displayName = "DateInputWithIcon";
 
+interface EventImageUploadResponse {
+  imageName: string;
+  imageUrl: string;
+}
+
+interface EventImageRequest {
+  url: string;
+  altText: string;
+  displayOrder: number;
+}
+
+interface EventRegistrationRequest {
+  title: string;
+  description: string;
+  usageGuide?: string;
+  precautions?: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  images: EventImageRequest[];
+  options: any[];
+}
+
+interface EventRegistrationResponse {
+  eventId: number;
+  title: string;
+  description: string;
+  usageGuide?: string;
+  precautions?: string;
+  location: string;
+  organizerName: string;
+  organizerContact: string;
+  organizerAdminId: number;
+  organizerAdminEmail: string;
+  organizerAdminName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  images: Array<{
+    eventImageId: number;
+    url: string;
+    altText: string;
+    displayOrder: number;
+  }>;
+  options: any[];
+  createdAt: string;
+}
+
+interface EventImage {
+  file: File | null;
+  preview: string;
+  imageName: string | null;
+  imageUrl: string | null;
+}
+
 const EventRegistration: React.FC = () => {
+  const navigate = useNavigate();
   const startDatePickerRef = useRef<DatePicker>(null);
   const endDatePickerRef = useRef<DatePicker>(null);
   const [formData, setFormData] = useState({
@@ -47,6 +108,12 @@ const EventRegistration: React.FC = () => {
     staffCount: "",
     participantCount: "",
   });
+  const [images, setImages] = useState<EventImage[]>([
+    { file: null, preview: "", imageName: null, imageUrl: null },
+    { file: null, preview: "", imageName: null, imageUrl: null },
+    { file: null, preview: "", imageName: null, imageUrl: null },
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -59,7 +126,6 @@ const EventRegistration: React.FC = () => {
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // 숫자만 입력 가능하도록
     if (value === "" || /^\d+$/.test(value)) {
       setFormData((prev) => ({
         ...prev,
@@ -103,13 +169,354 @@ const EventRegistration: React.FC = () => {
     setIsAddressModalOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const uploadEventImage = async (file: File): Promise<EventImageUploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await apiRequest("/admin/events/images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "이미지 업로드에 실패했습니다.");
+    }
+
+    const data: EventImageUploadResponse = await response.json();
+    return data;
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const preview = URL.createObjectURL(file);
+
+      setImages((prev) => {
+        const newImages = [...prev];
+        if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+          URL.revokeObjectURL(newImages[index].preview);
+        }
+        newImages[index] = { file, preview, imageName: null, imageUrl: null };
+        return newImages;
+      });
+    }
+  };
+
+  const handleImageRemove = (index: number) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[index].preview);
+      }
+      newImages[index] = { file: null, preview: "", imageName: null, imageUrl: null };
+      return newImages;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("행사 등록:", formData);
+
+    try {
+      setIsSubmitting(true);
+
+      if (!formData.eventName || formData.eventName.trim().length === 0) {
+        alert("행사 이름을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.eventName.trim().length < 1 || formData.eventName.trim().length > 100) {
+        alert("행사 이름은 1자 이상 100자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventDescription || formData.eventDescription.trim().length === 0) {
+        alert("행사 내용을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const descriptionLength = formData.eventDescription.trim().length;
+      if (descriptionLength < 10 || descriptionLength > 2000) {
+        alert("행사 내용은 10자 이상 2000자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+
+      if (!formData.eventLocation || formData.eventLocation.trim().length === 0) {
+        alert("행사 위치를 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const fullLocation = formData.eventLocationDetail
+        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        : formData.eventLocation;
+
+      if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
+        alert("행사 위치는 1자 이상 255자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventStartDate) {
+        alert("행사 시작일을 선택해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventEndDate) {
+        alert("행사 종료일을 선택해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.eventEndDate < formData.eventStartDate) {
+        alert("종료일은 시작일보다 빠를 수 없습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const daysDiff = Math.ceil(
+        (formData.eventEndDate.getTime() - formData.eventStartDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysDiff > 365) {
+        alert("행사 기간은 최대 365일까지 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const imagesToUpload = images.filter((img) => img.file !== null);
+      if (imagesToUpload.length === 0) {
+        alert("최소 1개 이상의 행사 이미지를 업로드해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (imagesToUpload.length > 10) {
+        alert("행사 이미지는 최대 10개까지 업로드 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const uploadedImages: EventImageUploadResponse[] = [];
+
+      for (let i = 0; i < imagesToUpload.length; i++) {
+        const image = imagesToUpload[i];
+        if (image.file) {
+          try {
+            const uploadResult = await uploadEventImage(image.file);
+            uploadedImages.push(uploadResult);
+
+            setImages((prev) => {
+              const newImages = [...prev];
+              const imageIndex = prev.findIndex((img) => img.file === image.file);
+              if (imageIndex !== -1) {
+                if (newImages[imageIndex].preview && !newImages[imageIndex].preview.startsWith("http")) {
+                  URL.revokeObjectURL(newImages[imageIndex].preview);
+                }
+                newImages[imageIndex] = {
+                  ...newImages[imageIndex],
+                  imageName: uploadResult.imageName,
+                  imageUrl: uploadResult.imageUrl,
+                  preview: uploadResult.imageUrl,
+                };
+              }
+              return newImages;
+            });
+          } catch (error) {
+            console.error(`이미지 ${i + 1} 업로드 실패:`, error);
+            alert(error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
+      const formatDate = (date: Date | null): string => {
+        if (!date) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const eventImages: EventImageRequest[] = uploadedImages
+        .filter((img) => img && img.imageUrl && img.imageUrl.trim() !== "")
+        .map((img, index) => {
+          if (!img.imageUrl) {
+            throw new Error(`이미지 ${index + 1}의 URL이 없습니다.`);
+          }
+
+          const altText = `행사 이미지 ${index + 1}`;
+          if (altText.length > 255) {
+            throw new Error(`이미지 ${index + 1}의 altText는 최대 255자까지 가능합니다.`);
+          }
+
+          const displayOrder = index + 1;
+          if (displayOrder < 1) {
+            throw new Error(`이미지 ${index + 1}의 displayOrder는 1 이상이어야 합니다.`);
+          }
+
+          return {
+            url: img.imageUrl.trim(),
+            altText: altText,
+            displayOrder: displayOrder,
+          };
+        });
+
+      const displayOrders = eventImages.map((img) => img.displayOrder);
+      const uniqueDisplayOrders = new Set(displayOrders);
+      if (displayOrders.length !== uniqueDisplayOrders.size) {
+        alert("이미지 displayOrder가 중복되었습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const validateOptions = (options: any[], depth: number = 0): void => {
+        if (depth > 3) {
+          throw new Error("options의 최대 depth는 3입니다.");
+        }
+
+        const displayOrders: number[] = [];
+        const names: string[] = [];
+
+        for (let i = 0; i < options.length; i++) {
+          const option = options[i];
+
+          if (!option.name || option.name.trim().length === 0) {
+            throw new Error(`options[${i}]의 name은 필수이며 1자 이상 100자 이하여야 합니다.`);
+          }
+
+          if (option.name.trim().length < 1 || option.name.trim().length > 100) {
+            throw new Error(`options[${i}]의 name은 1자 이상 100자 이하여야 합니다.`);
+          }
+
+          if (names.includes(option.name.trim())) {
+            throw new Error(`options[${i}]의 name이 중복되었습니다.`);
+          }
+          names.push(option.name.trim());
+
+          if (!option.type || option.type.trim().length === 0) {
+            throw new Error(`options[${i}]의 type은 필수이며 1자 이상 50자 이하여야 합니다.`);
+          }
+
+          if (option.type.trim().length < 1 || option.type.trim().length > 50) {
+            throw new Error(`options[${i}]의 type은 1자 이상 50자 이하여야 합니다.`);
+          }
+
+          if (option.displayOrder === undefined || option.displayOrder === null) {
+            throw new Error(`options[${i}]의 displayOrder는 필수이며 1 이상이어야 합니다.`);
+          }
+
+          if (typeof option.displayOrder !== "number" || option.displayOrder < 1) {
+            throw new Error(`options[${i}]的 displayOrder는 1 이상의 정수여야 합니다.`);
+          }
+
+          displayOrders.push(option.displayOrder);
+
+          if (option.capacity !== undefined && option.capacity !== null) {
+            if (typeof option.capacity !== "number" || !Number.isInteger(option.capacity)) {
+              throw new Error(`options[${i}]의 capacity는 정수여야 합니다.`);
+            }
+          }
+
+          if (option.children && Array.isArray(option.children) && option.children.length > 0) {
+            validateOptions(option.children, depth + 1);
+          }
+        }
+
+        const sortedDisplayOrders = [...displayOrders].sort((a, b) => a - b);
+        for (let i = 0; i < sortedDisplayOrders.length; i++) {
+          if (sortedDisplayOrders[i] !== i + 1) {
+            throw new Error(`options의 displayOrder는 1부터 연속되어야 합니다.`);
+          }
+        }
+      };
+
+      const options: any[] = [];
+      let displayOrder = 1;
+
+      if (formData.participantCount && formData.participantCount.trim() !== "") {
+        const participantCapacity = parseInt(formData.participantCount.trim(), 10);
+        if (isNaN(participantCapacity) || participantCapacity < 1 || participantCapacity > 999) {
+          alert("참가자 수는 1 이상 999 이하의 정수여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        options.push({
+          name: "전체 참가자",
+          type: "ATTENDEE",
+          displayOrder: displayOrder++,
+          capacity: participantCapacity,
+          children: [],
+        });
+      }
+
+      if (formData.staffCount && formData.staffCount.trim() !== "") {
+        const staffCapacity = parseInt(formData.staffCount.trim(), 10);
+        if (isNaN(staffCapacity) || staffCapacity < 1 || staffCapacity > 999) {
+          alert("스태프 수는 1 이상 999 이하의 정수여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        options.push({
+          name: "예상 스태프",
+          type: "STAFF",
+          displayOrder: displayOrder++,
+          capacity: staffCapacity,
+          children: [],
+        });
+      }
+
+      try {
+        validateOptions(options);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const requestData: EventRegistrationRequest = {
+        title: formData.eventName.trim(),
+        description: formData.eventDescription.trim(),
+        usageGuide: "",
+        precautions: "",
+        location: fullLocation.trim(),
+        startDate: formatDate(formData.eventStartDate),
+        endDate: formatDate(formData.eventEndDate),
+        images: eventImages,
+        options: options,
+      };
+
+      const response = await apiRequest("/admin/events", {
+        method: "POST",
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 등록에 실패했습니다.");
+      }
+
+      const responseData: EventRegistrationResponse = await response.json();
+
+      alert("행사가 성공적으로 등록되었습니다.");
+      navigate("/events");
+    } catch (error) {
+      console.error("행사 등록 실패:", error);
+      alert(error instanceof Error ? error.message : "행사 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSaveDraft = () => {
-    console.log("임시저장:", formData);
   };
 
   return (
@@ -156,10 +563,56 @@ const EventRegistration: React.FC = () => {
                   name="eventDescription"
                   value={formData.eventDescription}
                   onChange={handleInputChange}
-                  placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요..."
+                  placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요(최소 10자)"
                   className={styles["form-textarea"]}
                   rows={6}
                 />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={cameraIcon} alt="행사 이미지" className={styles["label-icon"]} />
+                  행사 이미지
+                </label>
+                <div className={styles["image-grid"]}>
+                  {images.map((image, index) => (
+                    <div key={index} className={styles["image-upload-box"]}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, index)}
+                        id={`event-image-${index}`}
+                        hidden
+                      />
+                      <label htmlFor={`event-image-${index}`} className={styles["image-upload-label"]}>
+                        {image.preview ? (
+                          <div className={styles["image-preview-container"]}>
+                            <img src={image.preview} alt={`행사 이미지 ${index + 1}`} />
+                            <button
+                              type="button"
+                              className={styles["image-remove-btn"]}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleImageRemove(index);
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <img src={imageAddIcon} alt="이미지 추가" className={styles["upload-icon"]} />
+                            <span className={styles["upload-text"]}>{index === 0 ? "메인 이미지" : "추가 이미지"}</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles["image-info"]}>
+                  <img src={infoIcon} alt="정보" className={styles["info-icon"]} />
+                  <p>최대 3장까지 업로드 가능합니다. 권장 크기: 1200x800px</p>
+                </div>
               </div>
 
               <div className={styles["form-row"]}>
@@ -217,7 +670,11 @@ const EventRegistration: React.FC = () => {
               <div className={styles["form-row"]}>
                 <div className={styles["form-group"]}>
                   <label className={styles["form-label"]}>
-                    <img src={staffIcon} alt="스태프 수" className={`${styles["label-icon"]} ${styles["icon-colored"]}`} />
+                    <img
+                      src={staffIcon}
+                      alt="스태프 수"
+                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
+                    />
                     스태프 수
                   </label>
                   <input
@@ -232,7 +689,11 @@ const EventRegistration: React.FC = () => {
 
                 <div className={styles["form-group"]}>
                   <label className={styles["form-label"]}>
-                    <img src={participantIcon} alt="참가자 수" className={`${styles["label-icon"]} ${styles["icon-colored"]}`} />
+                    <img
+                      src={participantIcon}
+                      alt="참가자 수"
+                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
+                    />
                     참가자 수
                   </label>
                   <input
@@ -283,9 +744,9 @@ const EventRegistration: React.FC = () => {
                   <img src={saveIcon} alt="저장" />
                   임시저장
                 </button>
-                <button type="submit" className={styles["register-btn"]}>
+                <button type="submit" className={styles["register-btn"]} disabled={isSubmitting}>
                   <img src={registerIcon} alt="등록" />
-                  행사 등록하기
+                  {isSubmitting ? "등록 중..." : "행사 등록하기"}
                 </button>
               </div>
             </form>
