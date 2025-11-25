@@ -126,7 +126,6 @@ const EventRegistration: React.FC = () => {
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // 숫자만 입력 가능하도록
     if (value === "" || /^\d+$/.test(value)) {
       setFormData((prev) => ({
         ...prev,
@@ -221,7 +220,87 @@ const EventRegistration: React.FC = () => {
     try {
       setIsSubmitting(true);
 
+      if (!formData.eventName || formData.eventName.trim().length === 0) {
+        alert("행사 이름을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.eventName.trim().length < 1 || formData.eventName.trim().length > 100) {
+        alert("행사 이름은 1자 이상 100자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventDescription || formData.eventDescription.trim().length === 0) {
+        alert("행사 내용을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const descriptionLength = formData.eventDescription.trim().length;
+      if (descriptionLength < 10 || descriptionLength > 2000) {
+        alert("행사 내용은 10자 이상 2000자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+
+      if (!formData.eventLocation || formData.eventLocation.trim().length === 0) {
+        alert("행사 위치를 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const fullLocation = formData.eventLocationDetail
+        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        : formData.eventLocation;
+
+      if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
+        alert("행사 위치는 1자 이상 255자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventStartDate) {
+        alert("행사 시작일을 선택해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.eventEndDate) {
+        alert("행사 종료일을 선택해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.eventEndDate < formData.eventStartDate) {
+        alert("종료일은 시작일보다 빠를 수 없습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const daysDiff = Math.ceil(
+        (formData.eventEndDate.getTime() - formData.eventStartDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysDiff > 365) {
+        alert("행사 기간은 최대 365일까지 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const imagesToUpload = images.filter((img) => img.file !== null);
+      if (imagesToUpload.length === 0) {
+        alert("최소 1개 이상의 행사 이미지를 업로드해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (imagesToUpload.length > 10) {
+        alert("행사 이미지는 최대 10개까지 업로드 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
 
       const uploadedImages: EventImageUploadResponse[] = [];
 
@@ -265,40 +344,155 @@ const EventRegistration: React.FC = () => {
         return `${year}-${month}-${day}`;
       };
 
-      const fullLocation = formData.eventLocationDetail
-        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
-        : formData.eventLocation;
-
-      console.log("업로드된 이미지:", uploadedImages);
-
       const eventImages: EventImageRequest[] = uploadedImages
-        .filter((img) => img && img.imageUrl && img.imageUrl.trim() !== "") // 유효한 imageUrl만 필터링
+        .filter((img) => img && img.imageUrl && img.imageUrl.trim() !== "")
         .map((img, index) => {
           if (!img.imageUrl) {
             throw new Error(`이미지 ${index + 1}의 URL이 없습니다.`);
           }
+
+          const altText = `행사 이미지 ${index + 1}`;
+          if (altText.length > 255) {
+            throw new Error(`이미지 ${index + 1}의 altText는 최대 255자까지 가능합니다.`);
+          }
+
+          const displayOrder = index + 1;
+          if (displayOrder < 1) {
+            throw new Error(`이미지 ${index + 1}의 displayOrder는 1 이상이어야 합니다.`);
+          }
+
           return {
             url: img.imageUrl.trim(),
-            altText: `행사 이미지 ${index + 1}`,
-            displayOrder: index + 1,
+            altText: altText,
+            displayOrder: displayOrder,
           };
         });
 
-      console.log("변환된 이미지 배열:", eventImages);
+      const displayOrders = eventImages.map((img) => img.displayOrder);
+      const uniqueDisplayOrders = new Set(displayOrders);
+      if (displayOrders.length !== uniqueDisplayOrders.size) {
+        alert("이미지 displayOrder가 중복되었습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const validateOptions = (options: any[], depth: number = 0): void => {
+        if (depth > 3) {
+          throw new Error("options의 최대 depth는 3입니다.");
+        }
+
+        const displayOrders: number[] = [];
+        const names: string[] = [];
+
+        for (let i = 0; i < options.length; i++) {
+          const option = options[i];
+
+          if (!option.name || option.name.trim().length === 0) {
+            throw new Error(`options[${i}]의 name은 필수이며 1자 이상 100자 이하여야 합니다.`);
+          }
+
+          if (option.name.trim().length < 1 || option.name.trim().length > 100) {
+            throw new Error(`options[${i}]의 name은 1자 이상 100자 이하여야 합니다.`);
+          }
+
+          if (names.includes(option.name.trim())) {
+            throw new Error(`options[${i}]의 name이 중복되었습니다.`);
+          }
+          names.push(option.name.trim());
+
+          if (!option.type || option.type.trim().length === 0) {
+            throw new Error(`options[${i}]의 type은 필수이며 1자 이상 50자 이하여야 합니다.`);
+          }
+
+          if (option.type.trim().length < 1 || option.type.trim().length > 50) {
+            throw new Error(`options[${i}]의 type은 1자 이상 50자 이하여야 합니다.`);
+          }
+
+          if (option.displayOrder === undefined || option.displayOrder === null) {
+            throw new Error(`options[${i}]의 displayOrder는 필수이며 1 이상이어야 합니다.`);
+          }
+
+          if (typeof option.displayOrder !== "number" || option.displayOrder < 1) {
+            throw new Error(`options[${i}]的 displayOrder는 1 이상의 정수여야 합니다.`);
+          }
+
+          displayOrders.push(option.displayOrder);
+
+          if (option.capacity !== undefined && option.capacity !== null) {
+            if (typeof option.capacity !== "number" || !Number.isInteger(option.capacity)) {
+              throw new Error(`options[${i}]의 capacity는 정수여야 합니다.`);
+            }
+          }
+
+          if (option.children && Array.isArray(option.children) && option.children.length > 0) {
+            validateOptions(option.children, depth + 1);
+          }
+        }
+
+        const sortedDisplayOrders = [...displayOrders].sort((a, b) => a - b);
+        for (let i = 0; i < sortedDisplayOrders.length; i++) {
+          if (sortedDisplayOrders[i] !== i + 1) {
+            throw new Error(`options의 displayOrder는 1부터 연속되어야 합니다.`);
+          }
+        }
+      };
+
+      const options: any[] = [];
+      let displayOrder = 1;
+
+      if (formData.participantCount && formData.participantCount.trim() !== "") {
+        const participantCapacity = parseInt(formData.participantCount.trim(), 10);
+        if (isNaN(participantCapacity) || participantCapacity < 1 || participantCapacity > 999) {
+          alert("참가자 수는 1 이상 999 이하의 정수여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        options.push({
+          name: "전체 참가자",
+          type: "ATTENDEE",
+          displayOrder: displayOrder++,
+          capacity: participantCapacity,
+          children: [],
+        });
+      }
+
+      if (formData.staffCount && formData.staffCount.trim() !== "") {
+        const staffCapacity = parseInt(formData.staffCount.trim(), 10);
+        if (isNaN(staffCapacity) || staffCapacity < 1 || staffCapacity > 999) {
+          alert("스태프 수는 1 이상 999 이하의 정수여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        options.push({
+          name: "예상 스태프",
+          type: "STAFF",
+          displayOrder: displayOrder++,
+          capacity: staffCapacity,
+          children: [],
+        });
+      }
+
+      try {
+        validateOptions(options);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+        setIsSubmitting(false);
+        return;
+      }
 
       const requestData: EventRegistrationRequest = {
-        title: formData.eventName,
-        description: formData.eventDescription,
+        title: formData.eventName.trim(),
+        description: formData.eventDescription.trim(),
         usageGuide: "",
         precautions: "",
-        location: fullLocation,
+        location: fullLocation.trim(),
         startDate: formatDate(formData.eventStartDate),
         endDate: formatDate(formData.eventEndDate),
         images: eventImages,
-        options: [],
+        options: options,
       };
-
-      console.log("행사 등록 요청 데이터:", JSON.stringify(requestData, null, 2));
 
       const response = await apiRequest("/admin/events", {
         method: "POST",
@@ -313,7 +507,7 @@ const EventRegistration: React.FC = () => {
       const responseData: EventRegistrationResponse = await response.json();
 
       alert("행사가 성공적으로 등록되었습니다.");
-      navigate(`/events/${responseData.eventId}`);
+      navigate("/events");
     } catch (error) {
       console.error("행사 등록 실패:", error);
       alert(error instanceof Error ? error.message : "행사 등록에 실패했습니다.");
@@ -323,7 +517,6 @@ const EventRegistration: React.FC = () => {
   };
 
   const handleSaveDraft = () => {
-    console.log("임시저장:", formData);
   };
 
   return (

@@ -5,6 +5,7 @@ import DaumPostcode from "react-daum-postcode";
 import "react-datepicker/dist/react-datepicker.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import apiRequest from "utils/api";
 import styles from "./EventEdit.module.css";
 
 const heroIcon = "/admin/img/icon/edit.svg";
@@ -19,6 +20,75 @@ const saveIcon = "/admin/img/icon/save.svg";
 const updateIcon = "/admin/img/icon/edit.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
+const cameraIcon = "/admin/img/icon/camera.svg";
+const imageAddIcon = "/admin/img/icon/image-add.svg";
+const infoIcon = "/admin/img/icon/info-circle.svg";
+
+interface EventImage {
+  imageId: number;
+  url: string;
+  altText: string;
+  displayOrder: number;
+}
+
+interface EventImageRequest {
+  url: string;
+  altText: string;
+  displayOrder: number;
+}
+
+interface EventImageUploadResponse {
+  imageName: string;
+  imageUrl: string;
+}
+
+interface EventDetailResponse {
+  eventId: number;
+  title: string;
+  description: string;
+  usageGuide: string | null;
+  precautions: string | null;
+  location: string;
+  organizerName: string;
+  organizerContact: string;
+  organizerAdminId: number;
+  organizerAdminEmail: string;
+  organizerAdminName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  totalCapacity: number;
+  appliedCount: number;
+  remainingCount: number;
+  staffCode: string | null;
+  staffCodeIssuedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  images: EventImage[];
+  options: any[];
+  applications: any[];
+}
+
+interface EventUpdateRequest {
+  title?: string;
+  description?: string;
+  usageGuide?: string;
+  precautions?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  images?: EventImageRequest[] | null;
+  options?: any[] | null;
+  status?: string;
+}
+
+interface EventImageState {
+  file: File | null;
+  preview: string;
+  imageName: string | null;
+  imageUrl: string | null;
+  imageId: number | null;
+}
 
 // Custom input component for DatePicker with icon
 const DateInputWithIcon = React.forwardRef<
@@ -43,42 +113,90 @@ const EventEdit: React.FC = () => {
   const [formData, setFormData] = useState({
     eventName: "",
     eventDescription: "",
+    usageGuide: "",
+    precautions: "",
     eventStartDate: null as Date | null,
     eventEndDate: null as Date | null,
     eventLocation: "",
     eventLocationDetail: "",
-    staffCount: "",
-    participantCount: "",
   });
+  const [images, setImages] = useState<EventImageState[]>([
+    { file: null, preview: "", imageName: null, imageUrl: null, imageId: null },
+    { file: null, preview: "", imageName: null, imageUrl: null, imageId: null },
+    { file: null, preview: "", imageName: null, imageUrl: null, imageId: null },
+  ]);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 기존 행사 데이터 로드 (실제로는 API 호출)
   useEffect(() => {
-    if (id) {
-      // TODO: API에서 행사 데이터 가져오기
-      // 현재는 mock 데이터로 설정
-      const mockEvent = {
-        eventName: "서울 강남구 옷 교환 파티",
-        eventDescription: "옷을 버리는 대신 교환하는 환경 보호 행사",
-        eventStartDate: new Date("2024-03-15"),
-        eventEndDate: new Date("2024-03-16"),
-        eventLocation: "서울 강남구 그린센터",
-        eventLocationDetail: "1층 대강당",
-        staffCount: "12",
-        participantCount: "250",
-      };
-      setFormData({
-        eventName: mockEvent.eventName,
-        eventDescription: mockEvent.eventDescription,
-        eventStartDate: mockEvent.eventStartDate,
-        eventEndDate: mockEvent.eventEndDate,
-        eventLocation: mockEvent.eventLocation,
-        eventLocationDetail: mockEvent.eventLocationDetail,
-        staffCount: mockEvent.staffCount,
-        participantCount: mockEvent.participantCount,
-      });
-    }
+    const fetchEventDetail = async () => {
+      if (!id) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await apiRequest(`/admin/events/${id}`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "행사 정보를 가져오는데 실패했습니다.");
+        }
+
+        const data: EventDetailResponse = await response.json();
+
+        const startDate = data.startDate ? new Date(data.startDate) : null;
+        const endDate = data.endDate ? new Date(data.endDate) : null;
+
+        setFormData({
+          eventName: data.title,
+          eventDescription: data.description,
+          usageGuide: data.usageGuide || "",
+          precautions: data.precautions || "",
+          eventStartDate: startDate,
+          eventEndDate: endDate,
+          eventLocation: data.location,
+          eventLocationDetail: "",
+        });
+
+        if (data.images && data.images.length > 0) {
+          const imageStates: EventImageState[] = data.images
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map((img) => ({
+              file: null,
+              preview: img.url,
+              imageName: null,
+              imageUrl: img.url,
+              imageId: img.imageId,
+            }));
+
+          while (imageStates.length < 3) {
+            imageStates.push({
+              file: null,
+              preview: "",
+              imageName: null,
+              imageUrl: null,
+              imageId: null,
+            });
+          }
+
+          setImages(imageStates.slice(0, 3));
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "행사 정보를 가져오는데 실패했습니다.";
+        setError(errorMessage);
+        console.error("Error fetching event detail:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEventDetail();
   }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -89,16 +207,6 @@ const EventEdit: React.FC = () => {
     }));
   };
 
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    // 숫자만 입력 가능하도록
-    if (value === "" || /^\d+$/.test(value)) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
 
   const handleStartDateChange = (date: Date | null) => {
     setFormData((prev) => ({
@@ -135,28 +243,224 @@ const EventEdit: React.FC = () => {
     setIsAddressModalOpen(false);
   };
 
+  const uploadEventImage = async (file: File): Promise<EventImageUploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await apiRequest("/admin/events/images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "이미지 업로드에 실패했습니다.");
+    }
+
+    const data: EventImageUploadResponse = await response.json();
+    return data;
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const preview = URL.createObjectURL(file);
+
+      setImages((prev) => {
+        const newImages = [...prev];
+        if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+          URL.revokeObjectURL(newImages[index].preview);
+        }
+        newImages[index] = { ...newImages[index], file, preview, imageName: null, imageUrl: null };
+        return newImages;
+      });
+    }
+  };
+
+  const handleImageRemove = (index: number) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[index].preview);
+      }
+      newImages[index] = {
+        file: null,
+        preview: "",
+        imageName: null,
+        imageUrl: null,
+        imageId: null,
+      };
+      return newImages;
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowConfirmModal(true);
   };
 
-  const handleConfirmUpdate = () => {
-    console.log("행사 수정:", formData);
-    // TODO: API 호출로 행사 수정
-    alert("행사가 수정되었습니다.");
-    setShowConfirmModal(false);
-    navigate(`/events/${id}`);
+  const handleConfirmUpdate = async () => {
+    try {
+      setIsSubmitting(true);
+
+      const imagesToUpload = images.filter((img) => img.file !== null);
+      const existingImages = images.filter((img) => img.imageUrl && !img.file);
+
+      const uploadedImages: EventImageUploadResponse[] = [];
+
+      for (let i = 0; i < imagesToUpload.length; i++) {
+        const image = imagesToUpload[i];
+        if (image.file) {
+          try {
+            const uploadResult = await uploadEventImage(image.file);
+            uploadedImages.push(uploadResult);
+          } catch (error) {
+            console.error(`이미지 ${i + 1} 업로드 실패:`, error);
+            alert(error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
+      const formatDate = (date: Date | null): string => {
+        if (!date) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const fullLocation = formData.eventLocationDetail
+        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        : formData.eventLocation;
+
+      const allImages: EventImageRequest[] = [
+        ...existingImages
+          .filter((img) => img.imageUrl)
+          .map((img, index) => ({
+            url: img.imageUrl!,
+            altText: `행사 이미지 ${index + 1}`,
+            displayOrder: index + 1,
+          })),
+        ...uploadedImages.map((img, index) => ({
+          url: img.imageUrl.trim(),
+          altText: `행사 이미지 ${existingImages.length + index + 1}`,
+          displayOrder: existingImages.length + index + 1,
+        })),
+      ];
+
+      const requestData: EventUpdateRequest = {
+        title: formData.eventName,
+        description: formData.eventDescription,
+        usageGuide: formData.usageGuide || undefined,
+        precautions: formData.precautions || undefined,
+        location: fullLocation,
+        startDate: formatDate(formData.eventStartDate),
+        endDate: formatDate(formData.eventEndDate),
+        images: allImages.length > 0 ? allImages : null,
+        options: null,
+      };
+
+      const response = await apiRequest(`/admin/events/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 수정에 실패했습니다.");
+      }
+
+      alert("행사가 수정되었습니다.");
+      setShowConfirmModal(false);
+      navigate(`/events/${id}`);
+    } catch (error) {
+      console.error("행사 수정 실패:", error);
+      alert(error instanceof Error ? error.message : "행사 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancelUpdate = () => {
     setShowConfirmModal(false);
   };
 
-  const handleSaveDraft = () => {
-    console.log("임시저장:", formData);
-    // TODO: API 호출로 임시저장
-    alert("임시저장되었습니다.");
+  const handleSaveDraft = async () => {
+    try {
+      const formatDate = (date: Date | null): string => {
+        if (!date) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const fullLocation = formData.eventLocationDetail
+        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        : formData.eventLocation;
+
+      const existingImages = images.filter((img) => img.imageUrl && !img.file);
+      const allImages: EventImageRequest[] = existingImages
+        .filter((img) => img.imageUrl)
+        .map((img, index) => ({
+          url: img.imageUrl!,
+          altText: `행사 이미지 ${index + 1}`,
+          displayOrder: index + 1,
+        }));
+
+      const requestData: EventUpdateRequest = {
+        title: formData.eventName,
+        description: formData.eventDescription,
+        usageGuide: formData.usageGuide || undefined,
+        precautions: formData.precautions || undefined,
+        location: fullLocation,
+        startDate: formatDate(formData.eventStartDate),
+        endDate: formatDate(formData.eventEndDate),
+        images: allImages.length > 0 ? allImages : null,
+        options: null,
+        status: "DRAFT",
+      };
+
+      const response = await apiRequest(`/admin/events/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "임시저장에 실패했습니다.");
+      }
+
+      alert("임시저장되었습니다.");
+    } catch (error) {
+      console.error("임시저장 실패:", error);
+      alert(error instanceof Error ? error.message : "임시저장에 실패했습니다.");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className={styles["admin-dashboard"]}>
+        <main className={styles["main-content"]}>
+          <PageHeader title="행사 수정" subtitle="행사 정보를 수정하고 관리하세요" />
+          <div style={{ padding: "2rem", textAlign: "center" }}>로딩 중...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles["admin-dashboard"]}>
+        <main className={styles["main-content"]}>
+          <PageHeader title="행사 수정" subtitle="행사 정보를 수정하고 관리하세요" />
+          <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>{error}</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles["admin-dashboard"]}>
@@ -202,10 +506,86 @@ const EventEdit: React.FC = () => {
                   name="eventDescription"
                   value={formData.eventDescription}
                   onChange={handleInputChange}
-                  placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요..."
+                  placeholder="옷 교환 행사의 목적, 일정, 참가 방법 등을 자세히 입력해주세요(최소 10자)"
                   className={styles["form-textarea"]}
                   rows={6}
                 />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="이용 방법" className={styles["label-icon"]} />
+                  이용 방법 (선택)
+                </label>
+                <textarea
+                  name="usageGuide"
+                  value={formData.usageGuide}
+                  onChange={handleInputChange}
+                  placeholder="행사 이용 방법을 입력해주세요"
+                  className={styles["form-textarea"]}
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="주의사항" className={styles["label-icon"]} />
+                  주의사항 (선택)
+                </label>
+                <textarea
+                  name="precautions"
+                  value={formData.precautions}
+                  onChange={handleInputChange}
+                  placeholder="행사 주의사항을 입력해주세요"
+                  className={styles["form-textarea"]}
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={cameraIcon} alt="행사 이미지" className={styles["label-icon"]} />
+                  행사 이미지
+                </label>
+                <div className={styles["image-grid"]}>
+                  {images.map((image, index) => (
+                    <div key={index} className={styles["image-upload-box"]}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, index)}
+                        id={`event-image-${index}`}
+                        hidden
+                      />
+                      <label htmlFor={`event-image-${index}`} className={styles["image-upload-label"]}>
+                        {image.preview ? (
+                          <div className={styles["image-preview-container"]}>
+                            <img src={image.preview} alt={`행사 이미지 ${index + 1}`} />
+                            <button
+                              type="button"
+                              className={styles["image-remove-btn"]}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleImageRemove(index);
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <img src={imageAddIcon} alt="이미지 추가" className={styles["upload-icon"]} />
+                            <span className={styles["upload-text"]}>{index === 0 ? "메인 이미지" : "추가 이미지"}</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles["image-info"]}>
+                  <img src={infoIcon} alt="정보" className={styles["info-icon"]} />
+                  <p>최대 3장까지 업로드 가능합니다. 권장 크기: 1200x800px</p>
+                </div>
               </div>
 
               <div className={styles["form-row"]}>
@@ -259,37 +639,6 @@ const EventEdit: React.FC = () => {
                 </div>
               </div>
 
-              <div className={styles["form-row"]}>
-                <div className={styles["form-group"]}>
-                  <label className={styles["form-label"]}>
-                    <img src={staffIcon} alt="스태프 수" className={`${styles["label-icon"]} ${styles["icon-colored"]}`} />
-                    스태프 수
-                  </label>
-                  <input
-                    type="text"
-                    name="staffCount"
-                    value={formData.staffCount}
-                    onChange={handleNumberChange}
-                    placeholder="스태프 인원 수"
-                    className={styles["form-input"]}
-                  />
-                </div>
-
-                <div className={styles["form-group"]}>
-                  <label className={styles["form-label"]}>
-                    <img src={participantIcon} alt="참가자 수" className={`${styles["label-icon"]} ${styles["icon-colored"]}`} />
-                    참가자 수
-                  </label>
-                  <input
-                    type="text"
-                    name="participantCount"
-                    value={formData.participantCount}
-                    onChange={handleNumberChange}
-                    placeholder="참가자 인원 수"
-                    className={styles["form-input"]}
-                  />
-                </div>
-              </div>
 
               <div className={styles["form-group"]}>
                 <label className={styles["form-label"]}>
@@ -328,9 +677,9 @@ const EventEdit: React.FC = () => {
                   <img src={saveIcon} alt="저장" />
                   임시저장
                 </button>
-                <button type="submit" className={styles["register-btn"]}>
+                <button type="submit" className={styles["register-btn"]} disabled={isSubmitting}>
                   <img src={updateIcon} alt="수정" />
-                  행사 수정하기
+                  {isSubmitting ? "수정 중..." : "행사 수정하기"}
                 </button>
               </div>
             </form>

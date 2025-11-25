@@ -215,13 +215,23 @@
 }
 
 .status-badge.completed {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .status-badge.upcoming {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .event-details {

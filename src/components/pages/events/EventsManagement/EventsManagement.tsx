@@ -49,7 +49,7 @@ interface Event {
   location: string;
   participants: number;
   staff: number;
-  status: "active" | "completed" | "upcoming";
+  status: "active" | "completed" | "upcoming" | "pending" | "rejected";
   description: string;
 }
 
@@ -66,14 +66,22 @@ const EventsManagement: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [hasNext, setHasNext] = useState<boolean>(false);
 
-  const mapApiStatusToDisplayStatus = (apiStatus: string): "active" | "completed" | "upcoming" => {
+  const mapApiStatusToDisplayStatus = (
+    apiStatus: string
+  ): "active" | "completed" | "upcoming" | "pending" | "rejected" => {
     switch (apiStatus.toUpperCase()) {
       case "OPEN":
         return "active";
       case "CLOSED":
         return "completed";
-      case "UPCOMING":
+      case "ARCHIVED":
+        return "completed";
+      case "APPROVAL":
         return "upcoming";
+      case "DRAFT":
+        return "pending";
+      case "REJECTED":
+        return "rejected";
       default:
         return "active";
     }
@@ -91,16 +99,20 @@ const EventsManagement: React.FC = () => {
     return `${formatDate(start)} - ${formatDate(end)}`;
   };
 
-  const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
+  const mapDisplayStatusToApiStatus = (displayStatus: string): string[] => {
     switch (displayStatus) {
       case "active":
-        return "OPEN";
+        return ["OPEN"];
+      case "pending":
+        return ["DRAFT"];
       case "upcoming":
-        return "UPCOMING";
+        return ["APPROVAL"];
+      case "rejected":
+        return ["REJECTED"];
       case "completed":
-        return "CLOSED";
+        return ["CLOSED", "ARCHIVED"];
       default:
-        return null;
+        return ["DRAFT", "APPROVAL", "OPEN", "REJECTED", "CLOSED", "ARCHIVED"];
     }
   };
 
@@ -110,9 +122,9 @@ const EventsManagement: React.FC = () => {
       setError(null);
 
       const params = new URLSearchParams();
-      const apiStatus = mapDisplayStatusToApiStatus(selectedStatus);
-      if (apiStatus) {
-        params.append("status", apiStatus);
+      const apiStatuses = mapDisplayStatusToApiStatus(selectedStatus);
+      if (apiStatuses.length > 0 && selectedStatus !== "all") {
+        params.append("status", apiStatuses.join(","));
       }
       params.append("page", String(currentPage));
       params.append("size", String(pageSize));
@@ -171,7 +183,11 @@ const EventsManagement: React.FC = () => {
       case "completed":
         return <span className={`${styles["status-badge"]} ${styles["completed"]}`}>완료</span>;
       case "upcoming":
-        return <span className={`${styles["status-badge"]} ${styles["upcoming"]}`}>예정</span>;
+        return <span className={`${styles["status-badge"]} ${styles["upcoming"]}`}>승인됨</span>;
+      case "pending":
+        return <span className={`${styles["status-badge"]} ${styles["pending"]}`}>승인 대기</span>;
+      case "rejected":
+        return <span className={`${styles["status-badge"]} ${styles["rejected"]}`}>거부됨</span>;
       default:
         return null;
     }
@@ -217,9 +233,11 @@ const EventsManagement: React.FC = () => {
                   className={styles["status-select"]}
                 >
                   <option value="all">전체 상태</option>
-                  <option value="active">진행중</option>
-                  <option value="upcoming">예정</option>
-                  <option value="completed">완료</option>
+                  <option value="pending">승인 대기 (DRAFT)</option>
+                  <option value="upcoming">승인됨 (APPROVAL)</option>
+                  <option value="active">진행중 (OPEN - 신청/참여 가능)</option>
+                  <option value="rejected">거부됨 (REJECTED)</option>
+                  <option value="completed">완료 (CLOSED - 종료 / ARCHIVED - 보관)</option>
                 </select>
                 <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
