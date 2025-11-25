@@ -130,7 +130,8 @@
 }
 
 .category-select-container,
-.sort-select-container {
+.sort-select-container,
+.status-select-container {
   position: relative;
   display: flex;
   align-items: center;
