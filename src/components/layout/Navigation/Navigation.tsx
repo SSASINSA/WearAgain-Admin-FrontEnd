@@ -1,27 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { authUtils } from "utils/auth";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import styles from "./Navigation.module.css";
 
 const Navigation: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { role, isLoading: isRoleLoading, clearRole } = useAuth();
+  const { role, isLoading: isRoleLoading } = useAuth();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(authUtils.isAuthenticated());
-
-  const handleLogout = () => {
-    authUtils.clearTokens();
-    clearRole();
-    setIsAuthenticated(false);
-    navigate("/login");
-  };
-
-  useEffect(() => {
-    setIsAuthenticated(authUtils.isAuthenticated());
-  }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname === "/approval" || location.pathname === "/events/approval") {
@@ -136,18 +122,6 @@ const Navigation: React.FC = () => {
               </li>
             </ul>
           </li>
-          {isAuthenticated && (
-            <li>
-              <button
-                onClick={handleLogout}
-                className={styles["nav-item"]}
-                style={{ width: "100%", background: "none", border: "none", cursor: "pointer" }}
-              >
-                <img src="/admin/img/icon/user-icon.svg" alt="" />
-                <span>로그아웃</span>
-              </button>
-            </li>
-          )}
         </ul>
       </nav>
     </aside>
