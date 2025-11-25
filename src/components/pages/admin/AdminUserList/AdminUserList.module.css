@@ -492,6 +492,63 @@
   flex: 1;
 }
 
+.admin-user-actions-cell {
+  text-align: center;
+  padding: 16px 8px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.admin-user-delete-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 0;
+}
+
+.admin-user-delete-btn img {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%)
+    contrast(86%);
+}
+
+.admin-user-delete-btn:hover:not(.disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.admin-user-delete-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.admin-user-delete-btn.disabled:hover {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
+
 @media (max-width: 1200px) {
   .admin-user-filter-controls {
     flex-wrap: wrap;

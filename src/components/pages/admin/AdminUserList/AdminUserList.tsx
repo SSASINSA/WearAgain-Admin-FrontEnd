@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import styles from "./AdminUserList.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import apiRequest from "utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
@@ -47,6 +48,9 @@ const AdminUserList: React.FC = () => {
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
 
   const getRoleDisplayName = (role: string): string => {
     const roleMap: Record<string, string> = {
@@ -175,6 +179,44 @@ const AdminUserList: React.FC = () => {
       }
       return newSet;
     });
+  };
+
+  const handleDeleteClick = (userId: number, userName: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserName(userName);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (selectedUserId === null) return;
+
+    try {
+      const response = await apiRequest(`/admin/auth/admin-users/${selectedUserId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "관리자 계정 삭제에 실패했습니다.");
+      }
+
+      const data = await response.json();
+      alert(data.message || "관리자 계정이 비활성화되었습니다.");
+      setShowDeleteModal(false);
+      setSelectedUserId(null);
+      setSelectedUserName("");
+      await fetchAdminUsers();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "관리자 계정 삭제에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error deleting admin user:", err);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setSelectedUserId(null);
+    setSelectedUserName("");
   };
 
   return (
@@ -400,7 +442,18 @@ const AdminUserList: React.FC = () => {
                                   );
                                 })()}
                               </td>
-                              <td></td>
+                              <td className={styles["admin-user-actions-cell"]}>
+                                <button
+                                  className={`${styles["admin-user-delete-btn"]} ${
+                                    row.status === "INACTIVE" ? styles["disabled"] : ""
+                                  }`}
+                                  onClick={() => row.status === "ACTIVE" && handleDeleteClick(row.id, row.name)}
+                                  disabled={row.status === "INACTIVE"}
+                                  title={row.status === "INACTIVE" ? "비활성 계정은 삭제할 수 없습니다" : "삭제"}
+                                >
+                                  <img src="/admin/img/icon/delete.svg" alt="삭제" />
+                                </button>
+                              </td>
                             </tr>
                             {expandedRows.has(row.id) && (
                               <tr className={styles["admin-user-expanded-row"]}>
@@ -527,6 +580,17 @@ const AdminUserList: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="관리자 계정 삭제"
+        message={`${selectedUserName} 관리자 계정을 비활성화하시겠습니까?`}
+        confirmText="삭제"
+        cancelText="취소"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        type="reject"
+      />
     </div>
   );
 };
