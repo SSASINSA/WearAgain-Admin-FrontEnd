@@ -1,186 +1,115 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "../../../../utils/api";
 import styles from "./StoreManagement.module.css";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
+interface ProductImage {
+  id: number;
+  imageUrl: string;
+  sortOrder: number;
+}
 
 interface Product {
   id: number;
   name: string;
   price: number;
   category: string;
-  status: "판매중" | "품절" | "판매완료";
-  image: string;
-  description: string;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
   stock: number;
   createdAt: string;
+  updatedAt: string;
+  images?: ProductImage[];
+}
+
+interface ProductListResponse {
+  items: Product[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
 }
 
 const StoreManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: "바느질 도구 세트",
-      price: 25000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "의류 수선에 필요한 기본 바느질 도구 세트입니다.",
-      stock: 15,
-      createdAt: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "재봉실 세트 (다양한 색상)",
-      price: 8000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "다양한 색상의 재봉실 세트입니다.",
-      stock: 20,
-      createdAt: "2024-01-14",
-    },
-    {
-      id: 3,
-      name: "의류 패치 키트",
-      price: 12000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "구멍 난 옷을 수선할 수 있는 패치 키트입니다.",
-      stock: 12,
-      createdAt: "2024-01-13",
-    },
-    {
-      id: 4,
-      name: "친환경 텀블러",
-      price: 18000,
-      category: "환경 굿즈",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "재사용 가능한 친환경 텀블러입니다.",
-      stock: 25,
-      createdAt: "2024-01-12",
-    },
-    {
-      id: 5,
-      name: "천 장바구니",
-      price: 15000,
-      category: "환경 굿즈",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "재사용 가능한 천 장바구니입니다.",
-      stock: 18,
-      createdAt: "2024-01-11",
-    },
-    {
-      id: 6,
-      name: "지퍼 수리 키트",
-      price: 10000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "고장 난 지퍼를 수리할 수 있는 키트입니다.",
-      stock: 10,
-      createdAt: "2024-01-10",
-    },
-    {
-      id: 7,
-      name: "업사이클링 토트백",
-      price: 35000,
-      category: "환경 굿즈",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "재활용 소재로 만든 토트백입니다.",
-      stock: 8,
-      createdAt: "2024-01-09",
-    },
-    {
-      id: 8,
-      name: "바늘 세트 (다양한 크기)",
-      price: 6000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "다양한 크기의 바늘 세트입니다.",
-      stock: 22,
-      createdAt: "2024-01-08",
-    },
-    {
-      id: 9,
-      name: "친환경 밀랍랩",
-      price: 12000,
-      category: "환경 굿즈",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "재사용 가능한 친환경 밀랍랩입니다.",
-      stock: 14,
-      createdAt: "2024-01-07",
-    },
-    {
-      id: 10,
-      name: "단추 수리 키트",
-      price: 9000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "떨어진 단추를 다시 달 수 있는 키트입니다.",
-      stock: 16,
-      createdAt: "2024-01-06",
-    },
-    {
-      id: 11,
-      name: "재활용 소재 에코백",
-      price: 22000,
-      category: "환경 굿즈",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "재활용 소재로 만든 에코백입니다.",
-      stock: 11,
-      createdAt: "2024-01-05",
-    },
-    {
-      id: 12,
-      name: "수선 가이드북",
-      price: 15000,
-      category: "수선 도구",
-      status: "판매중",
-      image: "/admin/img/icon/product-placeholder.svg",
-      description: "의류 수선 방법을 알려주는 가이드북입니다.",
-      stock: 7,
-      createdAt: "2024-01-04",
-    },
-  ]);
-
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState("가격 낮은순");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const itemsPerPage = 12;
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const fetchProducts = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", currentPage.toString());
+      params.append("size", itemsPerPage.toString());
+      
+      if (searchTerm.trim()) {
+        params.append("keyword", searchTerm.trim());
+      }
+      if (selectedCategory) {
+        params.append("category", selectedCategory);
+      }
+      if (selectedStatus) {
+        params.append("status", selectedStatus);
+      } else {
+        params.append("status", "ACTIVE,INACTIVE");
+      }
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+      const response = await apiRequest(`/admin/store/items?${params.toString()}`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const data: ProductListResponse = await response.json();
+        setProducts(data.items || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalElements(data.totalElements || 0);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("상품 목록 조회 실패:", errorData);
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("상품 목록 조회 중 오류:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, searchTerm, selectedCategory, selectedStatus, itemsPerPage]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const getProductImage = (product: Product): string => {
+    if (product.images && product.images.length > 0) {
+      const sortedImages = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder);
+      return sortedImages[0].imageUrl;
+    }
+    return "/admin/img/icon/product-placeholder.svg";
+  };
+
+  const sortedProducts = [...products].sort((a, b) => {
     if (sortBy === "가격 낮은순") return a.price - b.price;
     if (sortBy === "가격 높은순") return b.price - a.price;
     if (sortBy === "이름순") return a.name.localeCompare(b.name);
     return 0;
   });
-
-  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentProducts = sortedProducts.slice(startIndex, startIndex + itemsPerPage);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
 
   return (
     <div className={styles["admin-dashboard"]}>
@@ -196,7 +125,6 @@ const StoreManagement: React.FC = () => {
           }
         />
 
-        {/* Search and Filter Bar */}
         <div className={styles["search-filter-bar"]}>
           <div className={styles["search-filters"]}>
             <div className={styles["search-input-container"]}>
@@ -207,19 +135,47 @@ const StoreManagement: React.FC = () => {
                 type="text"
                 placeholder="상품명으로 검색..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(0);
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    fetchProducts();
+                  }
+                }}
                 className={styles["search-input"]}
               />
             </div>
             <div className={styles["category-select-container"]}>
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setCurrentPage(0);
+                }}
                 className={styles["filter-select"]}
               >
                 <option value="">전체 카테고리</option>
                 <option value="수선 도구">수선 도구</option>
                 <option value="환경 굿즈">환경 굿즈</option>
+              </select>
+              <div className={styles["category-select-icon"]}>
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
+            </div>
+            <div className={styles["status-select-container"]}>
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setCurrentPage(0);
+                }}
+                className={styles["filter-select"]}
+              >
+                <option value="">전체 상태</option>
+                <option value="ACTIVE">판매중</option>
+                <option value="INACTIVE">판매중지</option>
               </select>
               <div className={styles["category-select-icon"]}>
                 <img src={dropdownIcon} alt="드롭다운" />
@@ -237,7 +193,7 @@ const StoreManagement: React.FC = () => {
             </div>
           </div>
           <div className={styles["view-controls"]}>
-            <span className={styles["product-count"]}>총 {products.length}개 상품</span>
+            <span className={styles["product-count"]}>총 {totalElements}개 상품</span>
             <div className={styles["view-toggle"]}>
               <button
                 className={`${styles["view-btn"]} ${viewMode === "grid" ? styles["active"] : ""}`}
@@ -255,84 +211,84 @@ const StoreManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Products Section */}
         <section className={styles["products-section"]}>
-          {/* Products Grid */}
           <div className={styles["products-container"]}>
             <div className={`${styles["products-grid"]} ${styles[viewMode]}`}>
-              {currentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className={styles["product-card"]}
-                  onClick={() => navigate(`/store/${product.id}`, { state: product })}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className={styles["product-image-container"]}>
-                    <img src={product.image} alt={product.name} className={styles["product-image"]} />
-                  </div>
-                  <div className={styles["product-info"]}>
-                    <h3 className={styles["product-name"]}>{product.name}</h3>
-                    <div className={styles["product-price-container"]}>
-                      <span className={styles["product-price"]}>{product.price.toLocaleString()} C</span>
-                      <button
-                        className={styles["product-menu-btn"]}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        ⋯
-                      </button>
+              {isLoading ? (
+                <div>로딩 중...</div>
+              ) : sortedProducts.length === 0 ? (
+                <div>상품이 없습니다.</div>
+              ) : (
+                sortedProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className={styles["product-card"]}
+                    onClick={() => navigate(`/store/${product.id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className={styles["product-image-container"]}>
+                      <img src={getProductImage(product)} alt={product.name} className={styles["product-image"]} />
+                    </div>
+                    <div className={styles["product-info"]}>
+                      <h3 className={styles["product-name"]}>{product.name}</h3>
+                      <div className={styles["product-price-container"]}>
+                        <span className={styles["product-price"]}>{product.price.toLocaleString()} C</span>
+                        <button
+                          className={styles["product-menu-btn"]}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          ⋯
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
-          {/* Pagination */}
-          <div className={styles["pagination-container"]}>
-            <div className={styles["pagination"]}>
-              <button
-                className={styles["pagination-btn"]}
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                ‹
-              </button>
-              <button
-                className={`${styles["pagination-btn"]} ${currentPage === 1 ? styles["active"] : ""}`}
-                onClick={() => handlePageChange(1)}
-              >
-                1
-              </button>
-              <button
-                className={`${styles["pagination-btn"]} ${currentPage === 2 ? styles["active"] : ""}`}
-                onClick={() => handlePageChange(2)}
-              >
-                2
-              </button>
-              <button
-                className={`${styles["pagination-btn"]} ${currentPage === 3 ? styles["active"] : ""}`}
-                onClick={() => handlePageChange(3)}
-              >
-                3
-              </button>
-              <span className={styles["pagination-dots"]}>...</span>
-              <button
-                className={`${styles["pagination-btn"]} ${currentPage === 15 ? styles["active"] : ""}`}
-                onClick={() => handlePageChange(15)}
-              >
-                15
-              </button>
-              <button
-                className={styles["pagination-btn"]}
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                ›
-              </button>
+          {totalPages > 1 && (
+            <div className={styles["pagination-container"]}>
+              <div className={styles["pagination"]}>
+                <button
+                  className={styles["pagination-btn"]}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                >
+                  ‹
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i).map((page) => {
+                  if (
+                    page === 0 ||
+                    page === totalPages - 1 ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page + 1}
+                      </button>
+                    );
+                  } else if (page === currentPage - 2 || page === currentPage + 2) {
+                    return <span key={page} className={styles["pagination-dots"]}>...</span>;
+                  }
+                  return null;
+                })}
+                <button
+                  className={styles["pagination-btn"]}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                >
+                  ›
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </section>
       </main>
     </div>

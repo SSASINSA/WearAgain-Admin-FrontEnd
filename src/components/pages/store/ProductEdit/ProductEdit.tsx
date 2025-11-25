@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import apiRequest from "../../../../utils/api";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import styles from "../AddProduct/AddProduct.module.css";
 
 const ICONS = {
@@ -44,32 +46,44 @@ interface OptionCombination {
   status: string;
 }
 
-interface ProductState {
+interface ProductImageResponse {
+  id: number;
+  imageUrl: string;
+  sortOrder: number;
+}
+
+interface ProductDetail {
   id: number;
   name: string;
-  price: number;
-  category: string;
-  status: "판매중" | "품절" | "판매완료";
-  image: string;
   description: string;
+  category: string;
+  price: number;
   stock: number;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
+  images: ProductImageResponse[];
   createdAt: string;
+  updatedAt: string;
 }
 
 const ProductEdit: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation();
-  const state = (location.state || {}) as Partial<ProductState>;
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [productData, setProductData] = useState({
-    name: state.name || "",
-    description: state.description || "",
-    price: state.price?.toString() || "",
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    status: "ACTIVE",
   });
 
   const [images, setImages] = useState<ProductImage[]>([
-    { file: null, preview: state.image || "" },
+    { file: null, preview: "" },
     { file: null, preview: "" },
     { file: null, preview: "" },
     { file: null, preview: "" },
@@ -81,27 +95,53 @@ const ProductEdit: React.FC = () => {
   const [optionCombinations, setOptionCombinations] = useState<OptionCombination[]>([]);
   const [isCombinedOption, setIsCombinedOption] = useState(false);
   const [requiredOptions, setRequiredOptions] = useState(false);
-  const [quantity, setQuantity] = useState<string>(state.stock?.toString() || "");
+  const [quantity, setQuantity] = useState<string>("");
   const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
 
   useEffect(() => {
-    if (state) {
-      setProductData({
-        name: state.name || "",
-        description: state.description || "",
-        price: state.price?.toString() || "",
-      });
-      setQuantity(state.stock?.toString() || "");
-      if (state.image) {
-        setImages([
-          { file: null, preview: state.image },
-          { file: null, preview: "" },
-          { file: null, preview: "" },
-          { file: null, preview: "" },
-        ]);
+    const fetchProduct = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      try {
+        const response = await apiRequest(`/admin/store/items/${id}`, {
+          method: "GET",
+        });
+
+        if (response.ok) {
+          const data: ProductDetail = await response.json();
+          setProduct(data);
+          setProductData({
+            name: data.name,
+            description: data.description || "",
+            price: data.price.toString(),
+            category: data.category,
+            status: data.status,
+          });
+          setQuantity(data.stock.toString());
+
+          const imagePreviews: ProductImage[] = [];
+          if (data.images && data.images.length > 0) {
+            const sortedImages = [...data.images].sort((a, b) => a.sortOrder - b.sortOrder);
+            sortedImages.forEach((img) => {
+              imagePreviews.push({ file: null, preview: img.imageUrl });
+            });
+          }
+          while (imagePreviews.length < 4) {
+            imagePreviews.push({ file: null, preview: "" });
+          }
+          setImages(imagePreviews.slice(0, 4));
+        } else {
+          console.error("상품 조회 실패");
+        }
+      } catch (error) {
+        console.error("상품 조회 중 오류:", error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [state]);
+    };
+
+    fetchProduct();
+  }, [id]);
 
   const getPressHandlers = (id: string) => ({
     onMouseDown: () => setPressedAction(id),
@@ -112,7 +152,7 @@ const ProductEdit: React.FC = () => {
     onTouchCancel: () => setPressedAction(null),
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProductData((prev) => ({
       ...prev,
@@ -133,14 +173,108 @@ const ProductEdit: React.FC = () => {
     }
   };
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await apiRequest("/admin/store/items/images", {
+        method: "POST",
+        body: formData,
+        headers: {},
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.imageUrl;
+      } else {
+        console.error("이미지 업로드 실패");
+        return null;
+      }
+    } catch (error) {
+      console.error("이미지 업로드 중 오류:", error);
+      return null;
+    }
+  };
+
   const handleTempSave = () => {
     console.log("임시저장:", { ...productData, images });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("상품 수정:", { id, ...productData, images, options, optionCombinations, quantity });
-    navigate(`/store/${id}`);
+    if (!id) return;
+
+    if (!productData.name.trim()) {
+      setError("상품명을 입력해주세요.");
+      return;
+    }
+    if (!productData.price || parseInt(productData.price) <= 0) {
+      setError("가격을 올바르게 입력해주세요.");
+      return;
+    }
+    if (!productData.category) {
+      setError("카테고리를 선택해주세요.");
+      return;
+    }
+
+    setError(null);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmUpdate = async () => {
+    if (!id) return;
+
+    setIsSubmitting(true);
+    setError(null);
+    setShowConfirmModal(false);
+
+    try {
+      const imageUrls: { imageUrl: string; sortOrder: number }[] = [];
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i];
+        if (image.file) {
+          const uploadedUrl = await uploadImage(image.file);
+          if (uploadedUrl) {
+            imageUrls.push({ imageUrl: uploadedUrl, sortOrder: i + 1 });
+          } else {
+            setError("이미지 업로드에 실패했습니다.");
+            setIsSubmitting(false);
+            return;
+          }
+        } else if (image.preview && (image.preview.startsWith("http") || image.preview.startsWith("/"))) {
+          imageUrls.push({ imageUrl: image.preview, sortOrder: i + 1 });
+        }
+      }
+      const response = await apiRequest(`/admin/store/items/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name: productData.name.trim(),
+          description: productData.description.trim() || "",
+          category: productData.category,
+          price: parseInt(productData.price),
+          stock: parseInt(quantity) || 0,
+          status: productData.status,
+          images: imageUrls.length > 0 ? imageUrls : undefined,
+        }),
+      });
+
+      if (response.ok) {
+        navigate(`/store/${id}`);
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "상품 수정에 실패했습니다." }));
+        setError(errorData.message || "상품 수정에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("상품 수정 중 오류:", error);
+      setError(error instanceof Error ? error.message : "상품 수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelUpdate = () => {
+    setShowConfirmModal(false);
   };
 
   const handleAddOption = () => {
@@ -280,15 +414,22 @@ const ProductEdit: React.FC = () => {
             <button className={styles["temp-save-btn"]} onClick={handleTempSave}>
               임시저장
             </button>
-            <button className={styles["submit-btn"]} onClick={handleSubmit}>
-              상품 수정
+            <button className={styles["submit-btn"]} onClick={handleSubmit} disabled={isSubmitting || isLoading}>
+              {isSubmitting ? "수정 중..." : "상품 수정"}
             </button>
           </div>
         </div>
       </div>
 
-      <div className={styles["add-product-content"]}>
-        <div className={styles["content-left"]}>
+      {isLoading && <div>로딩 중...</div>}
+      {error && (
+        <div style={{ padding: "1rem", background: "#fee", color: "#c00", margin: "1rem" }}>
+          {error}
+        </div>
+      )}
+      {!isLoading && (
+        <div className={styles["add-product-content"]}>
+          <div className={styles["content-left"]}>
           <div className={`${styles["section"]} ${styles["product-images"]}`}>
             <div className={styles["section-header"]}>
               <div className={styles["icon"]}>
@@ -353,6 +494,31 @@ const ProductEdit: React.FC = () => {
               />
             </div>
             <div className={styles["form-group"]}>
+              <label>카테고리</label>
+              <select
+                name="category"
+                value={productData.category}
+                onChange={handleInputChange}
+                className={styles["form-select"]}
+              >
+                <option value="">카테고리 선택</option>
+                <option value="수선 도구">수선 도구</option>
+                <option value="환경 굿즈">환경 굿즈</option>
+              </select>
+            </div>
+            <div className={styles["form-group"]}>
+              <label>상태</label>
+              <select
+                name="status"
+                value={productData.status}
+                onChange={handleInputChange}
+                className={styles["form-select"]}
+              >
+                <option value="ACTIVE">판매중</option>
+                <option value="INACTIVE">판매중지</option>
+              </select>
+            </div>
+            <div className={styles["form-group"]}>
               <label>상품 가격</label>
               <div className={styles["price-input-wrapper"]}>
                 <input
@@ -361,6 +527,7 @@ const ProductEdit: React.FC = () => {
                   value={productData.price}
                   onChange={handleInputChange}
                   placeholder="0"
+                  min="0"
                 />
                 <div className={styles["price-suffix"]}>
                   <span>C</span>
@@ -680,6 +847,18 @@ const ProductEdit: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="상품 수정 확인"
+        message="상품 정보를 수정하시겠습니까?"
+        confirmText="수정"
+        cancelText="취소"
+        onConfirm={handleConfirmUpdate}
+        onCancel={handleCancelUpdate}
+        type="approve"
+      />
     </div>
   );
 };
