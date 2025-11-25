@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { authUtils } from "../utils/auth";
 import apiRequest from "../utils/api";
 
-export type AdminRole = "SUPER_ADMIN" | "ADMIN" | null;
+export type AdminRole = "SUPER_ADMIN" | "ADMIN" | "MANAGER" | null;
 
 interface AuthContextType {
   role: AdminRole;
@@ -14,7 +14,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface RoleResponse {
-  role: "SUPER_ADMIN" | "ADMIN";
+  role: "SUPER_ADMIN" | "ADMIN" | "MANAGER";
 }
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

@@ -32,7 +32,7 @@ const Navigation: React.FC = () => {
     }
   }, [location.pathname]);
 
-  const navItems = [
+  const allNavItems = [
     {
       path: "/",
       icon: "/admin/img/icon/dashboard.svg",
@@ -59,6 +59,15 @@ const Navigation: React.FC = () => {
       label: "참가자 관리",
     },
   ];
+
+  const getNavItems = () => {
+    if (role === "MANAGER") {
+      return allNavItems.filter((item) => item.path === "/" || item.path === "/events");
+    }
+    return allNavItems;
+  };
+
+  const navItems = getNavItems();
 
   return (
     <aside className={styles["sidebar"]}>
