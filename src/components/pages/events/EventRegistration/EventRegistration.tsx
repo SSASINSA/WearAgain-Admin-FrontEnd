@@ -319,7 +319,7 @@ const EventRegistration: React.FC = () => {
                   URL.revokeObjectURL(newImages[imageIndex].preview);
                 }
                 newImages[imageIndex] = {
-                  ...newImages[imageIndex],
+                  file: image.file,
                   imageName: uploadResult.imageName,
                   imageUrl: uploadResult.imageUrl,
                   preview: uploadResult.imageUrl,
