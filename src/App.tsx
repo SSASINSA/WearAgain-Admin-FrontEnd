@@ -19,6 +19,7 @@ import ParticipantManagement from "./components/pages/participants/ParticipantMa
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
 import AdminAccountManagement from "./components/pages/admin/AdminAccountManagement/AdminAccountManagement";
+import AdminUserList from "./components/pages/admin/AdminUserList/AdminUserList";
 import Login from "./components/pages/auth/Login/Login";
 import SignUp from "./components/pages/auth/SignUp/SignUp";
 import ProtectedRoute from "./components/common/ProtectedRoute/ProtectedRoute";
@@ -181,6 +182,15 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <AdminAccountManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-users"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <AdminUserList />
               </ProtectedRoute>
             }
           />

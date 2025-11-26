@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EventApprovalDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import apiRequest from "utils/api";
 
 const imgImg = "/admin/img/example/event-hero.png";
 const imgFrame1 = "/admin/img/icon/date-time.svg";
@@ -10,14 +11,82 @@ const imgFrame2 = "/admin/img/icon/location-pin.svg";
 const approveIcon = "/admin/img/icon/check-approve.svg";
 const rejectIcon = "/admin/img/icon/x-reject.svg";
 
+interface EventOption {
+  optionId: number;
+  name: string;
+  type: string;
+  displayOrder: number;
+  capacity: number | null;
+  children: EventOption[];
+}
+
+interface EventApprovalRequestDetailResponse {
+  approvalRequestId: number;
+  createdAt: string;
+  processedAt: string | null;
+  requestingAdmin: {
+    name: string;
+    email: string;
+  };
+  processedByAdmin: {
+    name: string;
+    email: string;
+  } | null;
+  event: {
+    eventId: number;
+    title: string;
+    description: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+  };
+  options: EventOption[];
+}
+
 const EventApprovalDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [approvalData, setApprovalData] = useState<EventApprovalRequestDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const fetchApprovalDetail = async () => {
+      if (!id) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await apiRequest(`/admin/events/approvals/${id}`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "승인 요청 상세 정보를 가져오는데 실패했습니다.");
+        }
+
+        const data: EventApprovalRequestDetailResponse = await response.json();
+        setApprovalData(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "승인 요청 상세 정보를 가져오는데 실패했습니다.";
+        setError(errorMessage);
+        console.error("Error fetching approval detail:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchApprovalDetail();
+  }, [id]);
 
   useEffect(() => {
     const headerOffsetPx = 120;
@@ -75,22 +144,103 @@ const EventApprovalDetail: React.FC = () => {
     setShowRejectModal(true);
   };
 
-  const handleApproveConfirm = () => {
-    console.log("승인:", id);
-    alert("행사가 승인되었습니다.");
-    navigate("/events/approval");
+  const handleApproveConfirm = async () => {
+    if (!id) return;
+
+    try {
+      setIsProcessing(true);
+
+      const response = await apiRequest(`/admin/events/approvals/${id}/approve`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 승인에 실패했습니다.");
+      }
+
+      const message = await response.text();
+      alert(message || "행사가 승인되었습니다.");
+      setShowApproveModal(false);
+      navigate("/events/approval");
+    } catch (error) {
+      console.error("행사 승인 실패:", error);
+      alert(error instanceof Error ? error.message : "행사 승인에 실패했습니다.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleRejectConfirm = () => {
-    console.log("거부:", id);
-    alert("행사가 거부되었습니다.");
-    navigate("/events/approval");
+  const handleRejectConfirm = async () => {
+    if (!id) return;
+
+    try {
+      setIsProcessing(true);
+
+      const response = await apiRequest(`/admin/events/approvals/${id}/reject`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 거부에 실패했습니다.");
+      }
+
+      const message = await response.text();
+      alert(message || "행사 승인 요청이 거절되었습니다.");
+      setShowRejectModal(false);
+      navigate("/events/approval");
+    } catch (error) {
+      console.error("행사 거부 실패:", error);
+      alert(error instanceof Error ? error.message : "행사 거부에 실패했습니다.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleModalCancel = () => {
     setShowApproveModal(false);
     setShowRejectModal(false);
   };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  const formatDateTime = (dateString: string | null): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles["event-approval-detail-page"]}>
+        <PageHeader title="행사등록 승인 상세" />
+        <div style={{ padding: "2rem", textAlign: "center" }}>로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error || !approvalData) {
+    return (
+      <div className={styles["event-approval-detail-page"]}>
+        <PageHeader title="행사등록 승인 상세" />
+        <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
+          {error || "승인 요청 정보를 불러올 수 없습니다."}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles["event-approval-detail-page"]}>
@@ -109,11 +259,8 @@ const EventApprovalDetail: React.FC = () => {
                 <span className={`${styles["tag"]} ${styles["environment"]}`}>환경보호</span>
                 <span className={`${styles["tag"]} ${styles["workshop"]}`}>워크샵</span>
               </div>
-              <h2 className={styles["event-title"]}>제로웨이스트 라이프스타일 워크샵</h2>
-              <p className={styles["event-description"]}>
-                일상생활에서 실천할 수 있는 제로웨이스트 방법을 배우고, 지속가능한 라이프스타일을 시작 해보세요. 전문
-                강사와 함께하는 실습 중심의 워크샵으로 친환경 제품 만들기와 생활 속 실천 방법을 익힐 수 있습니다.
-              </p>
+              <h2 className={styles["event-title"]}>{approvalData.event.title}</h2>
+              <p className={styles["event-description"]}>{approvalData.event.description}</p>
             </div>
           </div>
 
@@ -126,9 +273,10 @@ const EventApprovalDetail: React.FC = () => {
                   <img src={imgFrame1} alt="날짜 아이콘" />
                 </div>
                 <div className={styles["detail-content"]}>
-                  <p className={styles["detail-label"]}>날짜 및 시간</p>
-                  <p className={styles["detail-value"]}>2024년 3월 15일 (금)</p>
-                  <p className={styles["detail-value"]}>오후 2:00 - 5:00 (3시간)</p>
+                  <p className={styles["detail-label"]}>날짜</p>
+                  <p className={styles["detail-value"]}>
+                    {formatDate(approvalData.event.startDate)} - {formatDate(approvalData.event.endDate)}
+                  </p>
                 </div>
               </div>
               <div className={styles["detail-item"]}>
@@ -137,33 +285,12 @@ const EventApprovalDetail: React.FC = () => {
                 </div>
                 <div className={styles["detail-content"]}>
                   <p className={styles["detail-label"]}>위치</p>
-                  <p className={styles["detail-value"]}>서울시 강남구 테헤란로 123</p>
-                  <p className={styles["detail-value"]}>그린센터 2층 컨퍼런스룸</p>
+                  <p className={styles["detail-value"]}>{approvalData.event.location}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 이용 방법 섹션 */}
-          <div className={styles["event-usage-section"]}>
-            <h3 className={styles["section-title"]}>이용 방법</h3>
-            <ul className={styles["usage-list"]}>
-              <li>깨끗한 옷을 행사장으로 들고옵니다.</li>
-              <li>행사장 입구에서 가져온 옷을 QR을 통해 등록합니다.</li>
-              <li>등록 후 교환 티켓이 잘 들어왔는지 확인합니다.</li>
-              <li>교환 티켓 만큼 행사장에 있는 옷들을 고릅니다.</li>
-              <li>교환 존에서 담당자에게 QR 제시 후 수령합니다.</li>
-            </ul>
-          </div>
-
-          {/* 주의사항 섹션 */}
-          <div className={styles["event-precaution-section"]}>
-            <h3 className={styles["section-title"]}>주의사항</h3>
-            <ul className={styles["precaution-list"]}>
-              <li>가져온 옷은 반드시 세탁 필수!</li>
-              <li>행사장 내에서 음식물 섭취는 제한 될 수 있습니다.</li>
-            </ul>
-          </div>
         </div>
 
         {/* 사이드바 - 승인/거부 액션 */}
@@ -175,42 +302,98 @@ const EventApprovalDetail: React.FC = () => {
               <div className={styles["info-list"]}>
                 <div className={styles["info-item"]}>
                   <span className={styles["info-label"]}>상태</span>
-                  <span className={`${styles["info-value"]} ${styles["status-pending"]}`}>승인 대기</span>
-                </div>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>카테고리</span>
-                  <span className={styles["info-value"]}>환경보호</span>
-                </div>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>주최자</span>
-                  <span className={styles["info-value"]}>그린라이프</span>
-                </div>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>참가비</span>
-                  <span className={styles["info-value"]}>무료</span>
+                  <span className={`${styles["info-value"]} ${styles["status-pending"]}`}>
+                    {approvalData.processedAt ? "처리됨" : "승인 대기"}
+                  </span>
                 </div>
                 <div className={styles["info-item"]}>
                   <span className={styles["info-label"]}>등록자</span>
-                  <span className={styles["info-value"]}>김관리자</span>
+                  <span className={styles["info-value"]}>{approvalData.requestingAdmin.name}</span>
                 </div>
                 <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>등록일</span>
-                  <span className={styles["info-value"]}>2024.03.10</span>
+                  <span className={styles["info-label"]}>등록자 이메일</span>
+                  <span className={styles["info-value"]}>{approvalData.requestingAdmin.email}</span>
                 </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>요청일</span>
+                  <span className={styles["info-value"]}>{formatDateTime(approvalData.createdAt)}</span>
+                </div>
+                {approvalData.options && approvalData.options.length > 0 && (() => {
+                  const findOptionsByType = (options: EventOption[], type: string): EventOption[] => {
+                    const results: EventOption[] = [];
+                    for (const opt of options) {
+                      if (opt.type === type) {
+                        results.push(opt);
+                      }
+                      if (opt.children && opt.children.length > 0) {
+                        results.push(...findOptionsByType(opt.children, type));
+                      }
+                    }
+                    return results;
+                  };
+
+                  const attendeeOptions = findOptionsByType(approvalData.options, "ATTENDEE");
+                  const staffOptions = findOptionsByType(approvalData.options, "STAFF");
+
+                  return (
+                    <>
+                      {attendeeOptions.map((opt) => (
+                        <div key={opt.optionId} className={styles["info-item"]}>
+                          <span className={styles["info-label"]}>참가자 정원</span>
+                          <span className={styles["info-value"]}>
+                            {opt.capacity !== null ? `${opt.capacity}명` : "제한 없음"}
+                          </span>
+                        </div>
+                      ))}
+                      {staffOptions.map((opt) => (
+                        <div key={opt.optionId} className={styles["info-item"]}>
+                          <span className={styles["info-label"]}>스태프 정원</span>
+                          <span className={styles["info-value"]}>
+                            {opt.capacity !== null ? `${opt.capacity}명` : "제한 없음"}
+                          </span>
+                        </div>
+                      ))}
+                    </>
+                  );
+                })()}
+                {approvalData.processedAt && (
+                  <>
+                    <div className={styles["info-item"]}>
+                      <span className={styles["info-label"]}>처리일</span>
+                      <span className={styles["info-value"]}>{formatDateTime(approvalData.processedAt)}</span>
+                    </div>
+                    {approvalData.processedByAdmin && (
+                      <div className={styles["info-item"]}>
+                        <span className={styles["info-label"]}>처리자</span>
+                        <span className={styles["info-value"]}>{approvalData.processedByAdmin.name}</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
             {/* 승인/거부 액션 섹션 */}
-            <div className={styles["approval-actions-section"]}>
-              <button className={styles["approve-button"]} onClick={handleApproveClick}>
-                <img src={approveIcon} alt="승인 아이콘" />
-                행사 승인
-              </button>
-              <button className={styles["reject-button"]} onClick={handleRejectClick}>
-                <img src={rejectIcon} alt="거부 아이콘" />
-                행사 거부
-              </button>
-            </div>
+            {!approvalData.processedAt && (
+              <div className={styles["approval-actions-section"]}>
+                <button
+                  className={styles["approve-button"]}
+                  onClick={handleApproveClick}
+                  disabled={isProcessing}
+                >
+                  <img src={approveIcon} alt="승인 아이콘" />
+                  {isProcessing ? "처리 중..." : "행사 승인"}
+                </button>
+                <button
+                  className={styles["reject-button"]}
+                  onClick={handleRejectClick}
+                  disabled={isProcessing}
+                >
+                  <img src={rejectIcon} alt="거부 아이콘" />
+                  {isProcessing ? "처리 중..." : "행사 거부"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

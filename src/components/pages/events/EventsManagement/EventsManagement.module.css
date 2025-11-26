@@ -215,13 +215,23 @@
 }
 
 .status-badge.completed {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .status-badge.upcoming {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .event-details {
@@ -500,4 +510,32 @@
   .pagination-controls {
     align-self: flex-end;
   }
+}
+
+.loading-container,
+.error-container {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.error-container {
+  color: #ef4444;
+}
+
+.error-container button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #06b0b7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.error-container button:hover {
+  background-color: #05969c;
 }
