@@ -7,6 +7,11 @@ import apiRequest from "utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 
+interface Reviewer {
+  adminId: number;
+  name: string;
+}
+
 interface SignupRequestResponse {
   signupRequestId: number;
   email: string;
@@ -17,7 +22,7 @@ interface SignupRequestResponse {
   rejectionReason: string | null;
   createdAt: string;
   reviewedAt: string | null;
-  reviewer: string | null;
+  reviewer: Reviewer | null;
 }
 
 interface SignupRequestsApiResponse {
@@ -30,6 +35,7 @@ interface AdminAccountRequest {
   email: string;
   requestDate: string;
   status: "pending" | "approved" | "rejected" | "expired";
+  requestedRole: string;
   reason?: string;
   description?: string;
 }
@@ -49,6 +55,15 @@ const AdminAccountManagement: React.FC = () => {
   const [adminAccountRequests, setAdminAccountRequests] = useState<AdminAccountRequest[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const getRoleDisplayName = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      MANAGER: "주최자",
+      ADMIN: "관리자",
+      SUPER_ADMIN: "최고 관리자",
+    };
+    return roleMap[role] || role;
+  };
 
   const transformApiResponse = (apiResponse: SignupRequestResponse): AdminAccountRequest => {
     const statusMap: Record<string, "pending" | "approved" | "rejected" | "expired"> = {
@@ -75,6 +90,7 @@ const AdminAccountManagement: React.FC = () => {
       email: apiResponse.email,
       requestDate: formatDate(apiResponse.createdAt),
       status: statusMap[apiResponse.status] || "pending",
+      requestedRole: apiResponse.requestedRole,
       reason: apiResponse.rejectionReason || undefined,
       description: apiResponse.reason || undefined,
     };
@@ -344,6 +360,7 @@ const AdminAccountManagement: React.FC = () => {
                           { key: "email", title: "이메일", width: 180 },
                           { key: "requestDate", title: "신청일", width: 150 },
                           { key: "detail", title: "상세 설명", width: 280 },
+                          { key: "requestedRole", title: "요청 권한", width: 100 },
                           { key: "status", title: "상태", width: 100 },
                           { key: "actions", title: "작업", width: 100 },
                         ].map((col) => (
@@ -362,7 +379,7 @@ const AdminAccountManagement: React.FC = () => {
                     <tbody>
                       {currentRequests.length === 0 ? (
                         <tr>
-                          <td colSpan={7} style={{ padding: "40px", textAlign: "center" }}>
+                          <td colSpan={8} style={{ padding: "40px", textAlign: "center" }}>
                             승인 요청이 없습니다.
                           </td>
                         </tr>
@@ -425,6 +442,9 @@ const AdminAccountManagement: React.FC = () => {
                                   )}
                                 </div>
                               </td>
+                              <td className={styles["admin-account-role-cell"]}>
+                                {getRoleDisplayName(row.requestedRole)}
+                              </td>
                               <td>{getStatusBadge(row.status)}</td>
                               <td style={{ textAlign: "center" }}>
                                 <div className={styles["admin-account-action-buttons"]}>
@@ -451,7 +471,7 @@ const AdminAccountManagement: React.FC = () => {
                             </tr>
                             {expandedRows.has(row.id) && (
                               <tr className={styles["admin-account-expanded-row"]}>
-                                <td colSpan={7} className={styles["admin-account-expanded-content"]}>
+                                <td colSpan={8} className={styles["admin-account-expanded-content"]}>
                                   <div className={styles["admin-account-expanded-info"]}>
                                     <div className={styles["admin-account-expanded-item"]}>
                                       <span className={styles["admin-account-expanded-label"]}>아이디:</span>
@@ -460,6 +480,12 @@ const AdminAccountManagement: React.FC = () => {
                                     <div className={styles["admin-account-expanded-item"]}>
                                       <span className={styles["admin-account-expanded-label"]}>이메일:</span>
                                       <span className={styles["admin-account-expanded-value"]}>{row.email}</span>
+                                    </div>
+                                    <div className={styles["admin-account-expanded-item"]}>
+                                      <span className={styles["admin-account-expanded-label"]}>요청 권한:</span>
+                                      <span className={styles["admin-account-expanded-value"]}>
+                                        {getRoleDisplayName(row.requestedRole)}
+                                      </span>
                                     </div>
                                     <div className={styles["admin-account-expanded-item"]}>
                                       <span className={styles["admin-account-expanded-label"]}>신청일:</span>
@@ -527,6 +553,12 @@ const AdminAccountManagement: React.FC = () => {
               <div className={styles["admin-account-modal-row"]}>
                 <span className={styles["admin-account-modal-label"]}>이메일:</span>
                 <span className={styles["admin-account-modal-value"]}>{selectedDetail.email}</span>
+              </div>
+              <div className={styles["admin-account-modal-row"]}>
+                <span className={styles["admin-account-modal-label"]}>요청 권한:</span>
+                <span className={styles["admin-account-modal-value"]}>
+                  {getRoleDisplayName(selectedDetail.requestedRole)}
+                </span>
               </div>
               <div className={styles["admin-account-modal-row"]}>
                 <span className={styles["admin-account-modal-label"]}>신청일:</span>
