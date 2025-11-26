@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import apiRequest from "utils/api";
 import styles from "./AddProduct.module.css";
 
 const ICONS = {
@@ -19,6 +20,35 @@ const ICONS = {
 interface ProductImage {
   file: File | null;
   preview: string;
+  imageName: string | null;
+  imageUrl: string | null;
+}
+
+interface ProductImageUploadResponse {
+  imageName: string;
+  imageUrl: string;
+}
+
+interface ProductImageRequest {
+  imageUrl: string;
+  sortOrder: number;
+}
+
+interface ProductRegistrationRequest {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stock: number;
+  maxPurchasePerUser: number;
+  status: string;
+  images: ProductImageRequest[];
+}
+
+interface ProductRegistrationResponse {
+  id: number;
+  name: string;
+  status: string;
 }
 
 interface OptionValue {
@@ -49,16 +79,18 @@ const AddProduct: React.FC = () => {
   const [productData, setProductData] = useState({
     name: "",
     description: "",
+    category: "bag",
     price: "",
   });
 
   const [images, setImages] = useState<ProductImage[]>([
-    { file: null, preview: "" },
-    { file: null, preview: "" },
-    { file: null, preview: "" },
-    { file: null, preview: "" },
+    { file: null, preview: "", imageName: null, imageUrl: null },
+    { file: null, preview: "", imageName: null, imageUrl: null },
+    { file: null, preview: "", imageName: null, imageUrl: null },
+    { file: null, preview: "", imageName: null, imageUrl: null },
   ]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pressedAction, setPressedAction] = useState<string | null>(null);
 
   const [options, setOptions] = useState<ProductOption[]>([]);
@@ -92,19 +124,207 @@ const AddProduct: React.FC = () => {
 
       setImages((prev) => {
         const newImages = [...prev];
-        newImages[index] = { file, preview };
+        if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+          URL.revokeObjectURL(newImages[index].preview);
+        }
+        newImages[index] = { file, preview, imageName: null, imageUrl: null };
         return newImages;
       });
     }
+  };
+
+  const handleImageRemove = (index: number) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[index].preview);
+      }
+      newImages[index] = { file: null, preview: "", imageName: null, imageUrl: null };
+      return newImages;
+    });
+  };
+
+  const uploadProductImage = async (file: File): Promise<ProductImageUploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await apiRequest("/admin/store/items/images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "이미지 업로드에 실패했습니다.");
+    }
+
+    const data: ProductImageUploadResponse = await response.json();
+    return data;
   };
 
   const handleTempSave = () => {
     console.log("임시저장:", { ...productData, images });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("상품 등록:", { ...productData, images, options, optionCombinations, quantity });
+
+    try {
+      setIsSubmitting(true);
+
+      if (!productData.name || productData.name.trim().length === 0) {
+        alert("상품명을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (productData.name.trim().length < 1 || productData.name.trim().length > 255) {
+        alert("상품명은 1자 이상 255자 이하여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!productData.description || productData.description.trim().length === 0) {
+        alert("상품 설명을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (productData.description.trim().length > 4000) {
+        alert("상품 설명은 최대 4000자까지 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!productData.category || productData.category.trim().length === 0) {
+        alert("카테고리를 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (productData.category.trim().length > 50) {
+        alert("카테고리는 최대 50자까지 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!productData.price || productData.price.trim().length === 0) {
+        alert("상품 가격을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const price = parseFloat(productData.price);
+      if (isNaN(price) || price <= 0) {
+        alert("상품 가격은 0보다 큰 숫자여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!quantity || quantity.trim().length === 0) {
+        alert("상품 수량을 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const stock = parseInt(quantity, 10);
+      if (isNaN(stock) || stock < 0) {
+        alert("상품 수량은 0 이상의 숫자여야 합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const imagesToUpload = images.filter((img) => img.file !== null);
+      if (imagesToUpload.length === 0) {
+        alert("최소 1개 이상의 상품 이미지를 업로드해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (imagesToUpload.length > 10) {
+        alert("상품 이미지는 최대 10개까지 업로드 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const uploadedImages: ProductImageUploadResponse[] = [];
+
+      for (let i = 0; i < imagesToUpload.length; i++) {
+        const image = imagesToUpload[i];
+        if (image.file) {
+          try {
+            const uploadResult = await uploadProductImage(image.file);
+            uploadedImages.push(uploadResult);
+
+            setImages((prev) => {
+              const newImages = [...prev];
+              const imageIndex = prev.findIndex((img) => img.file === image.file);
+              if (imageIndex !== -1) {
+                if (newImages[imageIndex].preview && !newImages[imageIndex].preview.startsWith("http")) {
+                  URL.revokeObjectURL(newImages[imageIndex].preview);
+                }
+                newImages[imageIndex] = {
+                  ...newImages[imageIndex],
+                  imageName: uploadResult.imageName,
+                  imageUrl: uploadResult.imageUrl,
+                  preview: uploadResult.imageUrl,
+                };
+              }
+              return newImages;
+            });
+          } catch (error) {
+            console.error(`이미지 ${i + 1} 업로드 실패:`, error);
+            alert(error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
+      const productImages: ProductImageRequest[] = uploadedImages
+        .filter((img) => img && img.imageUrl && img.imageUrl.trim() !== "")
+        .map((img, index) => {
+          if (!img.imageUrl) {
+            throw new Error(`이미지 ${index + 1}의 URL이 없습니다.`);
+          }
+
+          return {
+            imageUrl: img.imageUrl.trim(),
+            sortOrder: index + 1,
+          };
+        });
+
+      const requestData: ProductRegistrationRequest = {
+        name: productData.name.trim(),
+        description: productData.description.trim(),
+        category: productData.category.trim(),
+        price: price,
+        stock: stock,
+        maxPurchasePerUser: 1,
+        status: "ACTIVE",
+        images: productImages,
+      };
+
+      const response = await apiRequest("/admin/store/items", {
+        method: "POST",
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "상품 등록에 실패했습니다.");
+      }
+
+      const responseData: ProductRegistrationResponse = await response.json();
+
+      alert("상품이 성공적으로 등록되었습니다.");
+      navigate("/store");
+    } catch (error) {
+      console.error("상품 등록 실패:", error);
+      alert(error instanceof Error ? error.message : "상품 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAddOption = () => {
@@ -244,8 +464,8 @@ const AddProduct: React.FC = () => {
             <button className={styles["temp-save-btn"]} onClick={handleTempSave}>
               임시저장
             </button>
-            <button className={styles["submit-btn"]} onClick={handleSubmit}>
-              상품 등록
+            <button className={styles["submit-btn"]} onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? "등록 중..." : "상품 등록"}
             </button>
           </div>
         </div>
@@ -272,7 +492,19 @@ const AddProduct: React.FC = () => {
                   />
                   <label htmlFor={`image-${index}`} className={styles["image-upload-label"]}>
                     {image.preview ? (
-                      <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
+                      <div className={styles["image-preview-container"]}>
+                        <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
+                        <button
+                          type="button"
+                          className={styles["image-remove-btn"]}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleImageRemove(index);
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <img src={ICONS.imageAdd} alt="이미지 추가" className={styles["upload-icon"]} />
