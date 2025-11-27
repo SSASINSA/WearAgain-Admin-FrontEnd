@@ -264,7 +264,7 @@ const AddProduct: React.FC = () => {
                   URL.revokeObjectURL(newImages[imageIndex].preview);
                 }
                 newImages[imageIndex] = {
-                  ...newImages[imageIndex],
+                  file: image.file,
                   imageName: uploadResult.imageName,
                   imageUrl: uploadResult.imageUrl,
                   preview: uploadResult.imageUrl,
@@ -576,12 +576,7 @@ const AddProduct: React.FC = () => {
             </div>
             <div className={styles["form-group"]}>
               <label>수량</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="0"
-              />
+              <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
             </div>
           </div>
 
@@ -598,10 +593,7 @@ const AddProduct: React.FC = () => {
                 <div key={option.id} className={styles["option-row"]}>
                   <div className={styles["option-type"]}>
                     <label>옵션타입</label>
-                    <select
-                      value={option.type}
-                      onChange={(e) => handleOptionChange(option.id, "type", e.target.value)}
-                    >
+                    <select value={option.type} onChange={(e) => handleOptionChange(option.id, "type", e.target.value)}>
                       <option value="기본">기본</option>
                     </select>
                   </div>
@@ -752,18 +744,14 @@ const AddProduct: React.FC = () => {
                             <input
                               type="number"
                               value={combination.stock}
-                              onChange={(e) =>
-                                handleCombinationChange(combination.id, "stock", e.target.value)
-                              }
+                              onChange={(e) => handleCombinationChange(combination.id, "stock", e.target.value)}
                             />
                           </td>
                           <td>
                             <input
                               type="number"
                               value={combination.addStock}
-                              onChange={(e) =>
-                                handleCombinationChange(combination.id, "addStock", e.target.value)
-                              }
+                              onChange={(e) => handleCombinationChange(combination.id, "addStock", e.target.value)}
                               placeholder="0"
                             />
                           </td>
@@ -771,18 +759,14 @@ const AddProduct: React.FC = () => {
                             <input
                               type="text"
                               value={combination.sku}
-                              onChange={(e) =>
-                                handleCombinationChange(combination.id, "sku", e.target.value)
-                              }
+                              onChange={(e) => handleCombinationChange(combination.id, "sku", e.target.value)}
                               placeholder="SKU 번호"
                             />
                           </td>
                           <td>
                             <select
                               value={combination.status}
-                              onChange={(e) =>
-                                handleCombinationChange(combination.id, "status", e.target.value)
-                              }
+                              onChange={(e) => handleCombinationChange(combination.id, "status", e.target.value)}
                             >
                               <option value="판매중">판매중</option>
                               <option value="품절">품절</option>
