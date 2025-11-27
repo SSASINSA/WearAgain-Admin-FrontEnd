@@ -38,6 +38,9 @@ const StoreManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
+  const [searchScope, setSearchScope] = useState<string>("ALL");
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState("가격 낮은순");
@@ -53,17 +56,18 @@ const StoreManagement: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", currentPage.toString());
       params.append("size", itemsPerPage.toString());
-      
-      if (searchTerm.trim()) {
-        params.append("keyword", searchTerm.trim());
+
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
       }
       if (selectedCategory) {
         params.append("category", selectedCategory);
       }
       if (selectedStatus) {
         params.append("status", selectedStatus);
-      } else {
-        params.append("status", "ACTIVE,INACTIVE");
       }
 
       const response = await apiRequest(`/admin/store/items?${params.toString()}`, {
@@ -86,11 +90,23 @@ const StoreManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchTerm, selectedCategory, selectedStatus, itemsPerPage]);
+  }, [currentPage, appliedSearchTerm, appliedSearchScope, selectedCategory, selectedStatus, itemsPerPage]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -128,24 +144,32 @@ const StoreManagement: React.FC = () => {
         <div className={styles["search-filter-bar"]}>
           <div className={styles["search-filters"]}>
             <div className={styles["search-input-container"]}>
-              <div className={styles["search-icon"]}>
+              <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
                 <img src="/admin/img/icon/search.svg" alt="검색" />
               </div>
               <input
                 type="text"
-                placeholder="상품명으로 검색..."
+                placeholder="상품 검색..."
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(0);
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    fetchProducts();
-                  }
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress}
                 className={styles["search-input"]}
               />
+            </div>
+            <div className={styles["status-select-container"]}>
+              <select
+                value={searchScope}
+                onChange={(e) => setSearchScope(e.target.value)}
+                className={styles["filter-select"]}
+              >
+                <option value="ALL">전체</option>
+                <option value="NAME">상품명</option>
+                <option value="DESCRIPTION">설명</option>
+                <option value="CATEGORY">카테고리</option>
+              </select>
+              <div className={styles["category-select-icon"]}>
+                <img src={dropdownIcon} alt="드롭다운" />
+              </div>
             </div>
             <div className={styles["category-select-container"]}>
               <select
@@ -176,6 +200,7 @@ const StoreManagement: React.FC = () => {
                 <option value="">전체 상태</option>
                 <option value="ACTIVE">판매중</option>
                 <option value="INACTIVE">판매중지</option>
+                <option value="DELETED">삭제됨</option>
               </select>
               <div className={styles["category-select-icon"]}>
                 <img src={dropdownIcon} alt="드롭다운" />
@@ -260,11 +285,7 @@ const StoreManagement: React.FC = () => {
                   ‹
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i).map((page) => {
-                  if (
-                    page === 0 ||
-                    page === totalPages - 1 ||
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
+                  if (page === 0 || page === totalPages - 1 || (page >= currentPage - 1 && page <= currentPage + 1)) {
                     return (
                       <button
                         key={page}
@@ -275,7 +296,11 @@ const StoreManagement: React.FC = () => {
                       </button>
                     );
                   } else if (page === currentPage - 2 || page === currentPage + 2) {
-                    return <span key={page} className={styles["pagination-dots"]}>...</span>;
+                    return (
+                      <span key={page} className={styles["pagination-dots"]}>
+                        ...
+                      </span>
+                    );
                   }
                   return null;
                 })}

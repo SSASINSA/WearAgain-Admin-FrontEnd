@@ -1078,6 +1078,89 @@
   background: rgba(100, 44, 141, 0.1);
 }
 
+.product-pickup-locations {
+  padding: 32px 32px 20px 32px !important;
+  height: fit-content !important;
+}
+
+.product-pickup-locations .section-header .icon {
+  background: rgba(6, 176, 183, 0.1);
+}
+
+.pickup-location-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pickup-location-input-row input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+}
+
+.pickup-location-input-row input:focus {
+  outline: none;
+  border-color: #06b0b7;
+  box-shadow: 0 0 0 3px rgba(6, 176, 183, 0.1);
+}
+
+.remove-location-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.remove-location-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.remove-location-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.add-location-btn {
+  margin-top: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: center;
+}
+
+.add-location-btn:hover {
+  background: #f9fafb;
+  border-color: #06b0b7;
+  color: #06b0b7;
+}
+
+.pickup-location-info {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 12px 0 0 0;
+  line-height: 20px;
+}
+
 @media (max-width: 768px) {
   .option-row {
     grid-template-columns: 1fr;

@@ -19,6 +19,7 @@ interface ProductDetail {
   stock: number;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   images: ProductImage[];
+  pickupLocations: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -190,6 +191,20 @@ const ProductDetail: React.FC = () => {
               <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>가격</p>
                 <p className={styles["detail-value"]}>{product.price.toLocaleString()} C</p>
+              </div>
+              <div className={styles["detail-item"]} style={{ gridColumn: "1 / -1" }}>
+                <p className={styles["detail-label"]}>수령 장소</p>
+                <div className={styles["pickup-locations-list"]}>
+                  {product.pickupLocations && product.pickupLocations.length > 0 ? (
+                    product.pickupLocations.map((location, index) => (
+                      <span key={index} className={styles["pickup-location-tag"]}>
+                        {location}
+                      </span>
+                    ))
+                  ) : (
+                    <p className={styles["detail-value"]}>수령 장소가 설정되지 않았습니다.</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
