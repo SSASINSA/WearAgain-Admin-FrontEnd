@@ -43,6 +43,7 @@ interface ProductRegistrationRequest {
   maxPurchasePerUser: number;
   status: string;
   images: ProductImageRequest[];
+  pickupLocations: string[];
 }
 
 interface ProductRegistrationResponse {
@@ -99,6 +100,7 @@ const AddProduct: React.FC = () => {
   const [requiredOptions, setRequiredOptions] = useState(false);
   const [quantity, setQuantity] = useState<string>("");
   const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
+  const [pickupLocations, setPickupLocations] = useState<string[]>([""]);
 
   const getPressHandlers = (id: string) => ({
     onMouseDown: () => setPressedAction(id),
@@ -247,6 +249,31 @@ const AddProduct: React.FC = () => {
         return;
       }
 
+      const validPickupLocations = pickupLocations
+        .map((loc) => loc.trim())
+        .filter((loc) => loc.length > 0)
+        .filter((loc, index, self) => self.indexOf(loc) === index);
+
+      if (validPickupLocations.length === 0) {
+        alert("최소 1개 이상의 수령 장소를 입력해주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (validPickupLocations.length > 20) {
+        alert("수령 장소는 최대 20개까지 입력 가능합니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      for (const loc of validPickupLocations) {
+        if (loc.length > 255) {
+          alert("수령 장소는 각각 255자 이하여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const uploadedImages: ProductImageUploadResponse[] = [];
 
       for (let i = 0; i < imagesToUpload.length; i++) {
@@ -303,6 +330,7 @@ const AddProduct: React.FC = () => {
         maxPurchasePerUser: 1,
         status: "ACTIVE",
         images: productImages,
+        pickupLocations: validPickupLocations,
       };
 
       const response = await apiRequest("/admin/store/items", {
@@ -577,6 +605,57 @@ const AddProduct: React.FC = () => {
             <div className={styles["form-group"]}>
               <label>수량</label>
               <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
+            </div>
+          </div>
+
+          <div className={`${styles["section"]} ${styles["product-pickup-locations"]}`}>
+            <div className={styles["section-header"]}>
+              <div className={styles["icon"]}>
+                <img src={ICONS.pencil} alt="수령 장소 아이콘" />
+              </div>
+              <h2>수령 장소</h2>
+            </div>
+            <div className={styles["form-group"]}>
+              <label>수령 장소 (최소 1개, 최대 20개)</label>
+              {pickupLocations.map((location, index) => (
+                <div key={index} className={styles["pickup-location-input-row"]}>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => {
+                      const newLocations = [...pickupLocations];
+                      newLocations[index] = e.target.value;
+                      setPickupLocations(newLocations);
+                    }}
+                    placeholder="수령 장소를 입력하세요 (예: 강남 점포)"
+                    maxLength={255}
+                  />
+                  {pickupLocations.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newLocations = pickupLocations.filter((_, i) => i !== index);
+                        setPickupLocations(newLocations);
+                      }}
+                      className={styles["remove-location-btn"]}
+                    >
+                      <img src="/admin/img/icon/x-reject.svg" alt="제거" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {pickupLocations.length < 20 && (
+                <button
+                  type="button"
+                  onClick={() => setPickupLocations([...pickupLocations, ""])}
+                  className={styles["add-location-btn"]}
+                >
+                  + 수령 장소 추가
+                </button>
+              )}
+              <p className={styles["pickup-location-info"]}>
+                각 수령 장소는 255자 이내로 입력해주세요. 중복된 장소는 자동으로 제거됩니다.
+              </p>
             </div>
           </div>
 
