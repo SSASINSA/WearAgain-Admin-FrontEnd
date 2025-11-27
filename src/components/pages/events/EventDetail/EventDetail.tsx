@@ -211,22 +211,44 @@ const EventDetail: React.FC = () => {
     return total;
   };
 
-  const getStatusText = (status: string): string => {
-    switch (status.toUpperCase()) {
-      case "DRAFT":
-        return "승인 대기";
-      case "APPROVAL":
-        return "승인 완료";
+  const mapApiStatusToDisplayStatus = (
+    apiStatus: string
+  ): "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted" => {
+    switch (apiStatus.toUpperCase()) {
       case "OPEN":
-        return "진행중";
-      case "REJECTED":
-        return "거부됨";
+        return "active";
       case "CLOSED":
-        return "종료";
+        return "completed";
       case "ARCHIVED":
-        return "보관됨";
+        return "deleted";
+      case "APPROVAL":
+        return "upcoming";
+      case "DRAFT":
+        return "pending";
+      case "REJECTED":
+        return "rejected";
       default:
-        return status;
+        return "active";
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const displayStatus = mapApiStatusToDisplayStatus(status);
+    switch (displayStatus) {
+      case "active":
+        return <span className={`${styles["status-badge"]} ${styles["active"]}`}>진행중</span>;
+      case "completed":
+        return <span className={`${styles["status-badge"]} ${styles["completed"]}`}>완료됨</span>;
+      case "upcoming":
+        return <span className={`${styles["status-badge"]} ${styles["upcoming"]}`}>승인됨</span>;
+      case "pending":
+        return <span className={`${styles["status-badge"]} ${styles["pending"]}`}>승인 대기</span>;
+      case "rejected":
+        return <span className={`${styles["status-badge"]} ${styles["rejected"]}`}>승인 거부</span>;
+      case "deleted":
+        return <span className={`${styles["status-badge"]} ${styles["deleted"]}`}>삭제됨</span>;
+      default:
+        return null;
     }
   };
 
@@ -362,6 +384,25 @@ const EventDetail: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* 행사 정보 섹션 */}
+          <div className={styles["event-info-main-section"]}>
+            <h3 className={styles["section-title"]}>행사 정보</h3>
+            <div className={styles["info-list"]}>
+              <div className={styles["info-item"]}>
+                <span className={styles["info-label"]}>상태</span>
+                {getStatusBadge(eventData.status)}
+              </div>
+              <div className={styles["info-item"]}>
+                <span className={styles["info-label"]}>주최자</span>
+                <span className={styles["info-value"]}>{eventData.organizerName}</span>
+              </div>
+              <div className={styles["info-item"]}>
+                <span className={styles["info-label"]}>연락처</span>
+                <span className={styles["info-value"]}>{eventData.organizerContact}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 사이드바 - 스태프 코드 발급 */}
@@ -407,20 +448,6 @@ const EventDetail: React.FC = () => {
             <div className={styles["event-info-section"]}>
               <h4 className={styles["info-title"]}>행사 정보</h4>
               <div className={styles["info-list"]}>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>상태</span>
-                  <span className={`${styles["info-value"]} ${styles[`status-${eventData.status.toLowerCase()}`]}`}>
-                    {getStatusText(eventData.status)}
-                  </span>
-                </div>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>주최자</span>
-                  <span className={styles["info-value"]}>{eventData.organizerName}</span>
-                </div>
-                <div className={styles["info-item"]}>
-                  <span className={styles["info-label"]}>연락처</span>
-                  <span className={styles["info-value"]}>{eventData.organizerContact}</span>
-                </div>
                 <div className={styles["info-item"]}>
                   <span className={styles["info-label"]}>등록 관리자</span>
                   <span className={styles["info-value"]}>{eventData.organizerAdminName}</span>

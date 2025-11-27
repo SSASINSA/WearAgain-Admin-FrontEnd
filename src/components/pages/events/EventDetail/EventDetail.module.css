@@ -8,16 +8,16 @@
 
 .event-detail-main {
   margin: 0;
-  padding: 24px;
+  padding: 32px;
   display: flex;
   justify-content: center; 
-  gap: 24px;
+  gap: 32px;
   width: 100%;
   flex: 1;
   max-width: 1200px;
   
   margin-left: calc(280px + (100% - 1200px) / 2);
-  min-height: calc(100vh - 137px);
+  min-height: calc(100vh - 105px);
   margin-top: 105px;
 }
 
@@ -40,12 +40,12 @@
   background-color: white;
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .event-hero-image {
   position: relative;
-  height: 240px;
+  height: 320px;
   overflow: hidden;
 }
 
@@ -66,7 +66,7 @@
 }
 
 .event-hero-content {
-  padding: 24px;
+  padding: 32px;
 }
 
 .event-tags {
@@ -114,8 +114,8 @@
 .event-details-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
 }
 
 .section-title {
@@ -123,7 +123,7 @@
   font-size: 20px;
   font-weight: 400;
   color: #1f2937;
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   line-height: 28px;
 }
 
@@ -144,8 +144,8 @@
 .event-details-section .detail-icon {
   background-color: rgba(6, 176, 183, 0.1);
   border-radius: 12px;
-  height: 56px;
-  width: 56px;
+  height: 64px;
+  width: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,8 +153,8 @@
 }
 
 .event-details-section .detail-icon img {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%)
     contrast(101%);
 }
@@ -192,8 +192,8 @@
 .event-usage-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
 }
 
 .usage-list {
@@ -226,8 +226,8 @@
 .event-precaution-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
 }
 
 .precaution-list {
@@ -260,7 +260,40 @@
 .event-results-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.event-info-main-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.event-info-main-section .info-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.event-info-main-section .info-label {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 24px;
+}
+
+.event-info-main-section .info-label::after {
+  content: ":";
+  margin-left: 4px;
+}
+
+.event-info-main-section .info-value {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #1f2937;
+  line-height: 24px;
 }
 
 .results-grid {
@@ -275,12 +308,12 @@
 
 .result-icon {
   border-radius: 16px;
-  height: 64px;
-  width: 64px;
+  height: 72px;
+  width: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .result-item:nth-child(1) .result-icon {
@@ -312,8 +345,8 @@
 }
 
 .result-icon img {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   aspect-ratio: 1 / 1;
   filter: brightness(0) invert(1);
@@ -322,11 +355,11 @@
 
 .result-number {
   font-family: "Pretendard", sans-serif;
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 400;
   color: #1f2937;
-  margin: 0 0 8px 0;
-  line-height: 36px;
+  margin: 0 0 12px 0;
+  line-height: 44px;
 }
 
 .result-label {
@@ -340,7 +373,7 @@
 .staff-code-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
 }
 
 .staff-code-content {
@@ -351,17 +384,17 @@
 .staff-code-icon {
   background-color: #f3f4f6;
   border-radius: 16px;
-  height: 80px;
-  width: 80px;
+  height: 96px;
+  width: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .staff-code-icon img {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   filter: none;
 }
 
@@ -439,7 +472,7 @@
 .event-info-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
 }
 
 .info-title {
@@ -447,14 +480,14 @@
   font-size: 18px;
   font-weight: 400;
   color: #1f2937;
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   line-height: 28px;
 }
 
 .info-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .info-item {
@@ -477,13 +510,42 @@
   line-height: 24px;
 }
 
-.status-completed {
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge.active {
   background-color: #dcfce7;
   color: #166534;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 500;
+}
+
+.status-badge.completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.upcoming {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.deleted {
+  background-color: #f3f4f6;
+  color: #6b7280;
 }
 
 @media (min-width: 1600px) {
@@ -548,6 +610,7 @@
   .event-usage-section,
   .event-precaution-section,
   .event-results-section,
+  .event-info-main-section,
   .staff-code-section,
   .event-info-section {
     padding: 24px;

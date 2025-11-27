@@ -8,15 +8,15 @@
 
 .product-detail-main {
   margin: 0;
-  padding: 24px;
+  padding: 32px;
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 32px;
   width: 100%;
   flex: 1;
   max-width: 1200px;
   margin-left: calc(280px + (100% - 1200px) / 2);
-  min-height: calc(100vh - 137px);
+  min-height: calc(100vh - 105px);
   margin-top: 105px;
 }
 
@@ -31,19 +31,19 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .product-hero-section {
   background-color: white;
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .product-hero-image {
   position: relative;
-  height: 240px;
+  height: 320px;
   overflow: hidden;
 }
 
@@ -64,13 +64,13 @@
 }
 
 .product-hero-content {
-  padding: 24px;
+  padding: 32px;
 }
 
 .product-tags {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .tag {
@@ -107,7 +107,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 20px;
   background-color: #f9fafb;
   border-radius: 8px;
 }
@@ -127,8 +127,8 @@
 .product-details-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
 }
 
 .section-title {
@@ -136,31 +136,31 @@
   font-size: 20px;
   font-weight: 400;
   color: #1f2937;
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   line-height: 28px;
 }
 
 .product-details-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px 48px;
+  gap: 32px 48px;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .detail-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: #6b7280;
   margin: 0;
 }
 
 .detail-value {
-  font-size: 16px;
+  font-size: 18px;
   color: #1f2937;
   margin: 0;
 }
@@ -186,7 +186,7 @@
 .staff-code-section {
   background-color: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
 }
 
 .staff-code-content {
@@ -197,17 +197,17 @@
 .staff-code-icon {
   background-color: #f3f4f6;
   border-radius: 16px;
-  height: 80px;
-  width: 80px;
+  height: 96px;
+  width: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .staff-code-icon img {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   filter: none;
 }
 
