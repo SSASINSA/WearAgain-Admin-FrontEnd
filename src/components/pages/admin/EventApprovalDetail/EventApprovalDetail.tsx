@@ -159,8 +159,8 @@ const EventApprovalDetail: React.FC = () => {
         throw new Error(errorData.message || "행사 승인에 실패했습니다.");
       }
 
-      const message = await response.text();
-      alert(message || "행사가 승인되었습니다.");
+      const data = await response.json();
+      alert(data.message || "행사가 승인되었습니다.");
       setShowApproveModal(false);
       navigate("/events/approval");
     } catch (error) {
@@ -186,8 +186,8 @@ const EventApprovalDetail: React.FC = () => {
         throw new Error(errorData.message || "행사 거부에 실패했습니다.");
       }
 
-      const message = await response.text();
-      alert(message || "행사 승인 요청이 거절되었습니다.");
+      const data = await response.json();
+      alert(data.message || "행사 승인 요청이 거절되었습니다.");
       setShowRejectModal(false);
       navigate("/events/approval");
     } catch (error) {
