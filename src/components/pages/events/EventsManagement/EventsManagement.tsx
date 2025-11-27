@@ -49,7 +49,7 @@ interface Event {
   location: string;
   participants: number;
   staff: number;
-  status: "active" | "completed" | "upcoming" | "pending" | "rejected";
+  status: "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted";
   description: string;
 }
 
@@ -57,6 +57,9 @@ const EventsManagement: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>("");
+  const [searchScope, setSearchScope] = useState<string>("ALL");
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize] = useState<number>(9);
   const [events, setEvents] = useState<Event[]>([]);
@@ -68,14 +71,14 @@ const EventsManagement: React.FC = () => {
 
   const mapApiStatusToDisplayStatus = (
     apiStatus: string
-  ): "active" | "completed" | "upcoming" | "pending" | "rejected" => {
+  ): "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted" => {
     switch (apiStatus.toUpperCase()) {
       case "OPEN":
         return "active";
       case "CLOSED":
         return "completed";
       case "ARCHIVED":
-        return "completed";
+        return "deleted";
       case "APPROVAL":
         return "upcoming";
       case "DRAFT":
@@ -110,7 +113,9 @@ const EventsManagement: React.FC = () => {
       case "rejected":
         return ["REJECTED"];
       case "completed":
-        return ["CLOSED", "ARCHIVED"];
+        return ["CLOSED"];
+      case "deleted":
+        return ["ARCHIVED"];
       default:
         return ["DRAFT", "APPROVAL", "OPEN", "REJECTED", "CLOSED", "ARCHIVED"];
     }
@@ -125,6 +130,12 @@ const EventsManagement: React.FC = () => {
       const apiStatuses = mapDisplayStatusToApiStatus(selectedStatus);
       if (apiStatuses.length > 0 && selectedStatus !== "all") {
         params.append("status", apiStatuses.join(","));
+      }
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
       }
       params.append("page", String(currentPage));
       params.append("size", String(pageSize));
@@ -163,31 +174,38 @@ const EventsManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStatus, currentPage, pageSize]);
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, currentPage, pageSize]);
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
 
-  const filteredEvents = events.filter((event) => {
-    const matchesSearch =
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
         return <span className={`${styles["status-badge"]} ${styles["active"]}`}>진행중</span>;
       case "completed":
-        return <span className={`${styles["status-badge"]} ${styles["completed"]}`}>완료</span>;
+        return <span className={`${styles["status-badge"]} ${styles["completed"]}`}>완료됨</span>;
       case "upcoming":
         return <span className={`${styles["status-badge"]} ${styles["upcoming"]}`}>승인됨</span>;
       case "pending":
         return <span className={`${styles["status-badge"]} ${styles["pending"]}`}>승인 대기</span>;
       case "rejected":
-        return <span className={`${styles["status-badge"]} ${styles["rejected"]}`}>거부됨</span>;
+        return <span className={`${styles["status-badge"]} ${styles["rejected"]}`}>승인 거부</span>;
+      case "deleted":
+        return <span className={`${styles["status-badge"]} ${styles["deleted"]}`}>삭제됨</span>;
       default:
         return null;
     }
@@ -215,7 +233,7 @@ const EventsManagement: React.FC = () => {
           <div className={styles["events-controls"]}>
             <div className={styles["search-filter-section"]}>
               <div className={styles["search-input-container"]}>
-                <div className={styles["search-icon"]}>
+                <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
                   <img src={searchIcon} alt="검색" />
                 </div>
                 <input
@@ -223,8 +241,24 @@ const EventsManagement: React.FC = () => {
                   placeholder="행사 검색..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className={styles["search-input"]}
                 />
+              </div>
+              <div className={styles["status-select-container"]}>
+                <select
+                  value={searchScope}
+                  onChange={(e) => setSearchScope(e.target.value)}
+                  className={styles["status-select"]}
+                >
+                  <option value="ALL">전체</option>
+                  <option value="TITLE">행사명</option>
+                  <option value="DESCRIPTION">설명</option>
+                  <option value="LOCATION">위치</option>
+                </select>
+                <div className={styles["status-select-icon"]}>
+                  <img src={dropdownIcon} alt="드롭다운" />
+                </div>
               </div>
               <div className={styles["status-select-container"]}>
                 <select
@@ -233,11 +267,12 @@ const EventsManagement: React.FC = () => {
                   className={styles["status-select"]}
                 >
                   <option value="all">전체 상태</option>
-                  <option value="pending">승인 대기 (DRAFT)</option>
-                  <option value="upcoming">승인됨 (APPROVAL)</option>
-                  <option value="active">진행중 (OPEN - 신청/참여 가능)</option>
-                  <option value="rejected">거부됨 (REJECTED)</option>
-                  <option value="completed">완료 (CLOSED - 종료 / ARCHIVED - 보관)</option>
+                  <option value="pending">승인 대기</option>
+                  <option value="upcoming">승인됨</option>
+                  <option value="active">진행중</option>
+                  <option value="rejected">승인 거부</option>
+                  <option value="completed">완료됨</option>
+                  <option value="deleted">삭제됨</option>
                 </select>
                 <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
@@ -265,7 +300,7 @@ const EventsManagement: React.FC = () => {
           {!isLoading && !error && (
             <>
               <div className={styles["events-grid"]}>
-                {filteredEvents.map((event) => (
+                {events.map((event) => (
                   <div key={event.id} className={styles["event-card"]}>
                     <div className={styles["event-card-content"]}>
                       <div className={styles["event-header"]}>
