@@ -19,6 +19,7 @@ interface Product {
   category: string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   stock: number;
+  thumbnailUrl: string | null;
   createdAt: string;
   updatedAt: string;
   images?: ProductImage[];
@@ -113,11 +114,27 @@ const StoreManagement: React.FC = () => {
   };
 
   const getProductImage = (product: Product): string => {
+    if (product.thumbnailUrl) {
+      return product.thumbnailUrl;
+    }
     if (product.images && product.images.length > 0) {
       const sortedImages = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder);
       return sortedImages[0].imageUrl;
     }
     return "/admin/img/icon/product-placeholder.svg";
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return <span className={`${styles["status-badge"]} ${styles["active"]}`}>판매중</span>;
+      case "INACTIVE":
+        return <span className={`${styles["status-badge"]} ${styles["inactive"]}`}>판매중지</span>;
+      case "DELETED":
+        return <span className={`${styles["status-badge"]} ${styles["deleted"]}`}>삭제됨</span>;
+      default:
+        return null;
+    }
   };
 
   const sortedProducts = [...products].sort((a, b) => {
@@ -253,9 +270,13 @@ const StoreManagement: React.FC = () => {
                   >
                     <div className={styles["product-image-container"]}>
                       <img src={getProductImage(product)} alt={product.name} className={styles["product-image"]} />
+                      <div className={styles["product-status-overlay"]}>{getStatusBadge(product.status)}</div>
                     </div>
                     <div className={styles["product-info"]}>
-                      <h3 className={styles["product-name"]}>{product.name}</h3>
+                      <div className={styles["product-name-container"]}>
+                        <h3 className={styles["product-name"]}>{product.name}</h3>
+                        <span className={styles["product-category"]}>{product.category}</span>
+                      </div>
                       <div className={styles["product-price-container"]}>
                         <span className={styles["product-price"]}>{product.price.toLocaleString()} C</span>
                         <button
