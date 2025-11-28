@@ -187,33 +187,33 @@ const EventApproval: React.FC = () => {
 
           {!isLoading && !error && (
             <>
-              <div className={styles["events-grid"]}>
+          <div className={styles["events-grid"]}>
                 {filteredEvents.map((event) => (
-                  <div key={event.id} className={styles["event-card"]}>
-                    <div className={styles["event-card-content"]}>
-                      <div className={styles["event-header"]}>
-                        <h3 className={styles["event-title"]}>{event.title}</h3>
+              <div key={event.id} className={styles["event-card"]}>
+                <div className={styles["event-card-content"]}>
+                  <div className={styles["event-header"]}>
+                    <h3 className={styles["event-title"]}>{event.title}</h3>
                         <span className={`${styles["status-badge"]} ${styles["pending"]}`}>승인 대기</span>
-                      </div>
+                  </div>
 
-                      <div className={styles["event-details"]}>
-                        <div className={styles["event-detail"]}>
-                          <span className={styles["detail-icon"]}>
-                            <img src={calendarIcon} alt="날짜" />
-                          </span>
-                          <span className={styles["detail-text"]}>{event.date}</span>
-                        </div>
-                        <div className={styles["event-detail"]}>
-                          <span className={styles["detail-icon"]}>
-                            <img src={locationIcon} alt="위치" />
-                          </span>
-                          <span className={styles["detail-text"]}>{event.location}</span>
-                        </div>
-                      </div>
+                  <div className={styles["event-details"]}>
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
+                        <img src={calendarIcon} alt="날짜" />
+                      </span>
+                      <span className={styles["detail-text"]}>{event.date}</span>
+                    </div>
+                    <div className={styles["event-detail"]}>
+                      <span className={styles["detail-icon"]}>
+                        <img src={locationIcon} alt="위치" />
+                      </span>
+                      <span className={styles["detail-text"]}>{event.location}</span>
+                    </div>
+                  </div>
 
-                      <div className={styles["event-registration-info"]}>
-                        <span className={styles["registration-text"]}>등록자: {event.registeredBy}</span>
-                        <span className={styles["registration-text"]}>등록일: {event.registeredDate}</span>
+                  <div className={styles["event-registration-info"]}>
+                    <span className={styles["registration-text"]}>등록자: {event.registeredBy}</span>
+                    <span className={styles["registration-text"]}>등록일: {event.registeredDate}</span>
                         {event.participantCapacity !== null && (
                           <span className={styles["registration-text"]}>
                             참가자 정원: {event.participantCapacity}명
@@ -222,26 +222,26 @@ const EventApproval: React.FC = () => {
                         {event.staffCapacity !== null && (
                           <span className={styles["registration-text"]}>스태프 정원: {event.staffCapacity}명</span>
                         )}
-                      </div>
+                  </div>
 
-                      <div className={styles["event-actions"]}>
+                  <div className={styles["event-actions"]}>
                         <button
                           className={`${styles["action-btn"]} ${styles["primary"]}`}
                           onClick={() => handleViewDetails(event.approvalRequestId)}
                         >
-                          <img src={detailIcon} alt="" />
-                          상세보기
-                        </button>
-                      </div>
-                    </div>
+                      <img src={detailIcon} alt="" />
+                      상세보기
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
+            ))}
+          </div>
 
               {filteredEvents.length === 0 && (
                 <div className={styles["empty-container"]}>
                   <p>승인 대기 중인 행사가 없습니다.</p>
-                </div>
+            </div>
               )}
             </>
           )}

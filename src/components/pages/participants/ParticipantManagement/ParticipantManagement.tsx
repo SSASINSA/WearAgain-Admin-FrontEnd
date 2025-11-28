@@ -1,10 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ParticipantManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import apiRequest from "../../../../utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
+
+interface ParticipantListResponse {
+  participantId: number;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  ticketBalance: number;
+  creditBalance: number;
+  suspended: boolean;
+  joinedAt: string;
+}
+
+interface ParticipantPageResponse {
+  content: ParticipantListResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+interface ParticipantStatsResponse {
+  totalParticipants: number;
+  totalTickets: number;
+  totalCredits: number;
+}
 
 interface Participant {
   id: number;
@@ -20,90 +49,161 @@ interface Participant {
 
 const ParticipantManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [participants] = useState<Participant[]>([
-    {
-      id: 1,
-      name: "김민지",
-      email: "minji.kim@email.com",
-      avatar: "/admin/img/icon/basic-profile.svg",
-      ticketCount: 5,
-      ticketType: "VIP",
-      creditCount: 1250,
-      joinDate: "2024.01.15",
-      status: "활성",
-    },
-    {
-      id: 2,
-      name: "박준호",
-      email: "junho.park@email.com",
-      avatar: "/admin/img/icon/basic-profile.svg",
-      ticketCount: 3,
-      ticketType: "일반",
-      creditCount: 850,
-      joinDate: "2024.01.20",
-      status: "활성",
-    },
-    {
-      id: 3,
-      name: "이서영",
-      email: "seoyoung.lee@email.com",
-      avatar: "/admin/img/icon/basic-profile.svg",
-      ticketCount: 7,
-      ticketType: "프리미엄",
-      creditCount: 2100,
-      joinDate: "2024.01.10",
-      status: "대기",
-    },
-    {
-      id: 4,
-      name: "최대현",
-      email: "daehyun.choi@email.com",
-      avatar: "/admin/img/icon/basic-profile.svg",
-      ticketCount: 2,
-      ticketType: "일반",
-      creditCount: 450,
-      joinDate: "2024.01.25",
-      status: "비활성",
-    },
-    {
-      id: 5,
-      name: "정수빈",
-      email: "subin.jung@email.com",
-      avatar: "/admin/img/icon/basic-profile.svg",
-      ticketCount: 4,
-      ticketType: "일반",
-      creditCount: 720,
-      joinDate: "2024.01.18",
-      status: "활성",
-    },
-  ]);
-
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [stats, setStats] = useState<ParticipantStatsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isStatsLoading, setIsStatsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("가입일 최신순");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [showSuspensionModal, setShowSuspensionModal] = useState<boolean>(false);
+  const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null);
+  const [selectedParticipantSuspended, setSelectedParticipantSuspended] = useState<boolean>(false);
 
-  const filteredParticipants = participants
-    .filter(
-      (p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((p) => (selectedStatus ? p.status === selectedStatus : true));
+  const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
+    switch (displayStatus) {
+      case "활성":
+        return "false";
+      case "비활성":
+        return "true";
+      default:
+        return null;
+    }
+  };
 
-  const sortedParticipants = [...filteredParticipants].sort((a, b) => {
-    if (sortBy === "이름순") return a.name.localeCompare(b.name);
-    const dateA = new Date(a.joinDate.replace(/\./g, "-"));
-    const dateB = new Date(b.joinDate.replace(/\./g, "-"));
-    if (sortBy === "가입일 오래된 순") return dateA.getTime() - dateB.getTime();
-    return dateB.getTime() - dateA.getTime();
-  });
+  const mapDisplaySortToApiSort = (displaySort: string): string => {
+    switch (displaySort) {
+      case "가입일 최신순":
+        return "CREATED_DESC";
+      case "가입일 오래된 순":
+        return "CREATED_ASC";
+      case "이름순":
+        return "NAME_ASC";
+      default:
+        return "CREATED_DESC";
+    }
+  };
 
-  const totalPages = Math.ceil(sortedParticipants.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentParticipants = sortedParticipants.slice(startIndex, startIndex + itemsPerPage);
+  const formatDate = (dateString: string | null): string => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  const fetchParticipants = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      const suspendedParam = mapDisplayStatusToApiStatus(selectedStatus);
+      if (suspendedParam !== null) {
+        params.append("suspended", suspendedParam);
+      }
+      params.append("sortBy", mapDisplaySortToApiSort(sortBy));
+      params.append("page", String(currentPage - 1));
+      params.append("size", String(itemsPerPage));
+
+      const response = await apiRequest(`/admin/participants?${params.toString()}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("참가자 목록 조회에 실패했습니다.");
+      }
+
+      const data: ParticipantPageResponse = await response.json();
+      const mappedParticipants: Participant[] = data.content.map((p) => ({
+        id: p.participantId,
+        name: p.name,
+        email: p.email,
+        avatar: p.avatarUrl || "/admin/img/icon/basic-profile.svg",
+        ticketCount: p.ticketBalance,
+        ticketType: "일반",
+        creditCount: p.creditBalance,
+        joinDate: formatDate(p.joinedAt),
+        status: p.suspended ? "비활성" : "활성",
+      }));
+
+      setParticipants(mappedParticipants);
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      console.error("Error fetching participants:", error);
+      alert("참가자 목록을 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedStatus, sortBy, currentPage, itemsPerPage]);
+
+  const fetchStats = useCallback(async () => {
+    setIsStatsLoading(true);
+    try {
+      const response = await apiRequest("/admin/participants/stats", {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("참가자 통계 조회에 실패했습니다.");
+      }
+
+      const data: ParticipantStatsResponse = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setIsStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchParticipants();
+  }, [fetchParticipants]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const handleSuspensionClick = (participantId: number, suspended: boolean) => {
+    setSelectedParticipantId(participantId);
+    setSelectedParticipantSuspended(suspended);
+    setShowSuspensionModal(true);
+  };
+
+  const handleSuspensionConfirm = async () => {
+    if (selectedParticipantId === null) return;
+
+    try {
+      const response = await apiRequest(`/admin/participants/${selectedParticipantId}/suspension`, {
+        method: "PUT",
+        body: JSON.stringify({ suspended: !selectedParticipantSuspended }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "정지 상태 변경에 실패했습니다.");
+      }
+
+      setShowSuspensionModal(false);
+      setSelectedParticipantId(null);
+      await fetchParticipants();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "정지 상태 변경에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error updating suspension:", error);
+    }
+  };
+
+  const handleSuspensionCancel = () => {
+    setShowSuspensionModal(false);
+    setSelectedParticipantId(null);
+  };
+
+  const currentParticipants = participants;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -116,19 +216,6 @@ const ParticipantManagement: React.FC = () => {
       case "대기":
         return "#f59e0b";
       case "비활성":
-        return "#6b7280";
-      default:
-        return "#6b7280";
-    }
-  };
-
-  const getTicketTypeColor = (type: string) => {
-    switch (type) {
-      case "VIP":
-        return "#8b5cf6";
-      case "프리미엄":
-        return "#06b0b7";
-      case "일반":
         return "#6b7280";
       default:
         return "#6b7280";
@@ -148,7 +235,9 @@ const ParticipantManagement: React.FC = () => {
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
                 <h3>총 참가자</h3>
-                <p className={styles["stat-number"]}>1,247</p>
+                <p className={styles["stat-number"]}>
+                  {isStatsLoading ? "..." : stats?.totalParticipants.toLocaleString() || 0}
+                </p>
                 <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+12% 전월 대비</p>
               </div>
               <div className={styles["stat-icon"]}>
@@ -160,7 +249,9 @@ const ParticipantManagement: React.FC = () => {
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
                 <h3>총 티켓</h3>
-                <p className={styles["stat-number"]}>3,891</p>
+                <p className={styles["stat-number"]}>
+                  {isStatsLoading ? "..." : stats?.totalTickets.toLocaleString() || 0}
+                </p>
                 <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+8% 전월 대비</p>
               </div>
               <div className={styles["stat-icon"]}>
@@ -172,7 +263,9 @@ const ParticipantManagement: React.FC = () => {
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
                 <h3>총 크레딧</h3>
-                <p className={styles["stat-number"]}>45,230</p>
+                <p className={styles["stat-number"]}>
+                  {isStatsLoading ? "..." : stats?.totalCredits.toLocaleString() || 0}
+                </p>
                 <p className={`${styles["stat-change"]} ${styles["negative"]}`}>-3% 전월 대비</p>
               </div>
               <div className={styles["stat-icon"]}>
@@ -187,7 +280,9 @@ const ParticipantManagement: React.FC = () => {
           <DataList
             headerTitle="참가자 목록"
             renderFilters={() => (
-              <div className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+              <div
+                className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}
+              >
                 <div className={styles["filter-header"]}>
                   <h3>필터 및 검색</h3>
                   <button
@@ -222,7 +317,6 @@ const ParticipantManagement: React.FC = () => {
                     >
                       <option value="">전체 상태</option>
                       <option value="활성">활성</option>
-                      <option value="대기">대기</option>
                       <option value="비활성">비활성</option>
                     </select>
                     <div className={styles["status-select-icon"]}>
@@ -273,14 +367,7 @@ const ParticipantManagement: React.FC = () => {
                 key: "tickets",
                 title: "티켓 개수",
                 width: 150,
-                render: (p: Participant) => (
-                  <div className={styles["ticket-info-horizontal"]}>
-                    <span className={styles["ticket-count"]}>{p.ticketCount}</span>
-                    <span className={styles["ticket-type"]} style={{ backgroundColor: getTicketTypeColor(p.ticketType) }}>
-                      {p.ticketType}
-                    </span>
-                  </div>
-                ),
+                render: (p: Participant) => p.ticketCount,
               },
               {
                 key: "credit",
@@ -306,13 +393,17 @@ const ParticipantManagement: React.FC = () => {
                 align: "center",
                 className: styles["actions-cell"],
                 render: (p: Participant) => (
-                  <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
-                    <img src="/admin/img/icon/delete.svg" alt="삭제" />
+                  <button
+                    className={`${styles["action-btn"]} ${styles["delete"]}`}
+                    title={p.status === "비활성" ? "정지 해제" : "정지"}
+                    onClick={() => handleSuspensionClick(p.id, p.status === "비활성")}
+                  >
+                    <img src="/admin/img/icon/delete.svg" alt={p.status === "비활성" ? "정지 해제" : "정지"} />
                   </button>
                 ),
               },
             ]}
-            data={currentParticipants}
+            data={isLoading ? [] : currentParticipants}
             rowKey={(row: Participant) => row.id}
             currentPage={currentPage}
             totalPages={totalPages}
@@ -325,6 +416,18 @@ const ParticipantManagement: React.FC = () => {
           />
         </div>
       </main>
+      <ConfirmModal
+        isOpen={showSuspensionModal}
+        title={selectedParticipantSuspended ? "정지 해제" : "참가자 정지"}
+        message={
+          selectedParticipantSuspended ? "이 참가자의 정지를 해제하시겠습니까?" : "이 참가자를 정지하시겠습니까?"
+        }
+        confirmText={selectedParticipantSuspended ? "해제" : "정지"}
+        cancelText="취소"
+        onConfirm={handleSuspensionConfirm}
+        onCancel={handleSuspensionCancel}
+        type="reject"
+      />
     </div>
   );
 };
