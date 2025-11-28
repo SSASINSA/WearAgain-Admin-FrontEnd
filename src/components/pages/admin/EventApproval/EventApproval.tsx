@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
-import apiRequest from "utils/api";
+import apiRequest from "../../../../utils/api";
 import styles from "./EventApproval.module.css";
 
 const searchIcon = "/admin/img/icon/search.svg";

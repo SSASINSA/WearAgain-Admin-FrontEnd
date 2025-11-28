@@ -28,6 +28,18 @@ interface ParticipantDetailResponse {
   suspended: boolean;
   joinedAt: string | null;
   updatedAt: string | null;
+  impact: {
+    co2Saved: number;
+    waterSaved: number;
+    energySaved: number;
+  };
+  mascot: {
+    level: number;
+    exp: number;
+    nextLevelExp: number;
+    magicScissorCount: number;
+    cycles: number;
+  } | null;
 }
 
 const ParticipantEdit: React.FC = () => {
@@ -38,6 +50,7 @@ const ParticipantEdit: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [ticketBalance, setTicketBalance] = useState<number>(0);
   const [creditBalance, setCreditBalance] = useState<number>(0);
+  const [magicScissorCount, setMagicScissorCount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const fetchParticipant = useCallback(async () => {
@@ -61,6 +74,7 @@ const ParticipantEdit: React.FC = () => {
       setName(data.name);
       setTicketBalance(data.ticketBalance);
       setCreditBalance(data.creditBalance);
+      setMagicScissorCount(data.mascot?.magicScissorCount || 0);
     } catch (error) {
       console.error("Error fetching participant:", error);
       alert("참가자 정보를 불러오는데 실패했습니다.");
@@ -192,33 +206,54 @@ const ParticipantEdit: React.FC = () => {
             </div>
           </div>
 
-          <div className={`${styles["card"]} ${styles["inline"]}`}>
-            <div className={styles["tool"]}>
-              <div className={styles["tool-icon"]}>
-                <img src={ICONS.scissor} alt="가위" />
+          {participant.mascot ? (
+            <div className={`${styles["card"]} ${styles["inline"]}`}>
+              <div className={styles["tool"]}>
+                <div className={styles["tool-icon"]}>
+                  <img src={ICONS.scissor} alt="가위" />
+                </div>
+                <div className={styles["tool-text"]}>
+                  <h3>마법의 가위</h3>
+                  <p>마스코트 레벨업 도구</p>
+                </div>
+                <div className={styles["tool-count"]}>
+                  <strong>{magicScissorCount}개</strong>
+                  <span>보유 수량</span>
+                </div>
               </div>
-              <div className={styles["tool-text"]}>
-                <h3>마법의 가위</h3>
-                <p>마스코트 레벨업 도구</p>
-              </div>
-              <div className={styles["tool-count"]}>
-                <strong>23개</strong>
-                <span>보유 수량</span>
+              <div className={styles["tool-adjust"]}>
+                <label>수량 조정:</label>
+                <div className={styles["adjust-controls"]}>
+                  <button
+                    className={`${styles["btn"]} ${styles["minus"]}`}
+                    type="button"
+                    aria-label="감소"
+                    onClick={() => setMagicScissorCount(Math.max(0, magicScissorCount - 1))}
+                  >
+                    <img src={ICONS.minus} alt="감소" />
+                  </button>
+                  <input
+                    type="number"
+                    value={magicScissorCount}
+                    onChange={(e) => setMagicScissorCount(Math.max(0, Number(e.target.value)))}
+                    min="0"
+                  />
+                  <button
+                    className={`${styles["btn"]} ${styles["plus"]}`}
+                    type="button"
+                    aria-label="증가"
+                    onClick={() => setMagicScissorCount(magicScissorCount + 1)}
+                  >
+                    <img src={ICONS.plus} alt="증가" />
+                  </button>
+                </div>
               </div>
             </div>
-            <div className={styles["tool-adjust"]}>
-              <label>수량 조정:</label>
-              <div className={styles["adjust-controls"]}>
-                <button className={`${styles["btn"]} ${styles["minus"]}`} type="button" aria-label="감소">
-                  <img src={ICONS.minus} alt="감소" />
-                </button>
-                <input type="number" defaultValue={23} />
-                <button className={`${styles["btn"]} ${styles["plus"]}`} type="button" aria-label="증가">
-                  <img src={ICONS.plus} alt="증가" />
-                </button>
-              </div>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+              마스코트 정보가 없습니다.
             </div>
-          </div>
+          )}
         </section>
 
         <div className={styles["actions"]}>

@@ -13,6 +13,18 @@ interface ParticipantDetailResponse {
   suspended: boolean;
   joinedAt: string | null;
   updatedAt: string | null;
+  impact: {
+    co2Saved: number;
+    waterSaved: number;
+    energySaved: number;
+  };
+  mascot: {
+    level: number;
+    exp: number;
+    nextLevelExp: number;
+    magicScissorCount: number;
+    cycles: number;
+  } | null;
 }
 
 const ParticipantDetail: React.FC = () => {
@@ -148,7 +160,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/co2-impact.svg" alt="CO2" />
                   </div>
                   <div className={styles["impact-title"]}>CO2 절감량</div>
-                  <div className={`${styles["impact-value"]} ${styles["green"]}`}>156.7</div>
+                  <div className={`${styles["impact-value"]} ${styles["green"]}`}>
+                    {participant.impact.co2Saved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>kg</div>
                 </div>
                 <div className={`${styles["impact-card"]} ${styles["yellow"]}`}>
@@ -156,7 +170,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/energy-impact.svg" alt="에너지" />
                   </div>
                   <div className={styles["impact-title"]}>에너지 절감량</div>
-                  <div className={`${styles["impact-value"]} ${styles["yellow"]}`}>892.3</div>
+                  <div className={`${styles["impact-value"]} ${styles["yellow"]}`}>
+                    {participant.impact.energySaved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>kWh</div>
                 </div>
                 <div className={`${styles["impact-card"]} ${styles["blue"]}`}>
@@ -164,7 +180,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/water-impact.svg" alt="물 절약" />
                   </div>
                   <div className={styles["impact-title"]}>물 절약량</div>
-                  <div className={`${styles["impact-value"]} ${styles["blue"]}`}>2,450</div>
+                  <div className={`${styles["impact-value"]} ${styles["blue"]}`}>
+                    {participant.impact.waterSaved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>L</div>
                 </div>
               </div>
@@ -175,21 +193,40 @@ const ParticipantDetail: React.FC = () => {
             {/* 옷 키우기 섹션 */}
             <section className={`${styles["section"]} ${styles["grow-card"]}`}>
               <h3>옷 키우기</h3>
-              <div className={styles["grow-hero"]}>
-                <img src="/admin/img/example/grow-hero.svg" alt="캐릭터" />
-              </div>
-              <div className={styles["level"]}>레벨 7</div>
-              <div className={styles["progress-bar"]}>
-                <div className={styles["progress"]} style={{ width: "35%" }} />
-              </div>
-              <div className={styles["progress-text"]}>다음 레벨까지 35%</div>
-              <div className={styles["scissor-box"]}>
-                <div className={styles["label"]}>
-                  <img src="/admin/img/icon/scissor-icon.svg" alt="가위" />
-                  레벨업 가위
+              {participant.mascot ? (
+                <>
+                  <div className={styles["grow-hero"]}>
+                    <img src="/admin/img/example/grow-hero.svg" alt="캐릭터" />
+                  </div>
+                  <div className={styles["level"]}>레벨 {participant.mascot.level}</div>
+                  <div className={styles["progress-bar"]}>
+                    <div
+                      className={styles["progress"]}
+                      style={{
+                        width: `${participant.mascot.nextLevelExp > 0 ? (participant.mascot.exp / participant.mascot.nextLevelExp) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                  <div className={styles["progress-text"]}>
+                    다음 레벨까지{" "}
+                    {participant.mascot.nextLevelExp > 0
+                      ? Math.round((participant.mascot.exp / participant.mascot.nextLevelExp) * 100)
+                      : 0}
+                    %
+                  </div>
+                  <div className={styles["scissor-box"]}>
+                    <div className={styles["label"]}>
+                      <img src="/admin/img/icon/scissor-icon.svg" alt="가위" />
+                      레벨업 가위
+                    </div>
+                    <div className={styles["value"]}>{participant.mascot.magicScissorCount}개</div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+                  마스코트 정보가 없습니다.
                 </div>
-                <div className={styles["value"]}>8개</div>
-              </div>
+              )}
             </section>
           </aside>
         </section>
