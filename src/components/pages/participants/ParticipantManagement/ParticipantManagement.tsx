@@ -27,12 +27,14 @@ interface ParticipantPageResponse {
   number: number;
   hasNext: boolean;
   hasPrevious: boolean;
-}
-
-interface ParticipantStatsResponse {
-  totalParticipants: number;
-  totalTickets: number;
-  totalCredits: number;
+  summary: {
+    totalParticipants: number;
+    totalTickets: number;
+    totalCredits: number;
+    participantsChangeFromLastMonth: number;
+    ticketsChangeFromLastMonth: number;
+    creditsChangeFromLastMonth: number;
+  };
 }
 
 interface Participant {
@@ -50,9 +52,8 @@ interface Participant {
 const ParticipantManagement: React.FC = () => {
   const navigate = useNavigate();
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [stats, setStats] = useState<ParticipantStatsResponse | null>(null);
+  const [stats, setStats] = useState<ParticipantPageResponse["summary"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isStatsLoading, setIsStatsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("가입일 최신순");
@@ -132,6 +133,7 @@ const ParticipantManagement: React.FC = () => {
 
       setParticipants(mappedParticipants);
       setTotalPages(data.totalPages);
+      setStats(data.summary);
     } catch (error) {
       console.error("Error fetching participants:", error);
       alert("참가자 목록을 불러오는데 실패했습니다.");
@@ -140,33 +142,9 @@ const ParticipantManagement: React.FC = () => {
     }
   }, [selectedStatus, sortBy, currentPage, itemsPerPage]);
 
-  const fetchStats = useCallback(async () => {
-    setIsStatsLoading(true);
-    try {
-      const response = await apiRequest("/admin/participants/stats", {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        throw new Error("참가자 통계 조회에 실패했습니다.");
-      }
-
-      const data: ParticipantStatsResponse = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    } finally {
-      setIsStatsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchParticipants();
   }, [fetchParticipants]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
 
   const handleSuspensionClick = (participantId: number, suspended: boolean) => {
     setSelectedParticipantId(participantId);
@@ -236,9 +214,17 @@ const ParticipantManagement: React.FC = () => {
               <div className={styles["stat-info"]}>
                 <h3>총 참가자</h3>
                 <p className={styles["stat-number"]}>
-                  {isStatsLoading ? "..." : stats?.totalParticipants.toLocaleString() || 0}
+                  {isLoading ? "..." : stats?.totalParticipants.toLocaleString() || 0}
                 </p>
-                <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+12% 전월 대비</p>
+                <p
+                  className={`${styles["stat-change"]} ${
+                    stats && stats.participantsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
+                  }`}
+                >
+                  {stats
+                    ? `${stats.participantsChangeFromLastMonth >= 0 ? "+" : ""}${stats.participantsChangeFromLastMonth} 전월 대비`
+                    : "..."}
+                </p>
               </div>
               <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/users.svg" alt="참가자" />
@@ -250,9 +236,17 @@ const ParticipantManagement: React.FC = () => {
               <div className={styles["stat-info"]}>
                 <h3>총 티켓</h3>
                 <p className={styles["stat-number"]}>
-                  {isStatsLoading ? "..." : stats?.totalTickets.toLocaleString() || 0}
+                  {isLoading ? "..." : stats?.totalTickets.toLocaleString() || 0}
                 </p>
-                <p className={`${styles["stat-change"]} ${styles["positive"]}`}>+8% 전월 대비</p>
+                <p
+                  className={`${styles["stat-change"]} ${
+                    stats && stats.ticketsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
+                  }`}
+                >
+                  {stats
+                    ? `${stats.ticketsChangeFromLastMonth >= 0 ? "+" : ""}${stats.ticketsChangeFromLastMonth} 전월 대비`
+                    : "..."}
+                </p>
               </div>
               <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/ticket.svg" alt="티켓" />
@@ -264,9 +258,17 @@ const ParticipantManagement: React.FC = () => {
               <div className={styles["stat-info"]}>
                 <h3>총 크레딧</h3>
                 <p className={styles["stat-number"]}>
-                  {isStatsLoading ? "..." : stats?.totalCredits.toLocaleString() || 0}
+                  {isLoading ? "..." : stats?.totalCredits.toLocaleString() || 0}
                 </p>
-                <p className={`${styles["stat-change"]} ${styles["negative"]}`}>-3% 전월 대비</p>
+                <p
+                  className={`${styles["stat-change"]} ${
+                    stats && stats.creditsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
+                  }`}
+                >
+                  {stats
+                    ? `${stats.creditsChangeFromLastMonth >= 0 ? "+" : ""}${stats.creditsChangeFromLastMonth} 전월 대비`
+                    : "..."}
+                </p>
               </div>
               <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/credit.svg" alt="크레딧" />
