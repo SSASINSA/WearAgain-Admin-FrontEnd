@@ -3,6 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ParticipantDetail.module.css";
 import apiRequest from "../../../../utils/api";
 
+interface RecentEvent {
+  eventId: number;
+  title: string;
+  status: "APPLIED" | "CHECKED_IN";
+  startDate: string;
+  endDate: string;
+  appliedAt: string;
+}
+
 interface ParticipantDetailResponse {
   participantId: number;
   name: string;
@@ -18,6 +27,7 @@ interface ParticipantDetailResponse {
     waterSaved: number;
     energySaved: number;
   };
+  recentEvents: RecentEvent[];
   mascot: {
     level: number;
     exp: number;
@@ -89,6 +99,28 @@ const ParticipantDetail: React.FC = () => {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}.${month}.${day}`;
+  };
+
+  const formatDateRange = (startDate: string, endDate: string): string => {
+    const formatDate = (dateStr: string) => {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}.${month}.${day}`;
+    };
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+  };
+
+  const getEventStatusText = (status: string): string => {
+    switch (status) {
+      case "APPLIED":
+        return "신청 완료";
+      case "CHECKED_IN":
+        return "체크인 완료";
+      default:
+        return status;
+    }
   };
 
   if (isLoading) {
@@ -233,23 +265,62 @@ const ParticipantDetail: React.FC = () => {
 
         {/* 하단 섹션 */}
         <section className={styles["bottom-section"]}>
-          {/* 획득한 옷 섹션 */}
+          {/* 참여한 행사 섹션 */}
           <section className={`${styles["section"]} ${styles["clothes-section"]}`}>
-            <h3>획득한 옷</h3>
-            <div className={styles["clothes-grid"]}>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-tshirt.png" alt="친환경 티셔츠" />
-                <p>친환경 티셔츠</p>
+            <h3>참여한 행사</h3>
+            {participant.recentEvents && participant.recentEvents.length > 0 ? (
+              <div className={styles["clothes-grid"]}>
+                {participant.recentEvents.map((event) => (
+                  <div
+                    key={event.eventId}
+                    className={styles["clothes-item"]}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/events/${event.eventId}`)}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "120px",
+                        backgroundColor: "#f3f4f6",
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <img
+                        src="/admin/img/icon/calendar.svg"
+                        alt="행사"
+                        style={{ width: "48px", height: "48px", opacity: 0.5 }}
+                      />
+                    </div>
+                    <p style={{ fontWeight: 500, marginBottom: "4px", fontSize: "14px" }}>{event.title}</p>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: event.status === "CHECKED_IN" ? "#166534" : "#92400e",
+                        backgroundColor: event.status === "CHECKED_IN" ? "#dcfce7" : "#fef3c7",
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        display: "inline-block",
+                        marginBottom: "4px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {getEventStatusText(event.status)}
+                    </p>
+                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>
+                      {formatDateRange(event.startDate, event.endDate)}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-jeans.png" alt="지속가능 청바지" />
-                <p>지속가능 청바지</p>
+            ) : (
+              <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+                참여한 행사가 없습니다.
               </div>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-shoes.png" alt="재활용 운동화" />
-                <p>재활용 운동화</p>
-              </div>
-            </div>
+            )}
           </section>
         </section>
       </main>

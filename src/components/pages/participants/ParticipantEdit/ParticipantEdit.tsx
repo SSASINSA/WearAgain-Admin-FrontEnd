@@ -250,9 +250,7 @@ const ParticipantEdit: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
-              마스코트 정보가 없습니다.
-            </div>
+            <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>마스코트 정보가 없습니다.</div>
           )}
         </section>
 
