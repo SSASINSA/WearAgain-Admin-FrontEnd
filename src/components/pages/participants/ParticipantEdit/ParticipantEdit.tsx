@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ParticipantEdit.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "../../../../utils/api";
 
 const ICONS = {
   back: "/admin/img/icon/back-arrow.svg",
@@ -17,9 +18,132 @@ const ICONS = {
   save: "/admin/img/icon/save-icon.svg",
 };
 
+interface ParticipantDetailResponse {
+  participantId: number;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  ticketBalance: number;
+  creditBalance: number;
+  suspended: boolean;
+  joinedAt: string | null;
+  updatedAt: string | null;
+  impact: {
+    co2Saved: number;
+    waterSaved: number;
+    energySaved: number;
+  };
+  mascot: {
+    level: number;
+    exp: number;
+    nextLevelExp: number;
+    magicScissorCount: number;
+    cycles: number;
+  } | null;
+}
+
 const ParticipantEdit: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [participant, setParticipant] = useState<ParticipantDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [name, setName] = useState<string>("");
+  const [ticketBalance, setTicketBalance] = useState<number>(0);
+  const [creditBalance, setCreditBalance] = useState<number>(0);
+  const [magicScissorCount, setMagicScissorCount] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const fetchParticipant = useCallback(async () => {
+    if (!id) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiRequest(`/admin/participants/${id}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("참가자 정보 조회에 실패했습니다.");
+      }
+
+      const data: ParticipantDetailResponse = await response.json();
+      setParticipant(data);
+      setName(data.name);
+      setTicketBalance(data.ticketBalance);
+      setCreditBalance(data.creditBalance);
+      setMagicScissorCount(data.mascot?.magicScissorCount || 0);
+    } catch (error) {
+      console.error("Error fetching participant:", error);
+      alert("참가자 정보를 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchParticipant();
+  }, [fetchParticipant]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!id) return;
+
+    if (ticketBalance < 0 || creditBalance < 0) {
+      alert("티켓 수와 크레딧은 0 이상이어야 합니다.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await apiRequest(`/admin/participants/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name,
+          ticketBalance,
+          creditBalance,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.errorCode === "U1003") {
+          alert("참가자 정보 수정 기능은 현재 사용할 수 없습니다.");
+        } else {
+          throw new Error(errorData.message || "참가자 정보 수정에 실패했습니다.");
+        }
+        return;
+      }
+
+      alert("참가자 정보가 수정되었습니다.");
+      navigate(`/repair/${id}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "참가자 정보 수정에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error updating participant:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles["participant-edit-page"]}>
+        <div style={{ padding: "40px", textAlign: "center" }}>로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (!participant) {
+    return (
+      <div className={styles["participant-edit-page"]}>
+        <div style={{ padding: "40px", textAlign: "center" }}>참가자 정보를 찾을 수 없습니다.</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles["participant-edit-page"]}>
@@ -40,21 +164,31 @@ const ParticipantEdit: React.FC = () => {
             <div className={styles["form-group"]}>
               <label>참가자 이름</label>
               <div className={styles["input-with-icon"]}>
-                <input type="text" defaultValue="김철수" />
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
                 <img src={ICONS.user} alt="이름" />
               </div>
             </div>
             <div className={styles["form-group"]}>
               <label>티켓 수</label>
               <div className={styles["input-with-icon"]}>
-                <input type="number" defaultValue={15} />
+                <input
+                  type="number"
+                  value={ticketBalance}
+                  onChange={(e) => setTicketBalance(Number(e.target.value))}
+                  min="0"
+                />
                 <img src={ICONS.ticket} alt="티켓" />
               </div>
             </div>
             <div className={`${styles["form-group"]} ${styles["full"]}`}>
               <label>크레딧</label>
               <div className={styles["input-with-icon"]}>
-                <input type="number" defaultValue={2500} />
+                <input
+                  type="number"
+                  value={creditBalance}
+                  onChange={(e) => setCreditBalance(Number(e.target.value))}
+                  min="0"
+                />
                 <img src={ICONS.credit} alt="크레딧" />
               </div>
             </div>
@@ -72,39 +206,58 @@ const ParticipantEdit: React.FC = () => {
             </div>
           </div>
 
-          <div className={`${styles["card"]} ${styles["inline"]}`}>
-            <div className={styles["tool"]}>
-              <div className={styles["tool-icon"]}>
-                <img src={ICONS.scissor} alt="가위" />
+          {participant.mascot ? (
+            <div className={`${styles["card"]} ${styles["inline"]}`}>
+              <div className={styles["tool"]}>
+                <div className={styles["tool-icon"]}>
+                  <img src={ICONS.scissor} alt="가위" />
+                </div>
+                <div className={styles["tool-text"]}>
+                  <h3>마법의 가위</h3>
+                  <p>마스코트 레벨업 도구</p>
+                </div>
+                <div className={styles["tool-count"]}>
+                  <strong>{magicScissorCount}개</strong>
+                  <span>보유 수량</span>
+                </div>
               </div>
-              <div className={styles["tool-text"]}>
-                <h3>마법의 가위</h3>
-                <p>마스코트 레벨업 도구</p>
-              </div>
-              <div className={styles["tool-count"]}>
-                <strong>23개</strong>
-                <span>보유 수량</span>
+              <div className={styles["tool-adjust"]}>
+                <label>수량 조정:</label>
+                <div className={styles["adjust-controls"]}>
+                  <button
+                    className={`${styles["btn"]} ${styles["minus"]}`}
+                    type="button"
+                    aria-label="감소"
+                    onClick={() => setMagicScissorCount(Math.max(0, magicScissorCount - 1))}
+                  >
+                    <img src={ICONS.minus} alt="감소" />
+                  </button>
+                  <input
+                    type="number"
+                    value={magicScissorCount}
+                    onChange={(e) => setMagicScissorCount(Math.max(0, Number(e.target.value)))}
+                    min="0"
+                  />
+                  <button
+                    className={`${styles["btn"]} ${styles["plus"]}`}
+                    type="button"
+                    aria-label="증가"
+                    onClick={() => setMagicScissorCount(magicScissorCount + 1)}
+                  >
+                    <img src={ICONS.plus} alt="증가" />
+                  </button>
+                </div>
               </div>
             </div>
-            <div className={styles["tool-adjust"]}>
-              <label>수량 조정:</label>
-              <div className={styles["adjust-controls"]}>
-                <button className={`${styles["btn"]} ${styles["minus"]}`} type="button" aria-label="감소">
-                  <img src={ICONS.minus} alt="감소" />
-                </button>
-                <input type="number" defaultValue={23} />
-                <button className={`${styles["btn"]} ${styles["plus"]}`} type="button" aria-label="증가">
-                  <img src={ICONS.plus} alt="증가" />
-                </button>
-              </div>
-            </div>
-          </div>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>마스코트 정보가 없습니다.</div>
+          )}
         </section>
 
         <div className={styles["actions"]}>
-          <button className={styles["save-btn"]}>
+          <button className={styles["save-btn"]} onClick={handleSubmit} disabled={isSubmitting}>
             <img src={ICONS.save} alt="저장" />
-            저장하기
+            {isSubmitting ? "저장 중..." : "저장하기"}
           </button>
         </div>
       </main>

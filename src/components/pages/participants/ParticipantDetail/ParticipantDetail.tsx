@@ -1,95 +1,80 @@
-import React, { useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ParticipantDetail.module.css";
+import apiRequest from "../../../../utils/api";
 
-interface ParticipantDetailState {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  ticketCount: number;
-  ticketType: "VIP" | "프리미엄" | "일반";
-  creditCount: number;
-  joinDate: string;
-  status: "활성" | "대기" | "비활성";
+interface RecentEvent {
+  eventId: number;
+  title: string;
+  status: "APPLIED" | "CHECKED_IN";
+  startDate: string;
+  endDate: string;
+  appliedAt: string;
 }
 
-const MOCK_PARTICIPANTS: ParticipantDetailState[] = [
-  {
-    id: 1,
-    name: "김민지",
-    email: "minji.kim@email.com",
-    avatar: "/admin/img/icon/basic-profile.svg",
-    ticketCount: 5,
-    ticketType: "VIP",
-    creditCount: 1250,
-    joinDate: "2024.01.15",
-    status: "활성",
-  },
-  {
-    id: 2,
-    name: "박준호",
-    email: "junho.park@email.com",
-    avatar: "/admin/img/icon/basic-profile.svg",
-    ticketCount: 3,
-    ticketType: "일반",
-    creditCount: 850,
-    joinDate: "2024.01.20",
-    status: "활성",
-  },
-  {
-    id: 3,
-    name: "이서영",
-    email: "seoyoung.lee@email.com",
-    avatar: "/admin/img/icon/basic-profile.svg",
-    ticketCount: 7,
-    ticketType: "프리미엄",
-    creditCount: 2100,
-    joinDate: "2024.01.10",
-    status: "대기",
-  },
-  {
-    id: 4,
-    name: "최대현",
-    email: "daehyun.choi@email.com",
-    avatar: "/admin/img/icon/basic-profile.svg",
-    ticketCount: 2,
-    ticketType: "일반",
-    creditCount: 450,
-    joinDate: "2024.01.25",
-    status: "비활성",
-  },
-  {
-    id: 5,
-    name: "정수빈",
-    email: "subin.jung@email.com",
-    avatar: "/admin/img/icon/basic-profile.svg",
-    ticketCount: 4,
-    ticketType: "일반",
-    creditCount: 720,
-    joinDate: "2024.01.18",
-    status: "활성",
-  },
-];
+interface ParticipantDetailResponse {
+  participantId: number;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  ticketBalance: number;
+  creditBalance: number;
+  suspended: boolean;
+  joinedAt: string | null;
+  updatedAt: string | null;
+  impact: {
+    co2Saved: number;
+    waterSaved: number;
+    energySaved: number;
+  };
+  recentEvents: RecentEvent[];
+  mascot: {
+    level: number;
+    exp: number;
+    nextLevelExp: number;
+    magicScissorCount: number;
+    cycles: number;
+  } | null;
+}
 
 const ParticipantDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation();
-  const state = (location.state || {}) as Partial<ParticipantDetailState>;
+  const [participant, setParticipant] = useState<ParticipantDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mock = MOCK_PARTICIPANTS.find((p) => p.id === Number(id));
-  const display = {
-    id: state.id ?? mock?.id ?? Number(id),
-    name: state.name ?? mock?.name ?? "이름 미상",
-    email: state.email ?? mock?.email ?? "-",
-    avatar: state.avatar ?? mock?.avatar ?? "/admin/img/icon/basic-profile.svg",
-    ticketCount: state.ticketCount ?? mock?.ticketCount ?? 0,
-    ticketType: state.ticketType ?? mock?.ticketType ?? "일반",
-    creditCount: state.creditCount ?? mock?.creditCount ?? 0,
-    joinDate: state.joinDate ?? mock?.joinDate ?? "-",
-    status: state.status ?? mock?.status ?? "활성",
-  };
+  const fetchParticipant = useCallback(async () => {
+    if (!id) {
+      setError("참가자 ID가 없습니다.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await apiRequest(`/admin/participants/${id}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("참가자 상세 정보 조회에 실패했습니다.");
+      }
+
+      const data: ParticipantDetailResponse = await response.json();
+      setParticipant(data);
+    } catch (error) {
+      console.error("Error fetching participant:", error);
+      setError("참가자 정보를 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchParticipant();
+  }, [fetchParticipant]);
 
   const impactRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -106,6 +91,55 @@ const ParticipantDetail: React.FC = () => {
     window.addEventListener("resize", syncHeights);
     return () => window.removeEventListener("resize", syncHeights);
   }, []);
+
+  const formatDate = (dateString: string | null): string => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  const formatDateRange = (startDate: string, endDate: string): string => {
+    const formatDate = (dateStr: string) => {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}.${month}.${day}`;
+    };
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+  };
+
+  const getEventStatusText = (status: string): string => {
+    switch (status) {
+      case "APPLIED":
+        return "신청 완료";
+      case "CHECKED_IN":
+        return "체크인 완료";
+      default:
+        return status;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles["participant-detail-page"]}>
+        <div style={{ padding: "40px", textAlign: "center" }}>로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error || !participant) {
+    return (
+      <div className={styles["participant-detail-page"]}>
+        <div style={{ padding: "40px", textAlign: "center" }}>
+          {error || "참가자 정보를 찾을 수 없습니다."}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles["participant-detail-page"]}>
@@ -128,17 +162,21 @@ const ParticipantDetail: React.FC = () => {
             {/* 참가자 요약 카드 */}
             <section className={`${styles["section"]} ${styles["summary-card"]}`}>
               <div className={styles["summary-left"]}>
-                <img className={`${styles["avatar"]} ${styles["large"]}`} src={display.avatar} alt={display.name} />
+                <img
+                  className={`${styles["avatar"]} ${styles["large"]}`}
+                  src={participant.avatarUrl || "/admin/img/icon/basic-profile.svg"}
+                  alt={participant.name}
+                />
                 <div className={styles["summary-meta"]}>
-                  <h2 className={styles["summary-name"]}>{display.name}</h2>
+                  <h2 className={styles["summary-name"]}>{participant.name}</h2>
                   <div className={styles["inline-stats"]}>
                     <span className={styles["chip"]}>
                       <img src="/admin/img/icon/ticket-icon.svg" alt="티켓" />
-                      티켓 {display.ticketCount}장
+                      티켓 {participant.ticketBalance}장
                     </span>
                     <span className={styles["chip"]}>
                       <img src="/admin/img/icon/credit-icon.svg" alt="크레딧" />
-                      크레딧 {display.creditCount.toLocaleString()}
+                      크레딧 {participant.creditBalance.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -154,7 +192,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/co2-impact.svg" alt="CO2" />
                   </div>
                   <div className={styles["impact-title"]}>CO2 절감량</div>
-                  <div className={`${styles["impact-value"]} ${styles["green"]}`}>156.7</div>
+                  <div className={`${styles["impact-value"]} ${styles["green"]}`}>
+                    {participant.impact.co2Saved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>kg</div>
                 </div>
                 <div className={`${styles["impact-card"]} ${styles["yellow"]}`}>
@@ -162,7 +202,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/energy-impact.svg" alt="에너지" />
                   </div>
                   <div className={styles["impact-title"]}>에너지 절감량</div>
-                  <div className={`${styles["impact-value"]} ${styles["yellow"]}`}>892.3</div>
+                  <div className={`${styles["impact-value"]} ${styles["yellow"]}`}>
+                    {participant.impact.energySaved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>kWh</div>
                 </div>
                 <div className={`${styles["impact-card"]} ${styles["blue"]}`}>
@@ -170,7 +212,9 @@ const ParticipantDetail: React.FC = () => {
                     <img src="/admin/img/icon/water-impact.svg" alt="물 절약" />
                   </div>
                   <div className={styles["impact-title"]}>물 절약량</div>
-                  <div className={`${styles["impact-value"]} ${styles["blue"]}`}>2,450</div>
+                  <div className={`${styles["impact-value"]} ${styles["blue"]}`}>
+                    {participant.impact.waterSaved.toFixed(2)}
+                  </div>
                   <div className={styles["impact-unit"]}>L</div>
                 </div>
               </div>
@@ -181,44 +225,102 @@ const ParticipantDetail: React.FC = () => {
             {/* 옷 키우기 섹션 */}
             <section className={`${styles["section"]} ${styles["grow-card"]}`}>
               <h3>옷 키우기</h3>
-              <div className={styles["grow-hero"]}>
-                <img src="/admin/img/example/grow-hero.svg" alt="캐릭터" />
-              </div>
-              <div className={styles["level"]}>레벨 7</div>
-              <div className={styles["progress-bar"]}>
-                <div className={styles["progress"]} style={{ width: "35%" }} />
-              </div>
-              <div className={styles["progress-text"]}>다음 레벨까지 35%</div>
-              <div className={styles["scissor-box"]}>
-                <div className={styles["label"]}>
-                  <img src="/admin/img/icon/scissor-icon.svg" alt="가위" />
-                  레벨업 가위
+              {participant.mascot ? (
+                <>
+                  <div className={styles["grow-hero"]}>
+                    <img src="/admin/img/example/grow-hero.svg" alt="캐릭터" />
+                  </div>
+                  <div className={styles["level"]}>레벨 {participant.mascot.level}</div>
+                  <div className={styles["progress-bar"]}>
+                    <div
+                      className={styles["progress"]}
+                      style={{
+                        width: `${participant.mascot.nextLevelExp > 0 ? (participant.mascot.exp / participant.mascot.nextLevelExp) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                  <div className={styles["progress-text"]}>
+                    다음 레벨까지{" "}
+                    {participant.mascot.nextLevelExp > 0
+                      ? Math.round((participant.mascot.exp / participant.mascot.nextLevelExp) * 100)
+                      : 0}
+                    %
+                  </div>
+                  <div className={styles["scissor-box"]}>
+                    <div className={styles["label"]}>
+                      <img src="/admin/img/icon/scissor-icon.svg" alt="가위" />
+                      레벨업 가위
+                    </div>
+                    <div className={styles["value"]}>{participant.mascot.magicScissorCount}개</div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+                  마스코트 정보가 없습니다.
                 </div>
-                <div className={styles["value"]}>8개</div>
-              </div>
+              )}
             </section>
           </aside>
         </section>
 
         {/* 하단 섹션 */}
         <section className={styles["bottom-section"]}>
-          {/* 획득한 옷 섹션 */}
+          {/* 참여한 행사 섹션 */}
           <section className={`${styles["section"]} ${styles["clothes-section"]}`}>
-            <h3>획득한 옷</h3>
-            <div className={styles["clothes-grid"]}>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-tshirt.png" alt="친환경 티셔츠" />
-                <p>친환경 티셔츠</p>
+            <h3>참여한 행사</h3>
+            {participant.recentEvents && participant.recentEvents.length > 0 ? (
+              <div className={styles["clothes-grid"]}>
+                {participant.recentEvents.map((event) => (
+                  <div
+                    key={event.eventId}
+                    className={styles["clothes-item"]}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/events/${event.eventId}`)}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "120px",
+                        backgroundColor: "#f3f4f6",
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <img
+                        src="/admin/img/icon/calendar.svg"
+                        alt="행사"
+                        style={{ width: "48px", height: "48px", opacity: 0.5 }}
+                      />
+                    </div>
+                    <p style={{ fontWeight: 500, marginBottom: "4px", fontSize: "14px" }}>{event.title}</p>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: event.status === "CHECKED_IN" ? "#166534" : "#92400e",
+                        backgroundColor: event.status === "CHECKED_IN" ? "#dcfce7" : "#fef3c7",
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        display: "inline-block",
+                        marginBottom: "4px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {getEventStatusText(event.status)}
+                    </p>
+                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>
+                      {formatDateRange(event.startDate, event.endDate)}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-jeans.png" alt="지속가능 청바지" />
-                <p>지속가능 청바지</p>
+            ) : (
+              <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+                참여한 행사가 없습니다.
               </div>
-              <div className={styles["clothes-item"]}>
-                <img src="/admin/img/example/clothes-shoes.png" alt="재활용 운동화" />
-                <p>재활용 운동화</p>
-              </div>
-            </div>
+            )}
           </section>
         </section>
       </main>

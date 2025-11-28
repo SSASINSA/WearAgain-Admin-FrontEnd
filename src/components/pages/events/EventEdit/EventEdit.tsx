@@ -153,7 +153,7 @@ const EventEdit: React.FC = () => {
         const startDate = data.startDate ? new Date(data.startDate) : null;
         const endDate = data.endDate ? new Date(data.endDate) : null;
 
-        setFormData({
+      setFormData({
           eventName: data.title,
           eventDescription: data.description,
           usageGuide: data.usageGuide || "",
@@ -193,7 +193,7 @@ const EventEdit: React.FC = () => {
         console.error("Error fetching event detail:", err);
       } finally {
         setIsLoading(false);
-      }
+    }
     };
 
     fetchEventDetail();
@@ -372,9 +372,9 @@ const EventEdit: React.FC = () => {
         throw new Error(errorData.message || "행사 수정에 실패했습니다.");
       }
 
-      alert("행사가 수정되었습니다.");
-      setShowConfirmModal(false);
-      navigate(`/events/${id}`);
+    alert("행사가 수정되었습니다.");
+    setShowConfirmModal(false);
+    navigate(`/events/${id}`);
     } catch (error) {
       console.error("행사 수정 실패:", error);
       alert(error instanceof Error ? error.message : "행사 수정에 실패했습니다.");
@@ -433,7 +433,7 @@ const EventEdit: React.FC = () => {
         throw new Error(errorData.message || "임시저장에 실패했습니다.");
       }
 
-      alert("임시저장되었습니다.");
+    alert("임시저장되었습니다.");
     } catch (error) {
       console.error("임시저장 실패:", error);
       alert(error instanceof Error ? error.message : "임시저장에 실패했습니다.");
