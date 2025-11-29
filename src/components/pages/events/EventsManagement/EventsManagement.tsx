@@ -60,6 +60,7 @@ const EventsManagement: React.FC = () => {
   const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>("");
   const [searchScope, setSearchScope] = useState<string>("ALL");
   const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
+  const [sort, setSort] = useState<string>("LATEST");
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize] = useState<number>(9);
   const [events, setEvents] = useState<Event[]>([]);
@@ -139,6 +140,7 @@ const EventsManagement: React.FC = () => {
       }
       params.append("page", String(currentPage));
       params.append("size", String(pageSize));
+      params.append("sort", sort);
 
       const response = await apiRequest(`/admin/events?${params.toString()}`, {
         method: "GET",
@@ -174,7 +176,7 @@ const EventsManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, currentPage, pageSize]);
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sort, currentPage, pageSize]);
 
   useEffect(() => {
     fetchEvents();
@@ -213,6 +215,11 @@ const EventsManagement: React.FC = () => {
 
   const handleStatusChange = (newStatus: string) => {
     setSelectedStatus(newStatus);
+    setCurrentPage(0);
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
     setCurrentPage(0);
   };
 
@@ -273,6 +280,20 @@ const EventsManagement: React.FC = () => {
                   <option value="rejected">승인 거부</option>
                   <option value="completed">완료됨</option>
                   <option value="deleted">삭제됨</option>
+                </select>
+                <div className={styles["status-select-icon"]}>
+                  <img src={dropdownIcon} alt="드롭다운" />
+                </div>
+              </div>
+              <div className={styles["status-select-container"]}>
+                <select
+                  value={sort}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className={styles["status-select"]}
+                >
+                  <option value="LATEST">최신순</option>
+                  <option value="OLDEST">오래된순</option>
+                  <option value="TITLE_ASC">제목순</option>
                 </select>
                 <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
