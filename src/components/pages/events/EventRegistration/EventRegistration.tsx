@@ -22,7 +22,6 @@ const cameraIcon = "/admin/img/icon/camera.svg";
 const imageAddIcon = "/admin/img/icon/image-add.svg";
 const infoIcon = "/admin/img/icon/info-circle.svg";
 
-// Custom input component for DatePicker with icon
 const DateInputWithIcon = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { iconSrc: string; onIconClick: () => void }

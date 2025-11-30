@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import apiRequest from "../../../../utils/api";
 import styles from "./StoreManagement.module.css";
@@ -36,20 +36,108 @@ interface ProductListResponse {
 
 const StoreManagement: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const getPageFromUrl = () => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page, 10) : 0;
+  };
+
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
+  };
+
+  const getCategoryFromUrl = () => {
+    return searchParams.get("category") || "";
+  };
+
+  const getStatusFromUrl = () => {
+    return searchParams.get("status") || "";
+  };
+
+  const getSortFromUrl = () => {
+    return searchParams.get("sort") || "LATEST";
+  };
+
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
-  const [searchScope, setSearchScope] = useState<string>("ALL");
-  const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [sort, setSort] = useState<string>("LATEST");
-  const [currentPage, setCurrentPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [selectedCategory, setSelectedCategory] = useState(getCategoryFromUrl());
+  const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
+  const [sort, setSort] = useState<string>(getSortFromUrl());
+  const [currentPage, setCurrentPage] = useState(getPageFromUrl());
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const itemsPerPage = 12;
+  const itemsPerPage = 10;
+
+  const updateUrlParams = (updates: {
+    page?: number;
+    keyword?: string;
+    keywordScope?: string;
+    category?: string;
+    status?: string;
+    sort?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (updates.page !== undefined) {
+      if (updates.page === 0) {
+        newParams.delete("page");
+      } else {
+        newParams.set("page", updates.page.toString());
+      }
+    }
+    
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+    
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+    
+    if (updates.category !== undefined) {
+      if (updates.category === "") {
+        newParams.delete("category");
+      } else {
+        newParams.set("category", updates.category);
+      }
+    }
+    
+    if (updates.status !== undefined) {
+      if (updates.status === "") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", updates.status);
+      }
+    }
+    
+    if (updates.sort !== undefined) {
+      if (updates.sort === "LATEST") {
+        newParams.delete("sort");
+      } else {
+        newParams.set("sort", updates.sort);
+      }
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  };
 
   const fetchProducts = React.useCallback(async () => {
     setIsLoading(true);
@@ -95,6 +183,28 @@ const StoreManagement: React.FC = () => {
   }, [currentPage, appliedSearchTerm, appliedSearchScope, selectedCategory, selectedStatus, sort, itemsPerPage]);
 
   useEffect(() => {
+    const urlPage = getPageFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
+    const urlCategory = getCategoryFromUrl();
+    const urlStatus = getStatusFromUrl();
+    const urlSort = getSortFromUrl();
+
+    if (urlPage !== currentPage) setCurrentPage(urlPage);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
+    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory);
+    if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
+    if (urlSort !== sort) setSort(urlSort);
+  }, [searchParams]);
+
+  useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
@@ -102,6 +212,11 @@ const StoreManagement: React.FC = () => {
     setAppliedSearchTerm(searchTerm);
     setAppliedSearchScope(searchScope);
     setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -112,11 +227,13 @@ const StoreManagement: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    updateUrlParams({ page });
   };
 
   const handleSortChange = (newSort: string) => {
     setSort(newSort);
     setCurrentPage(0);
+    updateUrlParams({ sort: newSort, page: 0 });
   };
 
   const getProductImage = (product: Product): string => {
@@ -192,8 +309,10 @@ const StoreManagement: React.FC = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => {
-                  setSelectedCategory(e.target.value);
+                  const newCategory = e.target.value;
+                  setSelectedCategory(newCategory);
                   setCurrentPage(0);
+                  updateUrlParams({ category: newCategory, page: 0 });
                 }}
                 className={styles["filter-select"]}
               >
@@ -209,8 +328,10 @@ const StoreManagement: React.FC = () => {
               <select
                 value={selectedStatus}
                 onChange={(e) => {
-                  setSelectedStatus(e.target.value);
+                  const newStatus = e.target.value;
+                  setSelectedStatus(newStatus);
                   setCurrentPage(0);
+                  updateUrlParams({ status: newStatus, page: 0 });
                 }}
                 className={styles["filter-select"]}
               >
@@ -295,7 +416,7 @@ const StoreManagement: React.FC = () => {
             </div>
           </div>
 
-          {totalPages > 1 && (
+          {totalPages > 0 && (
             <div className={styles["pagination-container"]}>
               <div className={styles["pagination"]}>
                 <button

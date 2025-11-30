@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./PostsManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
@@ -16,12 +16,87 @@ interface Post {
 }
 
 const PostsManagement: React.FC = () => {
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("latest");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const getPageFromUrl = () => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page, 10) : 1;
+  };
+
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getStatusFromUrl = () => {
+    return searchParams.get("status") || "all";
+  };
+
+  const getSortFromUrl = () => {
+    return searchParams.get("sort") || "latest";
+  };
+
+  const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
+  const [searchTerm, setSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
+  const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
+
+  const updateUrlParams = (updates: {
+    page?: number;
+    keyword?: string;
+    status?: string;
+    sort?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (updates.page !== undefined) {
+      if (updates.page === 1) {
+        newParams.delete("page");
+      } else {
+        newParams.set("page", updates.page.toString());
+      }
+    }
+    
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+    
+    if (updates.status !== undefined) {
+      if (updates.status === "all") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", updates.status);
+      }
+    }
+    
+    if (updates.sort !== undefined) {
+      if (updates.sort === "latest") {
+        newParams.delete("sort");
+      } else {
+        newParams.set("sort", updates.sort);
+      }
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  };
+
+  useEffect(() => {
+    const urlPage = getPageFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlStatus = getStatusFromUrl();
+    const urlSort = getSortFromUrl();
+
+    if (urlPage !== currentPage) setCurrentPage(urlPage);
+    if (urlKeyword !== searchTerm) setSearchTerm(urlKeyword);
+    if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
+    if (urlSort !== sortBy) setSortBy(urlSort);
+  }, [searchParams]);
 
   const posts: Post[] = [
     {
@@ -92,8 +167,6 @@ const PostsManagement: React.FC = () => {
     }
   };
 
-  const navigate = useNavigate();
-
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
@@ -133,13 +206,24 @@ const PostsManagement: React.FC = () => {
                       placeholder="게시글 제목 또는 내용으로 검색..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          setCurrentPage(1);
+                          updateUrlParams({ keyword: searchTerm, page: 1 });
+                        }
+                      }}
                       className={styles["search-input"]}
                     />
                   </div>
                   <div className={styles["status-select-container"]}>
                     <select
                       value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
+                        setSelectedStatus(newStatus);
+                        setCurrentPage(1);
+                        updateUrlParams({ status: newStatus, page: 1 });
+                      }}
                       className={styles["status-select"]}
                     >
                       <option value="all">전체 상태</option>
@@ -152,7 +236,16 @@ const PostsManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className={styles["sort-select-container"]}>
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles["sort-select"]}>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        const newSort = e.target.value;
+                        setSortBy(newSort);
+                        setCurrentPage(1);
+                        updateUrlParams({ sort: newSort, page: 1 });
+                      }}
+                      className={styles["sort-select"]}
+                    >
                       <option value="latest">최신순</option>
                       <option value="oldest">오래된순</option>
                       <option value="title">제목순</option>
@@ -214,10 +307,14 @@ const PostsManagement: React.FC = () => {
             currentPage={currentPage}
             totalPages={totalPages}
             pageSize={itemsPerPage}
-            onPageChange={(p) => setCurrentPage(p)}
+            onPageChange={(p) => {
+              setCurrentPage(p);
+              updateUrlParams({ page: p });
+            }}
             onPageSizeChange={(s) => {
               setItemsPerPage(s);
               setCurrentPage(1);
+              updateUrlParams({ page: 1 });
             }}
           />
         </div>

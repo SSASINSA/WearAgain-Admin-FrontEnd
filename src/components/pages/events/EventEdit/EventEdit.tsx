@@ -88,7 +88,6 @@ interface EventImageState {
   imageId: number | null;
 }
 
-// Custom input component for DatePicker with icon
 const DateInputWithIcon = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { iconSrc: string; onIconClick: () => void }
