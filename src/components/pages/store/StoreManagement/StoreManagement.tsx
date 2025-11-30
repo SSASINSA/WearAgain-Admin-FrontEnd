@@ -44,7 +44,7 @@ const StoreManagement: React.FC = () => {
   const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [sortBy, setSortBy] = useState("가격 낮은순");
+  const [sort, setSort] = useState<string>("LATEST");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -70,6 +70,7 @@ const StoreManagement: React.FC = () => {
       if (selectedStatus) {
         params.append("status", selectedStatus);
       }
+      params.append("sort", sort);
 
       const response = await apiRequest(`/admin/store/items?${params.toString()}`, {
         method: "GET",
@@ -91,7 +92,7 @@ const StoreManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, appliedSearchTerm, appliedSearchScope, selectedCategory, selectedStatus, itemsPerPage]);
+  }, [currentPage, appliedSearchTerm, appliedSearchScope, selectedCategory, selectedStatus, sort, itemsPerPage]);
 
   useEffect(() => {
     fetchProducts();
@@ -111,6 +112,11 @@ const StoreManagement: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
+    setCurrentPage(0);
   };
 
   const getProductImage = (product: Product): string => {
@@ -137,12 +143,6 @@ const StoreManagement: React.FC = () => {
     }
   };
 
-  const sortedProducts = [...products].sort((a, b) => {
-    if (sortBy === "가격 낮은순") return a.price - b.price;
-    if (sortBy === "가격 높은순") return b.price - a.price;
-    if (sortBy === "이름순") return a.name.localeCompare(b.name);
-    return 0;
-  });
 
   return (
     <div className={styles["admin-dashboard"]}>
@@ -224,10 +224,10 @@ const StoreManagement: React.FC = () => {
               </div>
             </div>
             <div className={styles["sort-select-container"]}>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles["filter-select"]}>
-                <option value="가격 낮은순">가격 낮은순</option>
-                <option value="가격 높은순">가격 높은순</option>
-                <option value="이름순">이름순</option>
+              <select value={sort} onChange={(e) => handleSortChange(e.target.value)} className={styles["filter-select"]}>
+                <option value="LATEST">최신순</option>
+                <option value="OLDEST">오래된순</option>
+                <option value="TITLE_ASC">제목순</option>
               </select>
               <div className={styles["sort-select-icon"]}>
                 <img src={dropdownIcon} alt="드롭다운" />
@@ -258,10 +258,10 @@ const StoreManagement: React.FC = () => {
             <div className={`${styles["products-grid"]} ${styles[viewMode]}`}>
               {isLoading ? (
                 <div>로딩 중...</div>
-              ) : sortedProducts.length === 0 ? (
+              ) : products.length === 0 ? (
                 <div>상품이 없습니다.</div>
               ) : (
-                sortedProducts.map((product) => (
+                products.map((product) => (
                   <div
                     key={product.id}
                     className={styles["product-card"]}
