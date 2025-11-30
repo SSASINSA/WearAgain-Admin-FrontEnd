@@ -14,8 +14,6 @@ const eventDateIcon = "/admin/img/icon/calendar.svg";
 const eventTimeIcon = "/admin/img/icon/clock.svg";
 const eventLocationIcon = "/admin/img/icon/location-pin.svg";
 const locationSearchIcon = "/admin/img/icon/search.svg";
-const staffIcon = "/admin/img/icon/staff.svg";
-const participantIcon = "/admin/img/icon/user-group.svg";
 const saveIcon = "/admin/img/icon/save.svg";
 const registerIcon = "/admin/img/icon/calendar-plus.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
@@ -101,12 +99,12 @@ const EventRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
     eventName: "",
     eventDescription: "",
+    usageGuide: "",
+    precautions: "",
     eventStartDate: null as Date | null,
     eventEndDate: null as Date | null,
     eventLocation: "",
     eventLocationDetail: "",
-    staffCount: "",
-    participantCount: "",
   });
   const [images, setImages] = useState<EventImage[]>([
     { file: null, preview: "", imageName: null, imageUrl: null },
@@ -122,16 +120,6 @@ const EventRegistration: React.FC = () => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (value === "" || /^\d+$/.test(value)) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
   };
 
   const handleStartDateChange = (date: Date | null) => {
@@ -438,41 +426,6 @@ const EventRegistration: React.FC = () => {
       };
 
       const options: any[] = [];
-      let displayOrder = 1;
-
-      if (formData.participantCount && formData.participantCount.trim() !== "") {
-        const participantCapacity = parseInt(formData.participantCount.trim(), 10);
-        if (isNaN(participantCapacity) || participantCapacity < 1 || participantCapacity > 999) {
-          alert("참가자 수는 1 이상 999 이하의 정수여야 합니다.");
-          setIsSubmitting(false);
-          return;
-        }
-
-        options.push({
-          name: "전체 참가자",
-          type: "ATTENDEE",
-          displayOrder: displayOrder++,
-          capacity: participantCapacity,
-          children: [],
-        });
-      }
-
-      if (formData.staffCount && formData.staffCount.trim() !== "") {
-        const staffCapacity = parseInt(formData.staffCount.trim(), 10);
-        if (isNaN(staffCapacity) || staffCapacity < 1 || staffCapacity > 999) {
-          alert("스태프 수는 1 이상 999 이하의 정수여야 합니다.");
-          setIsSubmitting(false);
-          return;
-        }
-
-        options.push({
-          name: "예상 스태프",
-          type: "STAFF",
-          displayOrder: displayOrder++,
-          capacity: staffCapacity,
-          children: [],
-        });
-      }
 
       try {
         validateOptions(options);
@@ -485,8 +438,8 @@ const EventRegistration: React.FC = () => {
       const requestData: EventRegistrationRequest = {
         title: formData.eventName.trim(),
         description: formData.eventDescription.trim(),
-        usageGuide: "",
-        precautions: "",
+        usageGuide: formData.usageGuide.trim() || undefined,
+        precautions: formData.precautions.trim() || undefined,
         location: fullLocation.trim(),
         startDate: formatDate(formData.eventStartDate),
         endDate: formatDate(formData.eventEndDate),
@@ -571,6 +524,36 @@ const EventRegistration: React.FC = () => {
 
               <div className={styles["form-group"]}>
                 <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="이용 방법" className={styles["label-icon"]} />
+                  이용 방법 (선택)
+                </label>
+                <textarea
+                  name="usageGuide"
+                  value={formData.usageGuide}
+                  onChange={handleInputChange}
+                  placeholder="행사 이용 방법을 입력해주세요"
+                  className={styles["form-textarea"]}
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="주의사항" className={styles["label-icon"]} />
+                  주의사항 (선택)
+                </label>
+                <textarea
+                  name="precautions"
+                  value={formData.precautions}
+                  onChange={handleInputChange}
+                  placeholder="행사 주의사항을 입력해주세요"
+                  className={styles["form-textarea"]}
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
                   <img src={cameraIcon} alt="행사 이미지" className={styles["label-icon"]} />
                   행사 이미지
                 </label>
@@ -628,7 +611,6 @@ const EventRegistration: React.FC = () => {
                       onChange={handleStartDateChange}
                       dateFormat="yyyy-MM-dd"
                       placeholderText="YYYY-MM-DD"
-                      minDate={new Date()}
                       customInput={
                         <DateInputWithIcon
                           iconSrc={eventDateIcon}
@@ -664,46 +646,6 @@ const EventRegistration: React.FC = () => {
                       }
                     />
                   </div>
-                </div>
-              </div>
-
-              <div className={styles["form-row"]}>
-                <div className={styles["form-group"]}>
-                  <label className={styles["form-label"]}>
-                    <img
-                      src={staffIcon}
-                      alt="스태프 수"
-                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
-                    />
-                    스태프 수
-                  </label>
-                  <input
-                    type="text"
-                    name="staffCount"
-                    value={formData.staffCount}
-                    onChange={handleNumberChange}
-                    placeholder="스태프 인원 수"
-                    className={styles["form-input"]}
-                  />
-                </div>
-
-                <div className={styles["form-group"]}>
-                  <label className={styles["form-label"]}>
-                    <img
-                      src={participantIcon}
-                      alt="참가자 수"
-                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
-                    />
-                    참가자 수
-                  </label>
-                  <input
-                    type="text"
-                    name="participantCount"
-                    value={formData.participantCount}
-                    onChange={handleNumberChange}
-                    placeholder="참가자 인원 수"
-                    className={styles["form-input"]}
-                  />
                 </div>
               </div>
 

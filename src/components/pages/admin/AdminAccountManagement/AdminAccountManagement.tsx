@@ -189,7 +189,7 @@ const AdminAccountManagement: React.FC = () => {
       }
 
       const data = await response.json();
-      alert(`관리자 계정이 승인되었습니다.\n이메일: ${data.email}\n역할: ${data.role}`);
+      alert(`관리자 계정이 승인되었습니다.\n이메일: ${data.email}`);
       setShowApproveModal(false);
       setSelectedRequestId(null);
       await fetchSignupRequests();
