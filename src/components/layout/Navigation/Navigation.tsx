@@ -40,6 +40,11 @@ const Navigation: React.FC = () => {
       label: "상점 관리",
     },
     {
+      path: "/store/orders",
+      icon: "/admin/img/icon/document.svg",
+      label: "상품 주문관리",
+    },
+    {
       path: "/repair",
       icon: "/admin/img/icon/participants.svg",
       label: "참가자 관리",

@@ -15,6 +15,7 @@ import StoreManagement from "./components/pages/store/StoreManagement/StoreManag
 import AddProduct from "./components/pages/store/AddProduct/AddProduct";
 import ProductDetail from "./components/pages/store/ProductDetail/ProductDetail";
 import ProductEdit from "./components/pages/store/ProductEdit/ProductEdit";
+import OrderManagement from "./components/pages/store/OrderManagement/OrderManagement";
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
@@ -128,6 +129,15 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <AddProduct />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/orders"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <OrderManagement />
               </ProtectedRoute>
             }
           />
