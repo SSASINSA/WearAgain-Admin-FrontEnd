@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import styles from "./AdminAccountManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataListFooter from "../../../common/DataListFooter/DataListFooter";
@@ -27,6 +28,11 @@ interface SignupRequestResponse {
 
 interface SignupRequestsApiResponse {
   items: SignupRequestResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
 }
 
 interface AdminAccountRequest {
@@ -41,11 +47,37 @@ interface AdminAccountRequest {
 }
 
 const AdminAccountManagement: React.FC = () => {
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("latest");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const getPageFromUrl = () => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page, 10) : 0;
+  };
+
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
+  };
+
+  const getStatusFromUrl = () => {
+    return searchParams.get("status") || "all";
+  };
+
+  const getSortFromUrl = () => {
+    return searchParams.get("sort") || "LATEST";
+  };
+
+  const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
+  const [searchTerm, setSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
+  const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
+  const [pageSize, setPageSize] = useState<number>(20);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [selectedDetail, setSelectedDetail] = useState<AdminAccountRequest | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
@@ -53,8 +85,62 @@ const AdminAccountManagement: React.FC = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [adminAccountRequests, setAdminAccountRequests] = useState<AdminAccountRequest[]>([]);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const updateUrlParams = (updates: {
+    page?: number;
+    keyword?: string;
+    keywordScope?: string;
+    status?: string;
+    sort?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (updates.page !== undefined) {
+      if (updates.page === 0) {
+        newParams.delete("page");
+      } else {
+        newParams.set("page", updates.page.toString());
+      }
+    }
+
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+
+    if (updates.status !== undefined) {
+      if (updates.status === "all") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", updates.status);
+      }
+    }
+
+    if (updates.sort !== undefined) {
+      if (updates.sort === "LATEST") {
+        newParams.delete("sort");
+      } else {
+        newParams.set("sort", updates.sort);
+      }
+    }
+
+    setSearchParams(newParams, { replace: true });
+  };
 
   const getRoleDisplayName = (role: string): string => {
     const roleMap: Record<string, string> = {
@@ -91,7 +177,7 @@ const AdminAccountManagement: React.FC = () => {
       requestDate: formatDate(apiResponse.createdAt),
       status: statusMap[apiResponse.status] || "pending",
       requestedRole: apiResponse.requestedRole,
-      reason: apiResponse.rejectionReason || undefined,
+      reason: apiResponse.reason || undefined,
       description: apiResponse.reason || undefined,
     };
   };
@@ -101,7 +187,27 @@ const AdminAccountManagement: React.FC = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await apiRequest("/admin/auth/signup-requests", {
+      const params = new URLSearchParams();
+      if (selectedStatus !== "all") {
+        const statusMap: Record<string, string> = {
+          pending: "PENDING",
+          approved: "APPROVED",
+          rejected: "REJECTED",
+          expired: "EXPIRED",
+        };
+        params.append("status", statusMap[selectedStatus] || selectedStatus.toUpperCase());
+      }
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
+      }
+      params.append("page", currentPage.toString());
+      params.append("size", pageSize.toString());
+      params.append("sort", sortBy);
+
+      const response = await apiRequest(`/admin/auth/signup-requests?${params.toString()}`, {
         method: "GET",
       });
 
@@ -113,6 +219,8 @@ const AdminAccountManagement: React.FC = () => {
       const data: SignupRequestsApiResponse = await response.json();
       const transformedData = data.items.map(transformApiResponse);
       setAdminAccountRequests(transformedData);
+      setTotalElements(data.totalElements);
+      setTotalPages(data.totalPages);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "승인 요청 목록을 가져오는데 실패했습니다.";
       setError(errorMessage);
@@ -120,35 +228,50 @@ const AdminAccountManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, pageSize]);
+
+  useEffect(() => {
+    const urlPage = getPageFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
+    const urlStatus = getStatusFromUrl();
+    const urlSort = getSortFromUrl();
+
+    if (urlPage !== currentPage) setCurrentPage(urlPage);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
+    if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
+    if (urlSort !== sortBy) setSortBy(urlSort);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchSignupRequests();
   }, [fetchSignupRequests]);
 
-  const filteredRequests = adminAccountRequests.filter((request) => {
-    const matchesStatus = selectedStatus === "all" || request.status === selectedStatus;
-    const matchesSearch =
-      request.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.email.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
+  };
 
-  const sortedRequests = [...filteredRequests].sort((a, b) => {
-    if (sortBy === "latest") {
-      return new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime();
-    } else if (sortBy === "oldest") {
-      return new Date(a.requestDate).getTime() - new Date(b.requestDate).getTime();
-    } else if (sortBy === "id") {
-      return a.userId.localeCompare(b.userId);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
     }
-    return 0;
-  });
+  };
 
-  const totalPages = Math.ceil(sortedRequests.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentRequests = sortedRequests.slice(startIndex, endIndex);
+  const currentRequests = adminAccountRequests;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -279,21 +402,41 @@ const AdminAccountManagement: React.FC = () => {
                     className={`${styles["admin-account-filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}
                   >
                     <div className={styles["admin-account-search-container"]}>
-                      <div className={styles["admin-account-search-icon"]}>
+                      <div className={styles["admin-account-search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
                         <img src="/admin/img/icon/search.svg" alt="검색" />
                       </div>
                       <input
                         type="text"
-                        placeholder="아이디 또는 이메일로 검색..."
+                        placeholder="이메일 또는 이름으로 검색..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyPress={handleKeyPress}
                         className={styles["admin-account-search-input"]}
                       />
                     </div>
                     <div className={styles["admin-account-status-select-container"]}>
                       <select
+                        value={searchScope}
+                        onChange={(e) => setSearchScope(e.target.value)}
+                        className={styles["admin-account-status-select"]}
+                      >
+                        <option value="ALL">전체</option>
+                        <option value="EMAIL">이메일</option>
+                        <option value="NAME">이름</option>
+                      </select>
+                      <div className={styles["admin-account-status-select-icon"]}>
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                    <div className={styles["admin-account-status-select-container"]}>
+                      <select
                         value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        onChange={(e) => {
+                          const newStatus = e.target.value;
+                          setSelectedStatus(newStatus);
+                          setCurrentPage(0);
+                          updateUrlParams({ status: newStatus, page: 0 });
+                        }}
                         className={styles["admin-account-status-select"]}
                       >
                         <option value="all">전체 상태</option>
@@ -309,12 +452,18 @@ const AdminAccountManagement: React.FC = () => {
                     <div className={styles["admin-account-sort-select-container"]}>
                       <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
+                        onChange={(e) => {
+                          const newSort = e.target.value;
+                          setSortBy(newSort);
+                          setCurrentPage(0);
+                          updateUrlParams({ sort: newSort, page: 0 });
+                        }}
                         className={styles["admin-account-sort-select"]}
                       >
-                        <option value="latest">최신순</option>
-                        <option value="oldest">오래된순</option>
-                        <option value="id">아이디순</option>
+                        <option value="LATEST">최신순</option>
+                        <option value="OLDEST">오래된순</option>
+                        <option value="NAME_ASC">이름순 (가나다)</option>
+                        <option value="NAME_DESC">이름순 (다나가)</option>
                       </select>
                       <div className={styles["admin-account-sort-select-icon"]}>
                         <img src={dropdownIcon} alt="드롭다운" />
@@ -329,10 +478,10 @@ const AdminAccountManagement: React.FC = () => {
               <div className={styles["dl-table-header"]}>
                 <h3>승인 요청 목록</h3>
                 <div className={styles["dl-table-info"]}>
-                  <span>총 {filteredRequests.length}개 요청</span>
+                  <span>총 {totalElements}개 요청</span>
                   <span>|</span>
                   <span>
-                    페이지 {currentPage}/{totalPages}
+                    페이지 {currentPage + 1}/{totalPages || 1}
                   </span>
                 </div>
               </div>
@@ -522,14 +671,18 @@ const AdminAccountManagement: React.FC = () => {
               </div>
 
               <DataListFooter
-                pageSize={itemsPerPage}
+                pageSize={pageSize}
                 onPageSizeChange={(s) => {
-                  setItemsPerPage(s);
-                  setCurrentPage(1);
+                  setPageSize(s);
+                  setCurrentPage(0);
+                  updateUrlParams({ page: 0 });
                 }}
-                currentPage={currentPage}
+                currentPage={currentPage + 1}
                 totalPages={totalPages}
-                onPageChange={(p) => setCurrentPage(p)}
+                onPageChange={(p) => {
+                  setCurrentPage(p - 1);
+                  updateUrlParams({ page: p - 1 });
+                }}
               />
             </div>
           </div>
