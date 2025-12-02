@@ -8,6 +8,8 @@ const Navigation: React.FC = () => {
   const { role, isLoading: isRoleLoading } = useAuth();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
+  const [isAdminFeaturesDropdownOpen, setIsAdminFeaturesDropdownOpen] = useState(false);
+  const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (location.pathname === "/admin-users") {
@@ -15,6 +17,12 @@ const Navigation: React.FC = () => {
     }
     if (location.pathname === "/login" || location.pathname === "/signup") {
       setIsTestDropdownOpen(true);
+    }
+    if (location.pathname === "/approval" || location.pathname === "/events/approval") {
+      setIsAdminFeaturesDropdownOpen(true);
+    }
+    if (location.pathname === "/store" || location.pathname === "/store/orders" || location.pathname.startsWith("/store/")) {
+      setIsStoreDropdownOpen(true);
     }
   }, [location.pathname]);
 
@@ -35,24 +43,9 @@ const Navigation: React.FC = () => {
       label: "게시글 관리",
     },
     {
-      path: "/store",
-      icon: "/admin/img/icon/store.svg",
-      label: "상점 관리",
-    },
-    {
       path: "/repair",
       icon: "/admin/img/icon/participants.svg",
       label: "참가자 관리",
-    },
-    {
-      path: "/approval",
-      icon: "/admin/img/icon/check-circle.svg",
-      label: "관리자 계정 승인",
-    },
-    {
-      path: "/events/approval",
-      icon: "/admin/img/icon/check-circle.svg",
-      label: "행사등록 승인",
     },
   ];
 
@@ -84,6 +77,54 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           ))}
+          <li className={`${styles["nav-dropdown"]} ${isStoreDropdownOpen ? styles["open"] : ""}`}>
+            <button
+              className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
+              onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
+            >
+              <img src="/admin/img/icon/store.svg" alt="" />
+              <span>상점 관리</span>
+              <span className={`${styles["dropdown-arrow"]} ${isStoreDropdownOpen ? styles["open"] : ""}`}>▼</span>
+            </button>
+            <ul className={styles["nav-dropdown-menu"]}>
+              <li className={location.pathname === "/store" || (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders") ? styles["active"] : ""}>
+                <Link to="/store" className={styles["nav-dropdown-item"]}>
+                  <img src="/admin/img/icon/store.svg" alt="" />
+                  <span>상품 관리</span>
+                </Link>
+              </li>
+              <li className={location.pathname === "/store/orders" ? styles["active"] : ""}>
+                <Link to="/store/orders" className={styles["nav-dropdown-item"]}>
+                  <img src="/admin/img/icon/document.svg" alt="" />
+                  <span>상품 주문 내역</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+          <li className={`${styles["nav-dropdown"]} ${isAdminFeaturesDropdownOpen ? styles["open"] : ""}`}>
+            <button
+              className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
+              onClick={() => setIsAdminFeaturesDropdownOpen(!isAdminFeaturesDropdownOpen)}
+            >
+              <img src="/admin/img/icon/check-circle.svg" alt="" />
+              <span>관리자 기능</span>
+              <span className={`${styles["dropdown-arrow"]} ${isAdminFeaturesDropdownOpen ? styles["open"] : ""}`}>▼</span>
+            </button>
+            <ul className={styles["nav-dropdown-menu"]}>
+              <li className={location.pathname === "/approval" ? styles["active"] : ""}>
+                <Link to="/approval" className={styles["nav-dropdown-item"]}>
+                  <img src="/admin/img/icon/check-circle.svg" alt="" />
+                  <span>관리자 계정 승인</span>
+                </Link>
+              </li>
+              <li className={location.pathname === "/events/approval" ? styles["active"] : ""}>
+                <Link to="/events/approval" className={styles["nav-dropdown-item"]}>
+                  <img src="/admin/img/icon/check-circle.svg" alt="" />
+                  <span>행사등록 승인</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
           {!isRoleLoading && role === "SUPER_ADMIN" && (
             <li className={`${styles["nav-dropdown"]} ${isAdminDropdownOpen ? styles["open"] : ""}`}>
               <button

@@ -468,6 +468,40 @@
   line-height: 20px;
 }
 
+.edit-button {
+  background-color: white;
+  border: 2px solid #06b0b7;
+  border-radius: 12px;
+  color: #06b0b7;
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  height: 56px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 24px;
+}
+
+.edit-button:hover {
+  background-color: #06b0b7;
+  color: white;
+}
+
+.edit-button img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%) contrast(101%);
+}
+
+.edit-button:hover img {
+  filter: brightness(0) invert(1);
+}
+
 
 .event-info-section {
   background-color: white;

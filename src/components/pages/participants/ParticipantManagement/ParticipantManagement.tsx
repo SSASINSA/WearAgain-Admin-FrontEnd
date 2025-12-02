@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./ParticipantManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
@@ -51,19 +51,81 @@ interface Participant {
 
 const ParticipantManagement: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const getPageFromUrl = () => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page, 10) : 1;
+  };
+
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getStatusFromUrl = () => {
+    return searchParams.get("status") || "활성";
+  };
+
+  const getSortFromUrl = () => {
+    return searchParams.get("sort") || "가입일 최신순";
+  };
+
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [stats, setStats] = useState<ParticipantPageResponse["summary"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("가입일 최신순");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
+  const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
+  const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
+  const [currentPage, setCurrentPage] = useState(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [showSuspensionModal, setShowSuspensionModal] = useState<boolean>(false);
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null);
   const [selectedParticipantSuspended, setSelectedParticipantSuspended] = useState<boolean>(false);
+
+  const updateUrlParams = (updates: {
+    page?: number;
+    keyword?: string;
+    status?: string;
+    sort?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (updates.page !== undefined) {
+      if (updates.page === 1) {
+        newParams.delete("page");
+      } else {
+        newParams.set("page", updates.page.toString());
+      }
+    }
+    
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+    
+    if (updates.status !== undefined) {
+      if (updates.status === "") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", updates.status);
+      }
+    }
+    
+    if (updates.sort !== undefined) {
+      if (updates.sort === "가입일 최신순") {
+        newParams.delete("sort");
+      } else {
+        newParams.set("sort", updates.sort);
+      }
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  };
 
   const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
     switch (displayStatus) {
@@ -143,6 +205,18 @@ const ParticipantManagement: React.FC = () => {
   }, [selectedStatus, sortBy, currentPage, itemsPerPage]);
 
   useEffect(() => {
+    const urlPage = getPageFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlStatus = getStatusFromUrl();
+    const urlSort = getSortFromUrl();
+
+    if (urlPage !== currentPage) setCurrentPage(urlPage);
+    if (urlKeyword !== searchTerm) setSearchTerm(urlKeyword);
+    if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
+    if (urlSort !== sortBy) setSortBy(urlSort);
+  }, [searchParams]);
+
+  useEffect(() => {
     fetchParticipants();
   }, [fetchParticipants]);
 
@@ -185,6 +259,7 @@ const ParticipantManagement: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    updateUrlParams({ page });
   };
 
   const getStatusColor = (status: string) => {
@@ -305,6 +380,12 @@ const ParticipantManagement: React.FC = () => {
                       placeholder="참가자 검색..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          setCurrentPage(1);
+                          updateUrlParams({ keyword: searchTerm, page: 1 });
+                        }
+                      }}
                       className={styles["search-input"]}
                     />
                   </div>
@@ -312,8 +393,10 @@ const ParticipantManagement: React.FC = () => {
                     <select
                       value={selectedStatus}
                       onChange={(e) => {
-                        setSelectedStatus(e.target.value);
+                        const newStatus = e.target.value;
+                        setSelectedStatus(newStatus);
                         setCurrentPage(1);
+                        updateUrlParams({ status: newStatus, page: 1 });
                       }}
                       className={styles["status-select"]}
                     >
@@ -329,8 +412,10 @@ const ParticipantManagement: React.FC = () => {
                     <select
                       value={sortBy}
                       onChange={(e) => {
-                        setSortBy(e.target.value);
+                        const newSort = e.target.value;
+                        setSortBy(newSort);
                         setCurrentPage(1);
+                        updateUrlParams({ sort: newSort, page: 1 });
                       }}
                       className={styles["sort-select"]}
                     >
@@ -396,11 +481,14 @@ const ParticipantManagement: React.FC = () => {
                 className: styles["actions-cell"],
                 render: (p: Participant) => (
                   <button
-                    className={`${styles["action-btn"]} ${styles["delete"]}`}
+                    className={`${styles["action-btn"]} ${p.status === "비활성" ? styles["restore"] : styles["delete"]}`}
                     title={p.status === "비활성" ? "정지 해제" : "정지"}
                     onClick={() => handleSuspensionClick(p.id, p.status === "비활성")}
                   >
-                    <img src="/admin/img/icon/delete.svg" alt={p.status === "비활성" ? "정지 해제" : "정지"} />
+                    <img 
+                      src={p.status === "비활성" ? "/admin/img/icon/unlock.svg" : "/admin/img/icon/lock.svg"} 
+                      alt={p.status === "비활성" ? "정지 해제" : "정지"} 
+                    />
                   </button>
                 ),
               },
@@ -414,6 +502,7 @@ const ParticipantManagement: React.FC = () => {
             onPageSizeChange={(s) => {
               setItemsPerPage(s);
               setCurrentPage(1);
+              updateUrlParams({ page: 1 });
             }}
           />
         </div>

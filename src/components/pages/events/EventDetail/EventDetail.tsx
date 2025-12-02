@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EventDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import apiRequest from "utils/api";
@@ -16,6 +16,7 @@ const imgFrame8 = "/admin/img/icon/code-generate.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
 const imgFrame10 = "/admin/img/icon/clothes.svg";
 const imgFrame11 = "/admin/img/icon/exchange-rate.svg";
+const editIcon = "/admin/img/icon/edit.svg";
 
 interface EventImage {
   imageId: number;
@@ -74,6 +75,7 @@ interface EventDetailResponse {
 
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [eventData, setEventData] = useState<EventDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -464,6 +466,15 @@ const EventDetail: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* 수정하기 버튼 */}
+            <button
+              className={styles["edit-button"]}
+              onClick={() => navigate(`/events/${id}/edit`)}
+            >
+              <img src={editIcon} alt="수정 아이콘" />
+              수정하기
+            </button>
           </div>
         </div>
       </div>

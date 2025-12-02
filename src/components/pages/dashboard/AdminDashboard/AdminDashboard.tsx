@@ -167,8 +167,8 @@ const AdminDashboard: React.FC = () => {
       description: "승용차 54,231km 주행량과 동일",
       icon: "/admin/img/icon/co2.svg",
       color: "#059669",
-      bgColor: "#dcfce7",
-      borderColor: "#bbf7d0",
+      bgColor: "#ffffff",
+      borderColor: "#e5e7eb",
       badge: "환경보호",
     },
     {
@@ -177,8 +177,8 @@ const AdminDashboard: React.FC = () => {
       description: "일반 가정 24가구 1년 사용량",
       icon: "/admin/img/icon/energy.svg",
       color: "#d97706",
-      bgColor: "#fef3c7",
-      borderColor: "#fde68a",
+      bgColor: "#ffffff",
+      borderColor: "#e5e7eb",
       badge: "에너지",
     },
     {
@@ -187,8 +187,8 @@ const AdminDashboard: React.FC = () => {
       description: "수영장 1.2개 분량",
       icon: "/admin/img/icon/water.svg",
       color: "#2563eb",
-      bgColor: "#dbeafe",
-      borderColor: "#bfdbfe",
+      bgColor: "#ffffff",
+      borderColor: "#e5e7eb",
       badge: "물 절약",
     },
   ];

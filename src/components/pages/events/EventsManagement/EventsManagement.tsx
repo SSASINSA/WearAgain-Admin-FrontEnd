@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import apiRequest from "utils/api";
 import styles from "./EventsManagement.module.css";
@@ -55,12 +55,36 @@ interface Event {
 
 const EventsManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>("");
-  const [searchScope, setSearchScope] = useState<string>("ALL");
-  const [appliedSearchScope, setAppliedSearchScope] = useState<string>("ALL");
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const getPageFromUrl = () => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page, 10) : 0;
+  };
+
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
+  };
+
+  const getStatusFromUrl = () => {
+    return searchParams.get("status") || "all";
+  };
+
+  const getSortFromUrl = () => {
+    return searchParams.get("sort") || "LATEST";
+  };
+
+  const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
+  const [searchTerm, setSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [sort, setSort] = useState<string>(getSortFromUrl());
+  const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
   const [pageSize] = useState<number>(9);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -68,6 +92,58 @@ const EventsManagement: React.FC = () => {
   const [totalElements, setTotalElements] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [hasNext, setHasNext] = useState<boolean>(false);
+
+  const updateUrlParams = (updates: {
+    page?: number;
+    keyword?: string;
+    keywordScope?: string;
+    status?: string;
+    sort?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (updates.page !== undefined) {
+      if (updates.page === 0) {
+        newParams.delete("page");
+      } else {
+        newParams.set("page", updates.page.toString());
+      }
+    }
+    
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+    
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+    
+    if (updates.status !== undefined) {
+      if (updates.status === "all") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", updates.status);
+      }
+    }
+    
+    if (updates.sort !== undefined) {
+      if (updates.sort === "LATEST") {
+        newParams.delete("sort");
+      } else {
+        newParams.set("sort", updates.sort);
+      }
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  };
 
   const mapApiStatusToDisplayStatus = (
     apiStatus: string
@@ -139,6 +215,7 @@ const EventsManagement: React.FC = () => {
       }
       params.append("page", String(currentPage));
       params.append("size", String(pageSize));
+      params.append("sort", sort);
 
       const response = await apiRequest(`/admin/events?${params.toString()}`, {
         method: "GET",
@@ -174,7 +251,27 @@ const EventsManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, currentPage, pageSize]);
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sort, currentPage, pageSize]);
+
+  useEffect(() => {
+    const urlPage = getPageFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
+    const urlStatus = getStatusFromUrl();
+    const urlSort = getSortFromUrl();
+
+    if (urlPage !== currentPage) setCurrentPage(urlPage);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
+    if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
+    if (urlSort !== sort) setSort(urlSort);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchEvents();
@@ -184,6 +281,11 @@ const EventsManagement: React.FC = () => {
     setAppliedSearchTerm(searchTerm);
     setAppliedSearchScope(searchScope);
     setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -214,6 +316,13 @@ const EventsManagement: React.FC = () => {
   const handleStatusChange = (newStatus: string) => {
     setSelectedStatus(newStatus);
     setCurrentPage(0);
+    updateUrlParams({ status: newStatus, page: 0 });
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
+    setCurrentPage(0);
+    updateUrlParams({ sort: newSort, page: 0 });
   };
 
   const handleViewDetails = (eventId: number) => {
@@ -273,6 +382,20 @@ const EventsManagement: React.FC = () => {
                   <option value="rejected">승인 거부</option>
                   <option value="completed">완료됨</option>
                   <option value="deleted">삭제됨</option>
+                </select>
+                <div className={styles["status-select-icon"]}>
+                  <img src={dropdownIcon} alt="드롭다운" />
+                </div>
+              </div>
+              <div className={styles["status-select-container"]}>
+                <select
+                  value={sort}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className={styles["status-select"]}
+                >
+                  <option value="LATEST">최신순</option>
+                  <option value="OLDEST">오래된순</option>
+                  <option value="TITLE_ASC">제목순</option>
                 </select>
                 <div className={styles["status-select-icon"]}>
                   <img src={dropdownIcon} alt="드롭다운" />
@@ -368,7 +491,11 @@ const EventsManagement: React.FC = () => {
                 <div className={styles["pagination-controls"]}>
                   <button
                     className={styles["pagination-btn"]}
-                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                    onClick={() => {
+                      const newPage = Math.max(0, currentPage - 1);
+                      setCurrentPage(newPage);
+                      updateUrlParams({ page: newPage });
+                    }}
                     disabled={currentPage === 0}
                   >
                     <img src={prevIcon} alt="이전" />
@@ -377,14 +504,21 @@ const EventsManagement: React.FC = () => {
                     <button
                       key={page}
                       className={`${styles["pagination-btn"]} ${currentPage === page ? styles["active"] : ""}`}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => {
+                        setCurrentPage(page);
+                        updateUrlParams({ page });
+                      }}
                     >
                       {page + 1}
                     </button>
                   ))}
                   <button
                     className={styles["pagination-btn"]}
-                    onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                    onClick={() => {
+                      const newPage = Math.min(totalPages - 1, currentPage + 1);
+                      setCurrentPage(newPage);
+                      updateUrlParams({ page: newPage });
+                    }}
                     disabled={!hasNext}
                   >
                     <img src={nextIcon} alt="다음" />
