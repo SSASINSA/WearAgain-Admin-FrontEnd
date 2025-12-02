@@ -63,7 +63,7 @@ const ParticipantManagement: React.FC = () => {
   };
 
   const getStatusFromUrl = () => {
-    return searchParams.get("status") || "";
+    return searchParams.get("status") || "활성";
   };
 
   const getSortFromUrl = () => {
@@ -481,11 +481,14 @@ const ParticipantManagement: React.FC = () => {
                 className: styles["actions-cell"],
                 render: (p: Participant) => (
                   <button
-                    className={`${styles["action-btn"]} ${styles["delete"]}`}
+                    className={`${styles["action-btn"]} ${p.status === "비활성" ? styles["restore"] : styles["delete"]}`}
                     title={p.status === "비활성" ? "정지 해제" : "정지"}
                     onClick={() => handleSuspensionClick(p.id, p.status === "비활성")}
                   >
-                    <img src="/admin/img/icon/delete.svg" alt={p.status === "비활성" ? "정지 해제" : "정지"} />
+                    <img 
+                      src={p.status === "비활성" ? "/admin/img/icon/unlock.svg" : "/admin/img/icon/lock.svg"} 
+                      alt={p.status === "비활성" ? "정지 해제" : "정지"} 
+                    />
                   </button>
                 ),
               },
