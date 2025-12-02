@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiRequest from "../../../../utils/api";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
-import styles from "../AddProduct/AddProduct.module.css";
+import styles from "./ProductEdit.module.css";
 
 const ICONS = {
   camera: "/admin/img/icon/camera.svg",
@@ -431,8 +431,8 @@ const ProductEdit: React.FC = () => {
   };
 
   return (
-    <div className={styles["add-product-page"]}>
-      <div className={styles["add-product-header"]}>
+    <div className={styles["product-edit-page"]}>
+      <div className={styles["product-edit-header"]}>
         <button className={styles["back-btn"]} onClick={() => navigate(-1)} aria-label="뒤로가기">
           <img src="/admin/img/icon/back-arrow.svg" alt="뒤로가기" />
         </button>
@@ -459,7 +459,7 @@ const ProductEdit: React.FC = () => {
         </div>
       )}
       {!isLoading && (
-        <div className={styles["add-product-content"]}>
+        <div className={styles["product-edit-content"]}>
           <div className={styles["content-left"]}>
           <div className={`${styles["section"]} ${styles["product-images"]}`}>
             <div className={styles["section-header"]}>

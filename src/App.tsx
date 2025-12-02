@@ -23,8 +23,8 @@ import AdminAccountManagement from "./components/pages/admin/AdminAccountManagem
 import AdminUserList from "./components/pages/admin/AdminUserList/AdminUserList";
 import Login from "./components/pages/auth/Login/Login";
 import SignUp from "./components/pages/auth/SignUp/SignUp";
-import ProtectedRoute from "./components/common/ProtectedRoute/ProtectedRoute";
-import PublicRoute from "./components/common/PublicRoute/PublicRoute";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import PublicRoute from "./components/common/PublicRoute";
 import "./styles/App.css";
 
 function App() {
