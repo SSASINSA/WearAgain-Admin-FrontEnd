@@ -478,3 +478,63 @@
   }
 }
 
+.loading-container,
+.error-container,
+.empty-container {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.error-container {
+  color: #ef4444;
+}
+
+.error-container button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #06b0b7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.error-container button:hover {
+  background-color: #05969c;
+}
+
+.event-card {
+  min-height: 320px;
+}
+
+.event-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.event-card-content {
+  padding: 28px;
+}
+
+.event-header {
+  margin-bottom: 24px;
+}
+
+.event-details {
+  margin-bottom: 24px;
+}
+
+.event-registration-info {
+  margin-bottom: 28px;
+}
+
