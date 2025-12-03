@@ -1,10 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./PostsManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
+import apiRequest from "../../../../utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
+const searchIcon = "/admin/img/icon/search.svg";
+
+interface Author {
+  authorId: number;
+  displayName: string;
+  email: string;
+}
+
+interface PostApiResponse {
+  postId: number;
+  title: string;
+  status: string;
+  categoryName: string;
+  author: Author;
+  likeCount: number;
+  commentCount: number;
+  reportCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PostListResponse {
+  posts: PostApiResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
 
 interface Post {
   id: number;
@@ -13,19 +43,28 @@ interface Post {
   date: string;
   status: "active" | "inactive" | "reported";
   author: string;
+  authorEmail: string;
+  categoryName: string;
+  likeCount: number;
+  commentCount: number;
+  reportCount: number;
 }
 
 const PostsManagement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const getPageFromUrl = () => {
     const page = searchParams.get("page");
-    return page ? parseInt(page, 10) : 1;
+    return page ? parseInt(page, 10) : 0;
   };
 
   const getSearchTermFromUrl = () => {
     return searchParams.get("keyword") || "";
+  };
+
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
   };
 
   const getStatusFromUrl = () => {
@@ -33,32 +72,42 @@ const PostsManagement: React.FC = () => {
   };
 
   const getSortFromUrl = () => {
-    return searchParams.get("sort") || "latest";
+    return searchParams.get("sort") || "LATEST";
   };
 
   const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
   const [searchTerm, setSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
   const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
   const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage] = useState<number>(20);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [hasNext, setHasNext] = useState<boolean>(false);
 
   const updateUrlParams = (updates: {
     page?: number;
     keyword?: string;
+    keywordScope?: string;
     status?: string;
     sort?: string;
   }) => {
     const newParams = new URLSearchParams(searchParams);
-    
+
     if (updates.page !== undefined) {
-      if (updates.page === 1) {
+      if (updates.page === 0) {
         newParams.delete("page");
       } else {
         newParams.set("page", updates.page.toString());
       }
     }
-    
+
     if (updates.keyword !== undefined) {
       if (updates.keyword === "") {
         newParams.delete("keyword");
@@ -66,7 +115,15 @@ const PostsManagement: React.FC = () => {
         newParams.set("keyword", updates.keyword);
       }
     }
-    
+
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+
     if (updates.status !== undefined) {
       if (updates.status === "all") {
         newParams.delete("status");
@@ -74,85 +131,170 @@ const PostsManagement: React.FC = () => {
         newParams.set("status", updates.status);
       }
     }
-    
+
     if (updates.sort !== undefined) {
-      if (updates.sort === "latest") {
+      if (updates.sort === "LATEST") {
         newParams.delete("sort");
       } else {
         newParams.set("sort", updates.sort);
       }
     }
-    
+
     setSearchParams(newParams, { replace: true });
   };
+
+  const mapApiStatusToDisplayStatus = (apiStatus: string): "active" | "inactive" | "reported" => {
+    switch (apiStatus.toUpperCase()) {
+      case "ACTIVE":
+        return "active";
+      case "HIDDEN":
+        return "inactive";
+      case "REPORTED":
+        return "reported";
+      default:
+        return "active";
+    }
+  };
+
+  const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
+    switch (displayStatus) {
+      case "active":
+        return "ACTIVE";
+      case "inactive":
+        return "HIDDEN";
+      case "reported":
+        return "REPORTED";
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const fetchPosts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      const apiStatus = mapDisplayStatusToApiStatus(selectedStatus);
+      if (apiStatus && selectedStatus !== "all") {
+        params.append("status", apiStatus);
+      }
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
+      }
+      params.append("page", String(currentPage));
+      params.append("size", String(itemsPerPage));
+      params.append("sort", sortBy);
+
+      const response = await apiRequest(`/admin/posts?${params.toString()}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "게시글 목록을 가져오는데 실패했습니다.");
+      }
+
+      const data: PostListResponse = await response.json();
+
+      if (!data || !Array.isArray(data.posts)) {
+        throw new Error("잘못된 응답 형식입니다.");
+      }
+
+      const transformedPosts: Post[] = data.posts.map((apiPost) => {
+        const displayStatus = mapApiStatusToDisplayStatus(apiPost.status);
+        return {
+          id: apiPost.postId,
+          title: apiPost.title,
+          content: "",
+          date: formatDate(apiPost.createdAt),
+          status: displayStatus,
+          author: apiPost.author.displayName,
+          authorEmail: apiPost.author.email,
+          categoryName: apiPost.categoryName,
+          likeCount: apiPost.likeCount,
+          commentCount: apiPost.commentCount,
+          reportCount: apiPost.reportCount,
+        };
+      });
+
+      setPosts(transformedPosts);
+      setTotalElements(data.totalElements);
+      setTotalPages(data.totalPages);
+      setHasNext(data.hasNext);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "게시글 목록을 가져오는데 실패했습니다.";
+      setError(errorMessage);
+      console.error("Error fetching posts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage]);
 
   useEffect(() => {
     const urlPage = getPageFromUrl();
     const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
     const urlStatus = getStatusFromUrl();
     const urlSort = getSortFromUrl();
 
     if (urlPage !== currentPage) setCurrentPage(urlPage);
-    if (urlKeyword !== searchTerm) setSearchTerm(urlKeyword);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
     if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
     if (urlSort !== sortBy) setSortBy(urlSort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const posts: Post[] = [
-    {
-      id: 1,
-      title: "옷 교환으로 시작하는 지속가능한 패션",
-      content: "옷을 버리는 대신 교환함으로써 환경을 보호하는 21%파티의 의미와 실천 방법에 대해 알아보겠습니다...",
-      date: "2024-01-15",
-      status: "active",
-      author: "관리자",
-    },
-    {
-      id: 2,
-      title: "패스트 패션의 환경 영향과 대안",
-      content: "빠르게 버려지는 옷들이 환경에 미치는 영향과 옷 교환을 통한 해결책에 대해 알아보겠습니다...",
-      date: "2024-01-14",
-      status: "inactive",
-      author: "관리자",
-    },
-    {
-      id: 3,
-      title: "옷 교환 행사 참가 후기 및 팁",
-      content: "21%파티 옷 교환 행사에 참가한 후기와 효과적인 옷 교환을 위한 실용적인 팁을 공유합니다...",
-      date: "2024-01-13",
-      status: "reported",
-      author: "관리자",
-    },
-    {
-      id: 4,
-      title: "환경을 지키는 옷 관리 방법",
-      content: "옷의 수명을 늘리고 환경에 미치는 영향을 줄이기 위한 옷 관리와 보관 방법을 소개합니다...",
-      date: "2024-01-12",
-      status: "active",
-      author: "관리자",
-    },
-    {
-      id: 5,
-      title: "옷 교환으로 절약한 환경 임팩트",
-      content: "옷 교환을 통해 절약한 CO₂, 물, 에너지의 양을 계산하고 환경 보호에 기여한 내용을 공유합니다...",
-      date: "2024-01-11",
-      status: "active",
-      author: "관리자",
-    },
-  ];
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
-  const filteredPosts = posts.filter((post) => {
-    const matchesStatus = selectedStatus === "all" || post.status === selectedStatus;
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
+  };
 
-  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    setCurrentPage(0);
+    updateUrlParams({ status: newStatus, page: 0 });
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort);
+    setCurrentPage(0);
+    updateUrlParams({ sort: newSort, page: 0 });
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -173,150 +315,183 @@ const PostsManagement: React.FC = () => {
         <PageHeader title="게시글 관리" subtitle="등록된 게시글을 관리하고 편집할 수 있습니다" />
 
         <div className={styles["dashboard-content"]}>
-          <DataList
-            headerTitle="게시글 목록"
-            headerRight={
-              <>
-                <span>총 {filteredPosts.length}개 게시글</span>
-                <span>|</span>
-                <span>
-                  페이지 {currentPage}/{totalPages}
-                </span>
-              </>
-            }
-            renderFilters={() => (
-              <div className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
-                <div className={styles["filter-header"]}>
-                  <h3>필터 및 검색</h3>
-                  <button
-                    className={`${styles["filter-toggle"]} ${isFilterOpen ? styles["open"] : ""}`}
-                    aria-expanded={isFilterOpen}
-                    onClick={() => setIsFilterOpen((v) => !v)}
-                  >
-                    ▼
-                  </button>
-                </div>
-                <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
-                  <div className={styles["search-container"]}>
-                    <div className={styles["search-icon"]}>
-                      <img src="/admin/img/icon/search.svg" alt="검색" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="게시글 제목 또는 내용으로 검색..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          setCurrentPage(1);
-                          updateUrlParams({ keyword: searchTerm, page: 1 });
-                        }
-                      }}
-                      className={styles["search-input"]}
-                    />
-                  </div>
-                  <div className={styles["status-select-container"]}>
-                    <select
-                      value={selectedStatus}
-                      onChange={(e) => {
-                        const newStatus = e.target.value;
-                        setSelectedStatus(newStatus);
-                        setCurrentPage(1);
-                        updateUrlParams({ status: newStatus, page: 1 });
-                      }}
-                      className={styles["status-select"]}
-                    >
-                      <option value="all">전체 상태</option>
-                      <option value="active">활성</option>
-                      <option value="inactive">비활성</option>
-                      <option value="reported">신고됨</option>
-                    </select>
-                    <div className={styles["status-select-icon"]}>
-                      <img src={dropdownIcon} alt="드롭다운" />
-                    </div>
-                  </div>
-                  <div className={styles["sort-select-container"]}>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => {
-                        const newSort = e.target.value;
-                        setSortBy(newSort);
-                        setCurrentPage(1);
-                        updateUrlParams({ sort: newSort, page: 1 });
-                      }}
-                      className={styles["sort-select"]}
-                    >
-                      <option value="latest">최신순</option>
-                      <option value="oldest">오래된순</option>
-                      <option value="title">제목순</option>
-                    </select>
-                    <div className={styles["sort-select-icon"]}>
-                      <img src={dropdownIcon} alt="드롭다운" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            columns={[
-              {
-                key: "title",
-                title: "제목",
-                width: 200,
-                className: styles["title-cell"],
-                render: (row: any) => (
-                  <span className={styles["clickable"]} onClick={() => navigate(`/posts/${row.id}`, { state: row })}>
-                    {row.title}
+          {isLoading && (
+            <div className={styles["loading-container"]}>
+              <p>로딩 중...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className={styles["error-container"]}>
+              <p>{error}</p>
+              <button onClick={fetchPosts}>다시 시도</button>
+            </div>
+          )}
+
+          {!isLoading && !error && (
+            <DataList
+              headerTitle="게시글 목록"
+              headerRight={
+                <>
+                  <span>총 {totalElements}개 게시글</span>
+                  <span>|</span>
+                  <span>
+                    페이지 {currentPage + 1}/{totalPages || 1}
                   </span>
-                ),
-              },
-              {
-                key: "content",
-                title: "내용",
-                width: 370,
-                className: styles["content-cell"],
-                render: (row: any) => row.content,
-              },
-              {
-                key: "date",
-                title: "작성일",
-                width: 120,
-                className: styles["date-cell"],
-                render: (row: any) => (
-                  <div>
-                    <div>{row.date.split("-")[0]}-</div>
-                    <div>{row.date.split("-").slice(1).join("-")}</div>
+                </>
+              }
+              renderFilters={() => (
+                <div className={`${styles["filter-section"]} ${isFilterOpen ? styles["is-open"] : styles["is-collapsed"]}`}>
+                  <div className={styles["filter-header"]}>
+                    <h3>필터 및 검색</h3>
+                    <button
+                      className={`${styles["filter-toggle"]} ${isFilterOpen ? styles["open"] : ""}`}
+                      aria-expanded={isFilterOpen}
+                      onClick={() => setIsFilterOpen((v) => !v)}
+                    >
+                      ▼
+                    </button>
                   </div>
-                ),
-              },
-              { key: "status", title: "상태", width: 100, render: (row: any) => getStatusBadge(row.status) },
-              {
-                key: "actions",
-                title: "작업",
-                width: 60,
-                align: "center",
-                className: styles["actions-cell"],
-                render: () => (
-                  <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
-                    <img src="/admin/img/icon/delete.svg" alt="삭제" />
-                  </button>
-                ),
-              },
-            ]}
-            data={currentPosts}
-            rowKey={(row: any) => row.id}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={itemsPerPage}
-            onPageChange={(p) => {
-              setCurrentPage(p);
-              updateUrlParams({ page: p });
-            }}
-            onPageSizeChange={(s) => {
-              setItemsPerPage(s);
-              setCurrentPage(1);
-              updateUrlParams({ page: 1 });
-            }}
-          />
+                  <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                    <div className={styles["search-container"]}>
+                      <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
+                        <img src={searchIcon} alt="검색" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="게시글 검색..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className={styles["search-input"]}
+                      />
+                    </div>
+                    <div className={styles["status-select-container"]}>
+                      <select
+                        value={searchScope}
+                        onChange={(e) => setSearchScope(e.target.value)}
+                        className={styles["status-select"]}
+                      >
+                        <option value="ALL">전체</option>
+                        <option value="TITLE">제목</option>
+                        <option value="AUTHOR">작성자</option>
+                      </select>
+                      <div className={styles["status-select-icon"]}>
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                    <div className={styles["status-select-container"]}>
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => handleStatusChange(e.target.value)}
+                        className={styles["status-select"]}
+                      >
+                        <option value="all">전체 상태</option>
+                        <option value="active">활성</option>
+                        <option value="inactive">비활성</option>
+                        <option value="reported">신고됨</option>
+                      </select>
+                      <div className={styles["status-select-icon"]}>
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                    <div className={styles["sort-select-container"]}>
+                      <select
+                        value={sortBy}
+                        onChange={(e) => handleSortChange(e.target.value)}
+                        className={styles["sort-select"]}
+                      >
+                        <option value="LATEST">최신순</option>
+                        <option value="OLDEST">오래된순</option>
+                        <option value="TITLE">제목순</option>
+                      </select>
+                      <div className={styles["sort-select-icon"]}>
+                        <img src={dropdownIcon} alt="드롭다운" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              columns={[
+                {
+                  key: "title",
+                  title: "제목",
+                  width: 200,
+                  className: styles["title-cell"],
+                  render: (row: any) => (
+                    <span className={styles["clickable"]} onClick={() => navigate(`/posts/${row.id}`)}>
+                      {row.title}
+                    </span>
+                  ),
+                },
+                {
+                  key: "author",
+                  title: "작성자",
+                  width: 150,
+                  className: styles["content-cell"],
+                  render: (row: any) => (
+                    <div>
+                      <div>{row.author}</div>
+                      <div style={{ fontSize: "12px", color: "#6b7280" }}>{row.authorEmail}</div>
+                    </div>
+                  ),
+                },
+                {
+                  key: "category",
+                  title: "카테고리",
+                  width: 100,
+                  className: styles["content-cell"],
+                  render: (row: any) => <span>{row.categoryName || "-"}</span>,
+                },
+                {
+                  key: "date",
+                  title: "작성일",
+                  width: 120,
+                  className: styles["date-cell"],
+                  render: (row: any) => <span>{row.date}</span>,
+                },
+                {
+                  key: "stats",
+                  title: "통계",
+                  width: 120,
+                  className: styles["content-cell"],
+                  render: (row: any) => (
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                      <div>좋아요: {row.likeCount}</div>
+                      <div>댓글: {row.commentCount}</div>
+                      {row.reportCount > 0 && <div style={{ color: "#ef4444" }}>신고: {row.reportCount}</div>}
+                    </div>
+                  ),
+                },
+                { key: "status", title: "상태", width: 100, render: (row: any) => getStatusBadge(row.status) },
+                {
+                  key: "actions",
+                  title: "작업",
+                  width: 60,
+                  align: "center",
+                  className: styles["actions-cell"],
+                  render: () => (
+                    <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
+                      <img src="/admin/img/icon/delete.svg" alt="삭제" />
+                    </button>
+                  ),
+                },
+              ]}
+              data={posts}
+              rowKey={(row: any) => row.id}
+              currentPage={currentPage + 1}
+              totalPages={totalPages}
+              pageSize={itemsPerPage}
+              onPageChange={(p) => {
+                setCurrentPage(p - 1);
+                updateUrlParams({ page: p - 1 });
+              }}
+              onPageSizeChange={(s) => {
+                setCurrentPage(0);
+                updateUrlParams({ page: 0 });
+              }}
+            />
+          )}
         </div>
       </main>
     </div>
