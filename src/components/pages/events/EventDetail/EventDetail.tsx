@@ -413,9 +413,6 @@ const EventDetail: React.FC = () => {
             {eventData.staffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
-                  <div className={styles["staff-code-icon"]}>
-                    <img src={imgFrame7} alt="스태프 코드 아이콘" />
-                  </div>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
                   <p className={styles["staff-code-description"]}>발급된 스태프 코드</p>
                 </div>
@@ -429,14 +426,10 @@ const EventDetail: React.FC = () => {
             ) : (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
-                  <div className={styles["staff-code-icon"]}>
-                    <img src={imgFrame7} alt="스태프 코드 아이콘" />
-                  </div>
                   <h4 className={styles["staff-code-title"]}>스태프 코드 발급</h4>
                   <p className={styles["staff-code-description"]}>행사 운영진을 위한 전용 코드를 발급받으세요</p>
                 </div>
                 <button className={styles["staff-code-button"]}>
-                  <img src={imgFrame8} alt="발급 아이콘" />
                   스태프 코드 발급
                 </button>
                 <div className={styles["staff-code-notice"]}>
@@ -467,14 +460,24 @@ const EventDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* 수정하기 버튼 */}
-            <button
-              className={styles["edit-button"]}
-              onClick={() => navigate(`/events/${id}/edit`)}
-            >
-              <img src={editIcon} alt="수정 아이콘" />
-              수정하기
-            </button>
+            {/* 액션 버튼들 */}
+            <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
+              <button
+                className={styles["edit-button"]}
+                onClick={() => navigate(`/events/${id}/edit`)}
+              >
+                <img src={editIcon} alt="수정 아이콘" />
+                수정하기
+              </button>
+              <button
+                className={styles["edit-button"]}
+                onClick={() => navigate(`/events/${id}/participants`)}
+                style={{ backgroundColor: "#3b82f6" }}
+              >
+                <img src="/admin/img/icon/users.svg" alt="참가 신청 관리 아이콘" />
+                참가 신청 관리
+              </button>
+            </div>
           </div>
         </div>
       </div>

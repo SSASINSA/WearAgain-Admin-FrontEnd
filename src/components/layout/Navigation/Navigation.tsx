@@ -42,16 +42,11 @@ const Navigation: React.FC = () => {
       icon: "/admin/img/icon/posts.svg",
       label: "게시글 관리",
     },
-    {
-      path: "/repair",
-      icon: "/admin/img/icon/participants.svg",
-      label: "참가자 관리",
-    },
   ];
 
   const getNavItems = () => {
     if (role === "MANAGER") {
-      return allNavItems.filter((item) => item.path === "/" || item.path === "/events" || item.path === "/repair");
+      return allNavItems.filter((item) => item.path === "/" || item.path === "/events");
     }
     if (role === "ADMIN" || role === "SUPER_ADMIN") {
       return [

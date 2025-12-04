@@ -73,7 +73,7 @@
 }
 
 
-.user-header {
+.participant-header {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
   padding: 32px;
@@ -244,7 +244,7 @@
 }
 
 
-.users-section {
+.participants-section {
   flex: 1;
   padding: 0 32px 32px 32px;
   background-color: #f9fafb;
@@ -397,8 +397,8 @@
   vertical-align: middle;
 }
 
-.users-section .dl-table th:first-child,
-.users-section .dl-table td:first-child {
+.participants-section .dl-table th:first-child,
+.participants-section .dl-table td:first-child {
   padding-left: 24px !important;
 }
 
@@ -426,45 +426,45 @@
 }
 
 
-.user-info {
+.participant-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.user-avatar {
+.participant-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.user-details {
+.participant-details {
   display: flex;
   flex-direction: column;
 }
 
-.user-name {
+.participant-name {
   font-size: 14px;
   font-weight: 500;
   color: #1f2937; 
   margin: 0 0 4px 0;
 }
 
-.user-name.clickable {
+.participant-name.clickable {
   cursor: pointer;
   text-decoration: none;
   position: relative;
   transition: color 0.15s ease;
 }
 
-.user-name.clickable:hover {
+.participant-name.clickable:hover {
   color: #06b0b7; 
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.user-name.clickable::after {
+.participant-name.clickable::after {
   content: "›";
   display: inline-block;
   margin-left: 6px;
@@ -474,12 +474,12 @@
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.user-name.clickable:hover::after {
+.participant-name.clickable:hover::after {
   opacity: 1;
   transform: translateX(0);
 }
 
-.user-email {
+.participant-email {
   font-size: 12px;
   color: #6b7280;
   margin: 0;
@@ -528,33 +528,35 @@
 
 .status-badge {
   padding: 4px 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  color: white;
   display: inline-block;
 }
 
 
-.users-section .dl-table th,
-.users-section .dl-table td {
+.participants-section .dl-table th,
+.participants-section .dl-table td {
   padding: 12px 16px;
 }
 
-.users-section .dl-table th:first-child,
-.users-section .dl-table td:first-child {
-  padding-left: 16px;
+.participants-section .dl-table th:first-child,
+.participants-section .dl-table td:first-child {
+  padding: 12px 8px;
+  width: 40px;
 }
 
-.users-section .dl-table th:last-child {
+.participants-section .dl-table th:last-child {
   width: 60px !important;
   text-align: center !important;
-  padding: 12px 16px 12px 0 !important;
+  padding: 12px 0 !important;
 }
 
-.users-section .dl-table td:last-child {
+.participants-section .dl-table td:last-child {
   width: 60px;
   text-align: center !important;
-  padding: 12px 16px 12px 0 !important;
+  padding: 12px 0 !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
@@ -638,7 +640,7 @@
     padding-top: 105px; 
   }
 
-  .user-header {
+  .participant-header {
     padding: 16px;
     height: auto;
   }
@@ -655,7 +657,7 @@
     gap: 16px;
   }
 
-  .users-section {
+  .participants-section {
     padding: 16px;
   }
 
@@ -688,13 +690,13 @@
     grid-template-columns: 1fr;
   }
 
-  .user-info {
+  .participant-info {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .user-avatar {
+  .participant-avatar {
     width: 32px;
     height: 32px;
   }

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./UserManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import apiRequest from "../../../../utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
@@ -16,7 +17,6 @@ interface UserResponse {
   creditBalance: number;
   suspended: boolean;
   joinedAt: string;
-  updatedAt: string;
 }
 
 interface UserPageResponse {
@@ -27,6 +27,14 @@ interface UserPageResponse {
   number: number;
   hasNext: boolean;
   hasPrevious: boolean;
+  summary?: {
+    totalParticipants: number;
+    totalTickets: number;
+    totalCredits: number;
+    participantsChangeFromLastMonth: number;
+    ticketsChangeFromLastMonth: number;
+    creditsChangeFromLastMonth: number;
+  };
 }
 
 interface User {
@@ -38,7 +46,6 @@ interface User {
   creditBalance: number;
   suspended: boolean;
   joinedAt: string;
-  updatedAt: string;
 }
 
 const UserManagement: React.FC = () => {
@@ -50,35 +57,35 @@ const UserManagement: React.FC = () => {
     return page ? parseInt(page, 10) : 0;
   };
 
-  const getSearchTermFromUrl = () => {
-    return searchParams.get("keyword") || "";
-  };
-
-  const getSearchScopeFromUrl = () => {
-    return searchParams.get("keywordScope") || "ALL";
+  const getSuspendedFromUrl = () => {
+    const suspended = searchParams.get("suspended");
+    if (suspended === "true") return true;
+    if (suspended === "false") return false;
+    return null;
   };
 
   const getSortFromUrl = () => {
-    return searchParams.get("sort") || "LATEST";
+    return searchParams.get("sortBy") || "CREATED_DESC";
   };
 
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState(getSearchTermFromUrl());
-  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
-  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [suspendedFilter, setSuspendedFilter] = useState<boolean | null>(getSuspendedFromUrl());
   const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
   const [currentPage, setCurrentPage] = useState(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [summary, setSummary] = useState<UserPageResponse["summary"] | null>(null);
+  const [showSuspendModal, setShowSuspendModal] = useState<boolean>(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
+  const [isSuspending, setIsSuspending] = useState<boolean>(false);
 
   const updateUrlParams = (updates: {
     page?: number;
-    keyword?: string;
-    keywordScope?: string;
-    sort?: string;
+    suspended?: boolean | null;
+    sortBy?: string;
   }) => {
     const newParams = new URLSearchParams(searchParams);
     
@@ -90,27 +97,19 @@ const UserManagement: React.FC = () => {
       }
     }
     
-    if (updates.keyword !== undefined) {
-      if (updates.keyword === "") {
-        newParams.delete("keyword");
+    if (updates.suspended !== undefined) {
+      if (updates.suspended === null) {
+        newParams.delete("suspended");
       } else {
-        newParams.set("keyword", updates.keyword);
+        newParams.set("suspended", updates.suspended.toString());
       }
     }
     
-    if (updates.keywordScope !== undefined) {
-      if (updates.keywordScope === "ALL") {
-        newParams.delete("keywordScope");
+    if (updates.sortBy !== undefined) {
+      if (updates.sortBy === "CREATED_DESC") {
+        newParams.delete("sortBy");
       } else {
-        newParams.set("keywordScope", updates.keywordScope);
-      }
-    }
-    
-    if (updates.sort !== undefined) {
-      if (updates.sort === "LATEST") {
-        newParams.delete("sort");
-      } else {
-        newParams.set("sort", updates.sort);
+        newParams.set("sortBy", updates.sortBy);
       }
     }
     
@@ -131,14 +130,11 @@ const UserManagement: React.FC = () => {
     try {
       const params = new URLSearchParams();
       
-      if (appliedSearchTerm.trim()) {
-        params.append("keyword", appliedSearchTerm.trim());
-        if (appliedSearchScope && appliedSearchScope !== "ALL") {
-          params.append("keywordScope", appliedSearchScope);
-        }
+      if (suspendedFilter !== null) {
+        params.append("suspended", suspendedFilter.toString());
       }
       
-      params.append("sort", sortBy);
+      params.append("sortBy", sortBy);
       params.append("page", String(currentPage));
       params.append("size", String(itemsPerPage));
 
@@ -160,34 +156,28 @@ const UserManagement: React.FC = () => {
         creditBalance: user.creditBalance,
         suspended: user.suspended,
         joinedAt: formatDate(user.joinedAt),
-        updatedAt: formatDate(user.updatedAt),
       }));
 
       setUsers(mappedUsers);
       setTotalPages(data.totalPages);
+      if (data.summary) {
+        setSummary(data.summary);
+      }
     } catch (error) {
       console.error("Error fetching users:", error);
       alert("유저 목록을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
-  }, [appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage]);
+  }, [suspendedFilter, sortBy, currentPage, itemsPerPage]);
 
   useEffect(() => {
     const urlPage = getPageFromUrl();
-    const urlKeyword = getSearchTermFromUrl();
-    const urlKeywordScope = getSearchScopeFromUrl();
+    const urlSuspended = getSuspendedFromUrl();
     const urlSort = getSortFromUrl();
 
     if (urlPage !== currentPage) setCurrentPage(urlPage);
-    if (urlKeyword !== appliedSearchTerm) {
-      setSearchTerm(urlKeyword);
-      setAppliedSearchTerm(urlKeyword);
-    }
-    if (urlKeywordScope !== appliedSearchScope) {
-      setSearchScope(urlKeywordScope);
-      setAppliedSearchScope(urlKeywordScope);
-    }
+    if (urlSuspended !== suspendedFilter) setSuspendedFilter(urlSuspended);
     if (urlSort !== sortBy) setSortBy(urlSort);
   }, [searchParams]);
 
@@ -195,26 +185,56 @@ const UserManagement: React.FC = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleSearch = () => {
-    setAppliedSearchTerm(searchTerm);
-    setAppliedSearchScope(searchScope);
-    setCurrentPage(0);
-    updateUrlParams({
-      keyword: searchTerm,
-      keywordScope: searchScope,
-      page: 0,
-    });
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     updateUrlParams({ page });
+  };
+
+  const handleSuspendClick = (userId: number, userName: string, isSuspended: boolean) => {
+    setSelectedUserId(userId);
+    setSelectedUserName(userName);
+    setIsSuspending(isSuspended);
+    setShowSuspendModal(true);
+  };
+
+  const handleSuspendConfirm = async () => {
+    if (selectedUserId === null) return;
+
+    try {
+      const response = await apiRequest(`/admin/participants/${selectedUserId}/suspension`, {
+        method: "PUT",
+        body: JSON.stringify({
+          suspended: !isSuspending,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.errorCode === "U1001") {
+          throw new Error("사용자를 찾을 수 없습니다.");
+        } else if (errorData.errorCode === "U1002") {
+          throw new Error("잘못된 요청입니다.");
+        }
+        throw new Error(errorData.message || `유저 ${isSuspending ? "정지 해제" : "정지"}에 실패했습니다.`);
+      }
+
+      alert(`유저가 ${isSuspending ? "정지 해제" : "정지"}되었습니다.`);
+      setShowSuspendModal(false);
+      setSelectedUserId(null);
+      setSelectedUserName("");
+      await fetchUsers();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : `유저 ${isSuspending ? "정지 해제" : "정지"}에 실패했습니다.`;
+      alert(errorMessage);
+      console.error("Error suspending/unsuspending user:", error);
+    }
+  };
+
+  const handleSuspendCancel = () => {
+    setShowSuspendModal(false);
+    setSelectedUserId(null);
+    setSelectedUserName("");
   };
 
   return (
@@ -243,28 +263,21 @@ const UserManagement: React.FC = () => {
                   </button>
                 </div>
                 <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
-                  <div className={styles["search-container"]}>
-                    <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
-                      <img src="/admin/img/icon/search.svg" alt="검색" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="이메일/닉네임 검색..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      className={styles["search-input"]}
-                    />
-                  </div>
                   <div className={styles["status-select-container"]}>
                     <select
-                      value={searchScope}
-                      onChange={(e) => setSearchScope(e.target.value)}
+                      value={suspendedFilter === null ? "all" : suspendedFilter ? "true" : "false"}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const newSuspended = value === "all" ? null : value === "true";
+                        setSuspendedFilter(newSuspended);
+                        setCurrentPage(0);
+                        updateUrlParams({ suspended: newSuspended, page: 0 });
+                      }}
                       className={styles["status-select"]}
                     >
-                      <option value="ALL">전체</option>
-                      <option value="EMAIL">이메일</option>
-                      <option value="NAME">닉네임</option>
+                      <option value="all">전체</option>
+                      <option value="false">정상 회원</option>
+                      <option value="true">정지 회원</option>
                     </select>
                     <div className={styles["status-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
@@ -277,13 +290,13 @@ const UserManagement: React.FC = () => {
                         const newSort = e.target.value;
                         setSortBy(newSort);
                         setCurrentPage(0);
-                        updateUrlParams({ sort: newSort, page: 0 });
+                        updateUrlParams({ sortBy: newSort, page: 0 });
                       }}
                       className={styles["sort-select"]}
                     >
-                      <option value="LATEST">가입일 최신순</option>
-                      <option value="OLDEST">가입일 오래된 순</option>
-                      <option value="BY_NAME">이름순</option>
+                      <option value="CREATED_DESC">가입일 최신순</option>
+                      <option value="CREATED_ASC">가입일 오래된 순</option>
+                      <option value="NAME_ASC">이름순</option>
                     </select>
                     <div className={styles["sort-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
@@ -294,26 +307,24 @@ const UserManagement: React.FC = () => {
             )}
             columns={[
               {
-                key: "info",
-                title: "유저 정보",
-                width: 250,
+                key: "name",
+                title: "이름",
+                width: 150,
                 render: (u: User) => (
-                  <div className={styles["user-info"]}>
-                    <img 
-                      src={u.avatarUrl || "/admin/img/icon/basic-profile.svg"} 
-                      alt={u.name} 
-                      className={styles["user-avatar"]} 
-                    />
-                    <div className={styles["user-details"]}>
-                      <p
-                        className={`${styles["user-name"]} ${styles["clickable"]}`}
-                        onClick={() => navigate(`/repair/${u.id}`)}
-                      >
-                        {u.name}
-                      </p>
-                      <p className={styles["user-email"]}>{u.email}</p>
-                    </div>
-                  </div>
+                  <p
+                    className={`${styles["user-name"]} ${styles["clickable"]}`}
+                    onClick={() => navigate(`/repair/${u.id}`)}
+                  >
+                    {u.name}
+                  </p>
+                ),
+              },
+              {
+                key: "email",
+                title: "이메일",
+                width: 200,
+                render: (u: User) => (
+                  <span style={{ fontSize: "14px", color: "#1f2937" }}>{u.email}</span>
                 ),
               },
               {
@@ -333,7 +344,14 @@ const UserManagement: React.FC = () => {
                 title: "정지 여부",
                 width: 100,
                 render: (u: User) => (
-                  <span className={styles["status-badge"]} style={{ backgroundColor: u.suspended ? "#ef4444" : "#10b981" }}>
+                  <span
+                    className={styles["status-badge"]}
+                    style={{
+                      backgroundColor: u.suspended ? "#fee2e2" : "#dcfce7",
+                      color: u.suspended ? "#991b1b" : "#166534",
+                      border: `1px solid ${u.suspended ? "#fca5a5" : "#86efac"}`,
+                    }}
+                  >
                     {u.suspended ? "정지" : "정상"}
                   </span>
                 ),
@@ -345,10 +363,46 @@ const UserManagement: React.FC = () => {
                 render: (u: User) => u.joinedAt,
               },
               {
-                key: "updatedAt",
-                title: "수정일",
-                width: 130,
-                render: (u: User) => u.updatedAt,
+                key: "actions",
+                title: "작업",
+                width: 100,
+                render: (u: User) => (
+                  <button
+                    className={styles["suspend-btn"]}
+                    onClick={() => handleSuspendClick(u.id, u.name, u.suspended)}
+                    style={{
+                      backgroundColor: u.suspended ? "#dcfce7" : "#fee2e2",
+                      color: u.suspended ? "#166534" : "#991b1b",
+                      border: `1px solid ${u.suspended ? "#86efac" : "#fca5a5"}`,
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (u.suspended) {
+                        e.currentTarget.style.backgroundColor = "#bbf7d0";
+                        e.currentTarget.style.borderColor = "#4ade80";
+                      } else {
+                        e.currentTarget.style.backgroundColor = "#fecaca";
+                        e.currentTarget.style.borderColor = "#f87171";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (u.suspended) {
+                        e.currentTarget.style.backgroundColor = "#dcfce7";
+                        e.currentTarget.style.borderColor = "#86efac";
+                      } else {
+                        e.currentTarget.style.backgroundColor = "#fee2e2";
+                        e.currentTarget.style.borderColor = "#fca5a5";
+                      }
+                    }}
+                  >
+                    {u.suspended ? "정지 해제" : "정지"}
+                  </button>
+                ),
               },
             ]}
             data={isLoading ? [] : users}
@@ -365,6 +419,17 @@ const UserManagement: React.FC = () => {
           />
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={showSuspendModal}
+        title={isSuspending ? "유저 정지 해제" : "유저 정지"}
+        message={`${selectedUserName} 유저를 ${isSuspending ? "정지 해제" : "정지"}하시겠습니까?`}
+        confirmText={isSuspending ? "정지 해제" : "정지"}
+        cancelText="취소"
+        onConfirm={handleSuspendConfirm}
+        onCancel={handleSuspendCancel}
+        type={isSuspending ? "approve" : "reject"}
+      />
     </div>
   );
 };
