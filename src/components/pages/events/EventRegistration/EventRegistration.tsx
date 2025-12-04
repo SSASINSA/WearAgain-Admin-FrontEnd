@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DaumPostcode from "react-daum-postcode";
@@ -91,6 +91,29 @@ interface EventImage {
   imageUrl: string | null;
 }
 
+interface OptionValue {
+  id: string;
+  value: string;
+}
+
+interface EventOption {
+  id: string;
+  type: string;
+  name: string;
+  values: OptionValue[];
+  required: boolean;
+}
+
+interface OptionCombination {
+  id: string;
+  optionValues: { [key: string]: string };
+  optionPrice: string;
+  stock: string;
+  addStock: string;
+  sku: string;
+  status: string;
+}
+
 const EventRegistration: React.FC = () => {
   const navigate = useNavigate();
   const startDatePickerRef = useRef<DatePicker>(null);
@@ -112,6 +135,11 @@ const EventRegistration: React.FC = () => {
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [options, setOptions] = useState<EventOption[]>([]);
+  const [optionCombinations, setOptionCombinations] = useState<OptionCombination[]>([]);
+  const [isCombinedOption, setIsCombinedOption] = useState(false);
+  const [requiredOptions, setRequiredOptions] = useState(false);
+  const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -240,7 +268,7 @@ const EventRegistration: React.FC = () => {
       }
 
       const fullLocation = formData.eventLocationDetail
-        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
         : formData.eventLocation;
 
       if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
@@ -471,6 +499,128 @@ const EventRegistration: React.FC = () => {
   const handleSaveDraft = () => {
   };
 
+  const handleAddOption = () => {
+    const newOption: EventOption = {
+      id: `option-${Date.now()}`,
+      type: "기본",
+      name: "",
+      values: [],
+      required: false,
+    };
+    setOptions([...options, newOption]);
+  };
+
+  const handleRemoveOption = (optionId: string) => {
+    const filteredOptions = options.filter((opt) => opt.id !== optionId);
+    setOptions(filteredOptions);
+  };
+
+  const handleOptionChange = (optionId: string, field: string, value: string | boolean) => {
+    setOptions(
+      options.map((opt) => {
+        if (opt.id === optionId) {
+          return { ...opt, [field]: value };
+        }
+        return opt;
+      })
+    );
+  };
+
+  const handleAddOptionValue = (optionId: string, value: string) => {
+    if (!value.trim()) return;
+
+    setOptions(
+      options.map((opt) => {
+        if (opt.id === optionId) {
+          const newValue: OptionValue = {
+            id: `value-${Date.now()}-${Math.random()}`,
+            value: value.trim(),
+          };
+          return { ...opt, values: [...opt.values, newValue] };
+        }
+        return opt;
+      })
+    );
+  };
+
+  const handleRemoveOptionValue = (optionId: string, valueId: string) => {
+    setOptions(
+      options.map((opt) => {
+        if (opt.id === optionId) {
+          return { ...opt, values: opt.values.filter((v) => v.id !== valueId) };
+        }
+        return opt;
+      })
+    );
+  };
+
+  const generateCombinations = useCallback(
+    (opts: EventOption[]) => {
+      if (!isCombinedOption || opts.length === 0) {
+        setOptionCombinations([]);
+        return;
+      }
+
+      const validOptions = opts.filter((opt) => opt.name && opt.values.length > 0);
+      if (validOptions.length === 0) {
+        setOptionCombinations([]);
+        return;
+      }
+
+      const combinations: OptionCombination[] = [];
+      const generate = (current: { [key: string]: string }, remaining: EventOption[]) => {
+        if (remaining.length === 0) {
+          combinations.push({
+            id: `comb-${Date.now()}-${Math.random()}`,
+            optionValues: { ...current },
+            optionPrice: "",
+            stock: "0",
+            addStock: "",
+            sku: "",
+            status: "판매중",
+          });
+          return;
+        }
+
+        const [first, ...rest] = remaining;
+        first.values.forEach((val) => {
+          generate({ ...current, [first.name]: val.value }, rest);
+        });
+      };
+
+      generate({}, validOptions);
+      setOptionCombinations(combinations);
+    },
+    [isCombinedOption]
+  );
+
+  useEffect(() => {
+    generateCombinations(options);
+  }, [options, generateCombinations]);
+
+  const handleCombinationChange = (combinationId: string, field: string, value: string) => {
+    setOptionCombinations(
+      optionCombinations.map((comb) => {
+        if (comb.id === combinationId) {
+          return { ...comb, [field]: value };
+        }
+        return comb;
+      })
+    );
+  };
+
+  const formatPrice = (price: string) => {
+    if (!price) return "";
+    const numPrice = parseInt(price, 10);
+    if (isNaN(numPrice)) return "";
+    return `KRW ${numPrice.toLocaleString()}`;
+  };
+
+  const handlePriceInput = (combinationId: string, value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, "");
+    handleCombinationChange(combinationId, "optionPrice", numericValue);
+  };
+
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
@@ -678,6 +828,218 @@ const EventRegistration: React.FC = () => {
                   className={styles["form-input"]}
                   style={{ marginTop: "2px" }}
                 />
+                <input
+                  type="text"
+                  value={
+                    formData.eventLocationDetail
+                      ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
+                      : formData.eventLocation
+                  }
+                  readOnly
+                  placeholder="합쳐진 주소가 여기에 표시됩니다"
+                  className={styles["form-input"]}
+                  style={{ marginTop: "2px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                />
+              </div>
+
+              {/* 행사 옵션 섹션 */}
+              <div className={styles["form-group"]}>
+                <label className={styles["form-label"]}>
+                  <img src={eventContentIcon} alt="행사 옵션" className={styles["label-icon"]} />
+                  행사 옵션
+                </label>
+                <div className={styles["options-section"]}>
+                  {options.map((option) => (
+                    <div key={option.id} className={styles["option-row"]}>
+                      <div className={styles["option-type"]}>
+                        <label>옵션타입</label>
+                        <select value={option.type} onChange={(e) => handleOptionChange(option.id, "type", e.target.value)}>
+                          <option value="기본">기본</option>
+                        </select>
+                      </div>
+                      <div className={styles["option-name"]}>
+                        <label>옵션명</label>
+                        <input
+                          type="text"
+                          value={option.name}
+                          onChange={(e) => handleOptionChange(option.id, "name", e.target.value)}
+                          placeholder="옵션명을 입력하세요"
+                        />
+                      </div>
+                      <div className={styles["option-values"]}>
+                        <label>옵션값</label>
+                        <div className={styles["option-values-input"]}>
+                          {option.values.map((val) => (
+                            <span key={val.id} className={styles["option-tag"]}>
+                              {val.value}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveOptionValue(option.id, val.id)}
+                                className={styles["tag-remove"]}
+                              >
+                                <img src="/admin/img/icon/x-reject.svg" alt="제거" />
+                              </button>
+                            </span>
+                          ))}
+                          <input
+                            type="text"
+                            placeholder="옵션값 입력 후 Enter"
+                            onKeyPress={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddOptionValue(option.id, e.currentTarget.value);
+                                e.currentTarget.value = "";
+                              }
+                            }}
+                            className={styles["option-value-input"]}
+                          />
+                        </div>
+                      </div>
+                      <div className={styles["option-required"]}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={option.required}
+                            onChange={(e) => handleOptionChange(option.id, "required", e.target.checked)}
+                          />
+                          필수
+                        </label>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOption(option.id)}
+                        className={styles["option-remove-btn"]}
+                      >
+                        <img src="/admin/img/icon/x-reject.svg" alt="옵션 제거" />
+                      </button>
+                    </div>
+                  ))}
+
+                  <button type="button" onClick={handleAddOption} className={styles["add-option-btn"]}>
+                    옵션 추가
+                  </button>
+                </div>
+
+                {optionCombinations.length > 0 && (
+                  <div className={styles["combinations-section"]}>
+                    <div className={styles["combinations-header"]}>
+                      <div className={styles["checkbox-group"]}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={requiredOptions}
+                            onChange={(e) => setRequiredOptions(e.target.checked)}
+                          />
+                          필수옵션
+                          <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
+                        </label>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={isCombinedOption}
+                            onChange={(e) => setIsCombinedOption(e.target.checked)}
+                          />
+                          조합형 옵션
+                          <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className={styles["combinations-table"]}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th></th>
+                            {options
+                              .filter((opt) => opt.name && opt.values.length > 0)
+                              .map((opt) => (
+                                <th key={opt.id}>{opt.name}</th>
+                              ))}
+                            <th>
+                              옵션가격
+                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
+                            </th>
+                            <th>재고</th>
+                            <th>
+                              재고추가?
+                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
+                            </th>
+                            <th>
+                              재고번호 (SKU)
+                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
+                            </th>
+                            <th>상태</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {optionCombinations.map((combination) => (
+                            <tr key={combination.id}>
+                              <td>
+                                <input type="checkbox" />
+                              </td>
+                              {options
+                                .filter((opt) => opt.name && opt.values.length > 0)
+                                .map((opt) => (
+                                  <td key={opt.id}>{combination.optionValues[opt.name] || ""}</td>
+                                ))}
+                              <td>
+                                <div className={styles["price-input-cell"]}>
+                                  <input
+                                    type="text"
+                                    value={
+                                      focusedPriceInput === combination.id
+                                        ? combination.optionPrice
+                                        : combination.optionPrice
+                                        ? formatPrice(combination.optionPrice)
+                                        : ""
+                                    }
+                                    onChange={(e) => handlePriceInput(combination.id, e.target.value)}
+                                    onFocus={() => setFocusedPriceInput(combination.id)}
+                                    onBlur={() => setFocusedPriceInput(null)}
+                                    placeholder="0"
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={combination.stock}
+                                  onChange={(e) => handleCombinationChange(combination.id, "stock", e.target.value)}
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={combination.addStock}
+                                  onChange={(e) => handleCombinationChange(combination.id, "addStock", e.target.value)}
+                                  placeholder="0"
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="text"
+                                  value={combination.sku}
+                                  onChange={(e) => handleCombinationChange(combination.id, "sku", e.target.value)}
+                                  placeholder="SKU 번호"
+                                />
+                              </td>
+                              <td>
+                                <select
+                                  value={combination.status}
+                                  onChange={(e) => handleCombinationChange(combination.id, "status", e.target.value)}
+                                >
+                                  <option value="판매중">판매중</option>
+                                  <option value="품절">품절</option>
+                                  <option value="판매중지">판매중지</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className={styles["form-actions"]}>

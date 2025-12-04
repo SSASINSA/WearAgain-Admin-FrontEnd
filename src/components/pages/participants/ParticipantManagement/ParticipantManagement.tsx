@@ -8,19 +8,26 @@ import apiRequest from "../../../../utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
 
-interface ParticipantListResponse {
-  participantId: number;
-  name: string;
+interface EventApplicationResponse {
+  applicationId: number;
+  eventId: number;
+  eventTitle: string;
+  eventPeriod: {
+    startDate: string;
+    endDate: string;
+  };
+  userId: number;
+  displayName: string;
   email: string;
-  avatarUrl: string;
-  ticketBalance: number;
-  creditBalance: number;
+  optionPath: string;
+  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "REJECTED";
+  appliedAt: string;
+  checkedInAt: string | null;
   suspended: boolean;
-  joinedAt: string;
 }
 
-interface ParticipantPageResponse {
-  content: ParticipantListResponse[];
+interface EventApplicationPageResponse {
+  content: EventApplicationResponse[];
   totalElements: number;
   totalPages: number;
   size: number;
@@ -28,25 +35,34 @@ interface ParticipantPageResponse {
   hasNext: boolean;
   hasPrevious: boolean;
   summary: {
-    totalParticipants: number;
-    totalTickets: number;
-    totalCredits: number;
-    participantsChangeFromLastMonth: number;
-    ticketsChangeFromLastMonth: number;
-    creditsChangeFromLastMonth: number;
+    totalApplications: number;
+    appliedCount: number;
+    checkedInCount: number;
+    cancelledCount: number;
+    rejectedCount: number;
+    remainingCapacity: number;
+    events: Array<{
+      eventId: number;
+      eventTitle: string;
+      totalApplications: number;
+    }>;
   };
 }
 
 interface Participant {
   id: number;
+  applicationId: number;
+  eventId: number;
+  eventTitle: string;
+  eventPeriod: string;
+  userId: number;
   name: string;
   email: string;
-  avatar: string;
-  ticketCount: number;
-  ticketType: "VIP" | "프리미엄" | "일반";
-  creditCount: number;
-  joinDate: string;
-  status: "활성" | "대기" | "비활성";
+  optionPath: string;
+  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "REJECTED";
+  appliedAt: string;
+  checkedInAt: string | null;
+  suspended: boolean;
 }
 
 const ParticipantManagement: React.FC = () => {
@@ -55,45 +71,50 @@ const ParticipantManagement: React.FC = () => {
   
   const getPageFromUrl = () => {
     const page = searchParams.get("page");
-    return page ? parseInt(page, 10) : 1;
+    return page ? parseInt(page, 10) : 0;
   };
 
   const getSearchTermFromUrl = () => {
     return searchParams.get("keyword") || "";
   };
 
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
+  };
+
   const getStatusFromUrl = () => {
-    return searchParams.get("status") || "활성";
+    return searchParams.get("status") || "all";
   };
 
   const getSortFromUrl = () => {
-    return searchParams.get("sort") || "가입일 최신순";
+    return searchParams.get("sort") || "LATEST";
   };
 
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [stats, setStats] = useState<ParticipantPageResponse["summary"] | null>(null);
+  const [stats, setStats] = useState<EventApplicationPageResponse["summary"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
   const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
   const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
   const [currentPage, setCurrentPage] = useState(getPageFromUrl());
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [showSuspensionModal, setShowSuspensionModal] = useState<boolean>(false);
-  const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null);
-  const [selectedParticipantSuspended, setSelectedParticipantSuspended] = useState<boolean>(false);
 
   const updateUrlParams = (updates: {
     page?: number;
     keyword?: string;
+    keywordScope?: string;
     status?: string;
     sort?: string;
   }) => {
     const newParams = new URLSearchParams(searchParams);
     
     if (updates.page !== undefined) {
-      if (updates.page === 1) {
+      if (updates.page === 0) {
         newParams.delete("page");
       } else {
         newParams.set("page", updates.page.toString());
@@ -108,8 +129,16 @@ const ParticipantManagement: React.FC = () => {
       }
     }
     
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+    
     if (updates.status !== undefined) {
-      if (updates.status === "") {
+      if (updates.status === "all") {
         newParams.delete("status");
       } else {
         newParams.set("status", updates.status);
@@ -117,7 +146,7 @@ const ParticipantManagement: React.FC = () => {
     }
     
     if (updates.sort !== undefined) {
-      if (updates.sort === "가입일 최신순") {
+      if (updates.sort === "LATEST") {
         newParams.delete("sort");
       } else {
         newParams.set("sort", updates.sort);
@@ -125,30 +154,6 @@ const ParticipantManagement: React.FC = () => {
     }
     
     setSearchParams(newParams, { replace: true });
-  };
-
-  const mapDisplayStatusToApiStatus = (displayStatus: string): string | null => {
-    switch (displayStatus) {
-      case "활성":
-        return "false";
-      case "비활성":
-        return "true";
-      default:
-        return null;
-    }
-  };
-
-  const mapDisplaySortToApiSort = (displaySort: string): string => {
-    switch (displaySort) {
-      case "가입일 최신순":
-        return "CREATED_DESC";
-      case "가입일 오래된 순":
-        return "CREATED_ASC";
-      case "이름순":
-        return "NAME_ASC";
-      default:
-        return "CREATED_DESC";
-    }
   };
 
   const formatDate = (dateString: string | null): string => {
@@ -160,19 +165,48 @@ const ParticipantManagement: React.FC = () => {
     return `${year}.${month}.${day}`;
   };
 
+  const formatDateRange = (startDate: string, endDate: string): string => {
+    const start = formatDate(startDate);
+    const end = formatDate(endDate);
+    return start === end ? start : `${start} - ${end}`;
+  };
+
+  const getStatusDisplayName = (status: string): string => {
+    switch (status) {
+      case "APPLIED":
+        return "신청됨";
+      case "CHECKED_IN":
+        return "체크인";
+      case "CANCELLED":
+        return "취소됨";
+      case "REJECTED":
+        return "거절됨";
+      default:
+        return status;
+    }
+  };
+
   const fetchParticipants = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      const suspendedParam = mapDisplayStatusToApiStatus(selectedStatus);
-      if (suspendedParam !== null) {
-        params.append("suspended", suspendedParam);
+      
+      if (selectedStatus !== "all") {
+        params.append("status", selectedStatus);
       }
-      params.append("sortBy", mapDisplaySortToApiSort(sortBy));
-      params.append("page", String(currentPage - 1));
+      
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
+      }
+      
+      params.append("sort", sortBy);
+      params.append("page", String(currentPage));
       params.append("size", String(itemsPerPage));
 
-      const response = await apiRequest(`/admin/participants?${params.toString()}`, {
+      const response = await apiRequest(`/admin/event-applications?${params.toString()}`, {
         method: "GET",
       });
 
@@ -180,17 +214,21 @@ const ParticipantManagement: React.FC = () => {
         throw new Error("참가자 목록 조회에 실패했습니다.");
       }
 
-      const data: ParticipantPageResponse = await response.json();
-      const mappedParticipants: Participant[] = data.content.map((p) => ({
-        id: p.participantId,
-        name: p.name,
-        email: p.email,
-        avatar: p.avatarUrl || "/admin/img/icon/basic-profile.svg",
-        ticketCount: p.ticketBalance,
-        ticketType: "일반",
-        creditCount: p.creditBalance,
-        joinDate: formatDate(p.joinedAt),
-        status: p.suspended ? "비활성" : "활성",
+      const data: EventApplicationPageResponse = await response.json();
+      const mappedParticipants: Participant[] = data.content.map((app) => ({
+        id: app.userId,
+        applicationId: app.applicationId,
+        eventId: app.eventId,
+        eventTitle: app.eventTitle,
+        eventPeriod: formatDateRange(app.eventPeriod.startDate, app.eventPeriod.endDate),
+        userId: app.userId,
+        name: app.displayName,
+        email: app.email,
+        optionPath: app.optionPath,
+        status: app.status,
+        appliedAt: formatDate(app.appliedAt),
+        checkedInAt: app.checkedInAt ? formatDate(app.checkedInAt) : null,
+        suspended: app.suspended,
       }));
 
       setParticipants(mappedParticipants);
@@ -202,16 +240,24 @@ const ParticipantManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStatus, sortBy, currentPage, itemsPerPage]);
+  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage]);
 
   useEffect(() => {
     const urlPage = getPageFromUrl();
     const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
     const urlStatus = getStatusFromUrl();
     const urlSort = getSortFromUrl();
 
     if (urlPage !== currentPage) setCurrentPage(urlPage);
-    if (urlKeyword !== searchTerm) setSearchTerm(urlKeyword);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
     if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
     if (urlSort !== sortBy) setSortBy(urlSort);
   }, [searchParams]);
@@ -220,42 +266,22 @@ const ParticipantManagement: React.FC = () => {
     fetchParticipants();
   }, [fetchParticipants]);
 
-  const handleSuspensionClick = (participantId: number, suspended: boolean) => {
-    setSelectedParticipantId(participantId);
-    setSelectedParticipantSuspended(suspended);
-    setShowSuspensionModal(true);
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
   };
 
-  const handleSuspensionConfirm = async () => {
-    if (selectedParticipantId === null) return;
-
-    try {
-      const response = await apiRequest(`/admin/participants/${selectedParticipantId}/suspension`, {
-        method: "PUT",
-        body: JSON.stringify({ suspended: !selectedParticipantSuspended }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "정지 상태 변경에 실패했습니다.");
-      }
-
-      setShowSuspensionModal(false);
-      setSelectedParticipantId(null);
-      await fetchParticipants();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "정지 상태 변경에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error updating suspension:", error);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
     }
   };
-
-  const handleSuspensionCancel = () => {
-    setShowSuspensionModal(false);
-    setSelectedParticipantId(null);
-  };
-
-  const currentParticipants = participants;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -264,12 +290,14 @@ const ParticipantManagement: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "활성":
+      case "APPLIED":
         return "#10b981";
-      case "대기":
+      case "CHECKED_IN":
+        return "#3b82f6";
+      case "CANCELLED":
         return "#f59e0b";
-      case "비활성":
-        return "#6b7280";
+      case "REJECTED":
+        return "#ef4444";
       default:
         return "#6b7280";
     }
@@ -287,66 +315,52 @@ const ParticipantManagement: React.FC = () => {
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
-                <h3>총 참가자</h3>
+                <h3>총 신청 수</h3>
                 <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.totalParticipants.toLocaleString() || 0}
-                </p>
-                <p
-                  className={`${styles["stat-change"]} ${
-                    stats && stats.participantsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
-                  }`}
-                >
-                  {stats
-                    ? `${stats.participantsChangeFromLastMonth >= 0 ? "+" : ""}${stats.participantsChangeFromLastMonth} 전월 대비`
-                    : "..."}
+                  {isLoading ? "..." : stats?.totalApplications.toLocaleString() || 0}
                 </p>
               </div>
               <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/users.svg" alt="참가자" />
+                <img src="/admin/img/icon/users.svg" alt="신청" />
               </div>
             </div>
           </div>
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
-                <h3>총 티켓</h3>
+                <h3>신청됨</h3>
                 <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.totalTickets.toLocaleString() || 0}
-                </p>
-                <p
-                  className={`${styles["stat-change"]} ${
-                    stats && stats.ticketsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
-                  }`}
-                >
-                  {stats
-                    ? `${stats.ticketsChangeFromLastMonth >= 0 ? "+" : ""}${stats.ticketsChangeFromLastMonth} 전월 대비`
-                    : "..."}
+                  {isLoading ? "..." : stats?.appliedCount.toLocaleString() || 0}
                 </p>
               </div>
               <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/ticket.svg" alt="티켓" />
+                <img src="/admin/img/icon/ticket.svg" alt="신청됨" />
               </div>
             </div>
           </div>
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
-                <h3>총 크레딧</h3>
+                <h3>체크인</h3>
                 <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.totalCredits.toLocaleString() || 0}
-                </p>
-                <p
-                  className={`${styles["stat-change"]} ${
-                    stats && stats.creditsChangeFromLastMonth >= 0 ? styles["positive"] : styles["negative"]
-                  }`}
-                >
-                  {stats
-                    ? `${stats.creditsChangeFromLastMonth >= 0 ? "+" : ""}${stats.creditsChangeFromLastMonth} 전월 대비`
-                    : "..."}
+                  {isLoading ? "..." : stats?.checkedInCount.toLocaleString() || 0}
                 </p>
               </div>
               <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/credit.svg" alt="크레딧" />
+                <img src="/admin/img/icon/credit.svg" alt="체크인" />
+              </div>
+            </div>
+          </div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
+                <h3>남은 정원</h3>
+                <p className={styles["stat-number"]}>
+                  {isLoading ? "..." : stats?.remainingCapacity.toLocaleString() || 0}
+                </p>
+              </div>
+              <div className={styles["stat-icon"]}>
+                <img src="/admin/img/icon/users.svg" alt="정원" />
               </div>
             </div>
           </div>
@@ -372,22 +386,31 @@ const ParticipantManagement: React.FC = () => {
                 </div>
                 <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
                   <div className={styles["search-container"]}>
-                    <div className={styles["search-icon"]}>
+                    <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
                       <img src="/admin/img/icon/search.svg" alt="검색" />
                     </div>
                     <input
                       type="text"
-                      placeholder="참가자 검색..."
+                      placeholder="이메일/닉네임 검색..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          setCurrentPage(1);
-                          updateUrlParams({ keyword: searchTerm, page: 1 });
-                        }
-                      }}
+                      onKeyPress={handleKeyPress}
                       className={styles["search-input"]}
                     />
+                  </div>
+                  <div className={styles["status-select-container"]}>
+                    <select
+                      value={searchScope}
+                      onChange={(e) => setSearchScope(e.target.value)}
+                      className={styles["status-select"]}
+                    >
+                      <option value="ALL">전체</option>
+                      <option value="EMAIL">이메일</option>
+                      <option value="NAME">닉네임</option>
+                    </select>
+                    <div className={styles["status-select-icon"]}>
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
                   </div>
                   <div className={styles["status-select-container"]}>
                     <select
@@ -395,14 +418,16 @@ const ParticipantManagement: React.FC = () => {
                       onChange={(e) => {
                         const newStatus = e.target.value;
                         setSelectedStatus(newStatus);
-                        setCurrentPage(1);
-                        updateUrlParams({ status: newStatus, page: 1 });
+                        setCurrentPage(0);
+                        updateUrlParams({ status: newStatus, page: 0 });
                       }}
                       className={styles["status-select"]}
                     >
-                      <option value="">전체 상태</option>
-                      <option value="활성">활성</option>
-                      <option value="비활성">비활성</option>
+                      <option value="all">전체 상태</option>
+                      <option value="APPLIED">신청됨</option>
+                      <option value="CHECKED_IN">체크인</option>
+                      <option value="CANCELLED">취소됨</option>
+                      <option value="REJECTED">거절됨</option>
                     </select>
                     <div className={styles["status-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
@@ -414,14 +439,15 @@ const ParticipantManagement: React.FC = () => {
                       onChange={(e) => {
                         const newSort = e.target.value;
                         setSortBy(newSort);
-                        setCurrentPage(1);
-                        updateUrlParams({ sort: newSort, page: 1 });
+                        setCurrentPage(0);
+                        updateUrlParams({ sort: newSort, page: 0 });
                       }}
                       className={styles["sort-select"]}
                     >
-                      <option value="가입일 최신순">가입일 최신순</option>
-                      <option value="가입일 오래된 순">가입일 오래된 순</option>
-                      <option value="이름순">이름순</option>
+                      <option value="LATEST">신청일 최신순</option>
+                      <option value="OLDEST">신청일 오래된 순</option>
+                      <option value="BY_EVENT">행사명순</option>
+                      <option value="BY_USER">닉네임순</option>
                     </select>
                     <div className={styles["sort-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />
@@ -437,11 +463,11 @@ const ParticipantManagement: React.FC = () => {
                 width: 250,
                 render: (p: Participant) => (
                   <div className={styles["participant-info"]}>
-                    <img src={p.avatar} alt={p.name} className={styles["participant-avatar"]} />
+                    <img src="/admin/img/icon/basic-profile.svg" alt={p.name} className={styles["participant-avatar"]} />
                     <div className={styles["participant-details"]}>
                       <p
                         className={`${styles["participant-name"]} ${styles["clickable"]}`}
-                        onClick={() => navigate(`/repair/${p.id}`, { state: p })}
+                        onClick={() => navigate(`/repair/${p.userId}`)}
                       >
                         {p.name}
                       </p>
@@ -451,74 +477,60 @@ const ParticipantManagement: React.FC = () => {
                 ),
               },
               {
-                key: "tickets",
-                title: "티켓 개수",
-                width: 150,
-                render: (p: Participant) => p.ticketCount,
+                key: "event",
+                title: "행사",
+                width: 200,
+                render: (p: Participant) => p.eventTitle,
               },
               {
-                key: "credit",
-                title: "크레딧 수",
-                width: 130,
-                render: (p: Participant) => p.creditCount.toLocaleString(),
+                key: "eventPeriod",
+                title: "행사 기간",
+                width: 150,
+                render: (p: Participant) => p.eventPeriod,
               },
-              { key: "date", title: "가입일", width: 130, render: (p: Participant) => p.joinDate },
+              {
+                key: "optionPath",
+                title: "선택 옵션",
+                width: 150,
+                render: (p: Participant) => p.optionPath || "-",
+              },
+              {
+                key: "appliedAt",
+                title: "신청일",
+                width: 130,
+                render: (p: Participant) => p.appliedAt,
+              },
+              {
+                key: "checkedInAt",
+                title: "체크인일",
+                width: 130,
+                render: (p: Participant) => p.checkedInAt || "-",
+              },
               {
                 key: "status",
                 title: "상태",
                 width: 100,
                 render: (p: Participant) => (
                   <span className={styles["status-badge"]} style={{ backgroundColor: getStatusColor(p.status) }}>
-                    {p.status}
+                    {getStatusDisplayName(p.status)}
                   </span>
                 ),
               },
-              {
-                key: "actions",
-                title: "작업",
-                width: 60,
-                align: "center",
-                className: styles["actions-cell"],
-                render: (p: Participant) => (
-                  <button
-                    className={`${styles["action-btn"]} ${p.status === "비활성" ? styles["restore"] : styles["delete"]}`}
-                    title={p.status === "비활성" ? "정지 해제" : "정지"}
-                    onClick={() => handleSuspensionClick(p.id, p.status === "비활성")}
-                  >
-                    <img 
-                      src={p.status === "비활성" ? "/admin/img/icon/unlock.svg" : "/admin/img/icon/lock.svg"} 
-                      alt={p.status === "비활성" ? "정지 해제" : "정지"} 
-                    />
-                  </button>
-                ),
-              },
             ]}
-            data={isLoading ? [] : currentParticipants}
-            rowKey={(row: Participant) => row.id}
-            currentPage={currentPage}
+            data={isLoading ? [] : participants}
+            rowKey={(row: Participant) => row.applicationId}
+            currentPage={currentPage + 1}
             totalPages={totalPages}
             pageSize={itemsPerPage}
-            onPageChange={handlePageChange}
+            onPageChange={(page) => handlePageChange(page - 1)}
             onPageSizeChange={(s) => {
               setItemsPerPage(s);
-              setCurrentPage(1);
-              updateUrlParams({ page: 1 });
+              setCurrentPage(0);
+              updateUrlParams({ page: 0 });
             }}
           />
         </div>
       </main>
-      <ConfirmModal
-        isOpen={showSuspensionModal}
-        title={selectedParticipantSuspended ? "정지 해제" : "참가자 정지"}
-        message={
-          selectedParticipantSuspended ? "이 참가자의 정지를 해제하시겠습니까?" : "이 참가자를 정지하시겠습니까?"
-        }
-        confirmText={selectedParticipantSuspended ? "해제" : "정지"}
-        cancelText="취소"
-        onConfirm={handleSuspensionConfirm}
-        onCancel={handleSuspensionCancel}
-        type="reject"
-      />
     </div>
   );
 };
