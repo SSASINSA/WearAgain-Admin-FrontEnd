@@ -40,7 +40,6 @@ interface EventApplicationPageResponse {
     checkedInCount: number;
     cancelledCount: number;
     rejectedCount: number;
-    remainingCapacity: number;
     events: Array<{
       eventId: number;
       eventTitle: string;
@@ -348,19 +347,6 @@ const ParticipantManagement: React.FC = () => {
               </div>
               <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/credit.svg" alt="체크인" />
-              </div>
-            </div>
-          </div>
-          <div className={styles["stat-card"]}>
-            <div className={styles["stat-content"]}>
-              <div className={styles["stat-info"]}>
-                <h3>남은 정원</h3>
-                <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.remainingCapacity.toLocaleString() || 0}
-                </p>
-              </div>
-              <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/users.svg" alt="정원" />
               </div>
             </div>
           </div>

@@ -53,6 +53,16 @@ const Navigation: React.FC = () => {
     if (role === "MANAGER") {
       return allNavItems.filter((item) => item.path === "/" || item.path === "/events" || item.path === "/repair");
     }
+    if (role === "ADMIN" || role === "SUPER_ADMIN") {
+      return [
+        ...allNavItems,
+        {
+          path: "/users",
+          icon: "/admin/img/icon/users.svg",
+          label: "유저 관리",
+        },
+      ];
+    }
     return allNavItems;
   };
 
