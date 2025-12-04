@@ -68,6 +68,14 @@ const UserManagement: React.FC = () => {
     return searchParams.get("sortBy") || "CREATED_DESC";
   };
 
+  const getSearchTermFromUrl = () => {
+    return searchParams.get("keyword") || "";
+  };
+
+  const getSearchScopeFromUrl = () => {
+    return searchParams.get("keywordScope") || "ALL";
+  };
+
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [suspendedFilter, setSuspendedFilter] = useState<boolean | null>(getSuspendedFromUrl());
@@ -81,11 +89,17 @@ const UserManagement: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [isSuspending, setIsSuspending] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(getSearchTermFromUrl());
+  const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
+  const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
 
   const updateUrlParams = (updates: {
     page?: number;
     suspended?: boolean | null;
     sortBy?: string;
+    keyword?: string;
+    keywordScope?: string;
   }) => {
     const newParams = new URLSearchParams(searchParams);
     
@@ -113,6 +127,22 @@ const UserManagement: React.FC = () => {
       }
     }
     
+    if (updates.keyword !== undefined) {
+      if (updates.keyword === "") {
+        newParams.delete("keyword");
+      } else {
+        newParams.set("keyword", updates.keyword);
+      }
+    }
+    
+    if (updates.keywordScope !== undefined) {
+      if (updates.keywordScope === "ALL") {
+        newParams.delete("keywordScope");
+      } else {
+        newParams.set("keywordScope", updates.keywordScope);
+      }
+    }
+    
     setSearchParams(newParams, { replace: true });
   };
 
@@ -132,6 +162,13 @@ const UserManagement: React.FC = () => {
       
       if (suspendedFilter !== null) {
         params.append("suspended", suspendedFilter.toString());
+      }
+      
+      if (appliedSearchTerm.trim()) {
+        params.append("keyword", appliedSearchTerm.trim());
+        if (appliedSearchScope && appliedSearchScope !== "ALL") {
+          params.append("keywordScope", appliedSearchScope);
+        }
       }
       
       params.append("sortBy", sortBy);
@@ -169,16 +206,43 @@ const UserManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [suspendedFilter, sortBy, currentPage, itemsPerPage]);
+  }, [suspendedFilter, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage]);
+
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+    setAppliedSearchScope(searchScope);
+    setCurrentPage(0);
+    updateUrlParams({
+      keyword: searchTerm,
+      keywordScope: searchScope,
+      page: 0,
+    });
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   useEffect(() => {
     const urlPage = getPageFromUrl();
     const urlSuspended = getSuspendedFromUrl();
     const urlSort = getSortFromUrl();
+    const urlKeyword = getSearchTermFromUrl();
+    const urlKeywordScope = getSearchScopeFromUrl();
 
     if (urlPage !== currentPage) setCurrentPage(urlPage);
     if (urlSuspended !== suspendedFilter) setSuspendedFilter(urlSuspended);
     if (urlSort !== sortBy) setSortBy(urlSort);
+    if (urlKeyword !== appliedSearchTerm) {
+      setSearchTerm(urlKeyword);
+      setAppliedSearchTerm(urlKeyword);
+    }
+    if (urlKeywordScope !== appliedSearchScope) {
+      setSearchScope(urlKeywordScope);
+      setAppliedSearchScope(urlKeywordScope);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -263,6 +327,33 @@ const UserManagement: React.FC = () => {
                   </button>
                 </div>
                 <div className={`${styles["filter-controls"]} ${isFilterOpen ? styles["is-open"] : ""}`}>
+                  <div className={styles["search-container"]}>
+                    <div className={styles["search-icon"]} onClick={handleSearch} style={{ cursor: "pointer" }}>
+                      <img src="/admin/img/icon/search.svg" alt="검색" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="이메일/닉네임 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      className={styles["search-input"]}
+                    />
+                  </div>
+                  <div className={styles["status-select-container"]}>
+                    <select
+                      value={searchScope}
+                      onChange={(e) => setSearchScope(e.target.value)}
+                      className={styles["status-select"]}
+                    >
+                      <option value="ALL">전체</option>
+                      <option value="EMAIL">이메일</option>
+                      <option value="NAME">이름</option>
+                    </select>
+                    <div className={styles["status-select-icon"]}>
+                      <img src={dropdownIcon} alt="드롭다운" />
+                    </div>
+                  </div>
                   <div className={styles["status-select-container"]}>
                     <select
                       value={suspendedFilter === null ? "all" : suspendedFilter ? "true" : "false"}
