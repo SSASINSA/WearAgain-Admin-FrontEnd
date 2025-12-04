@@ -268,7 +268,7 @@ const EventRegistration: React.FC = () => {
       }
 
       const fullLocation = formData.eventLocationDetail
-        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+        ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
         : formData.eventLocation;
 
       if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
@@ -827,6 +827,18 @@ const EventRegistration: React.FC = () => {
                   placeholder="상세 주소"
                   className={styles["form-input"]}
                   style={{ marginTop: "2px" }}
+                />
+                <input
+                  type="text"
+                  value={
+                    formData.eventLocationDetail
+                      ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
+                      : formData.eventLocation
+                  }
+                  readOnly
+                  placeholder="합쳐진 주소가 여기에 표시됩니다"
+                  className={styles["form-input"]}
+                  style={{ marginTop: "2px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
                 />
               </div>
 

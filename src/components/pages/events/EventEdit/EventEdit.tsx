@@ -147,6 +147,9 @@ const EventEdit: React.FC = () => {
   ]);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAddressWarningModal, setShowAddressWarningModal] = useState(false);
+  const [hasStartedEditingAddress, setHasStartedEditingAddress] = useState(false);
+  const [originalLocation, setOriginalLocation] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -185,9 +188,10 @@ const EventEdit: React.FC = () => {
           precautions: data.precautions || "",
           eventStartDate: startDate,
           eventEndDate: endDate,
-          eventLocation: data.location,
+          eventLocation: "",
           eventLocationDetail: "",
         });
+        setOriginalLocation(data.location || "");
 
         if (data.images && data.images.length > 0) {
           const imageStates: EventImageState[] = data.images
@@ -244,6 +248,38 @@ const EventEdit: React.FC = () => {
       ...prev,
       eventEndDate: date,
     }));
+  };
+
+  const handleReadOnlyAddressClick = () => {
+    if (!hasStartedEditingAddress) {
+      setShowAddressWarningModal(true);
+    }
+  };
+
+  const handleAddressClick = () => {
+    if (hasStartedEditingAddress) {
+      setIsAddressModalOpen(true);
+    }
+  };
+
+  const handleAddressInputFocus = () => {
+    if (hasStartedEditingAddress) {
+      setIsAddressModalOpen(true);
+    }
+  };
+
+  const handleAddressWarningConfirm = () => {
+    setFormData((prev) => ({
+      ...prev,
+      eventLocation: "",
+      eventLocationDetail: "",
+    }));
+    setHasStartedEditingAddress(true);
+    setShowAddressWarningModal(false);
+  };
+
+  const handleAddressWarningCancel = () => {
+    setShowAddressWarningModal(false);
   };
 
   const handleAddressComplete = (data: any) => {
@@ -352,20 +388,25 @@ const EventEdit: React.FC = () => {
         return;
       }
 
-      if (!formData.eventLocation || formData.eventLocation.trim().length === 0) {
-        alert("행사 위치를 입력해주세요.");
-        setIsSubmitting(false);
-        return;
-      }
+      let fullLocation: string;
+      if (!hasStartedEditingAddress) {
+        fullLocation = originalLocation;
+      } else {
+        if (!formData.eventLocation || formData.eventLocation.trim().length === 0) {
+          alert("행사 위치를 입력해주세요.");
+          setIsSubmitting(false);
+          return;
+        }
 
-      const fullLocation = formData.eventLocationDetail
-        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
-        : formData.eventLocation;
+        fullLocation = formData.eventLocationDetail
+          ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
+          : formData.eventLocation;
 
-      if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
-        alert("행사 위치는 1자 이상 255자 이하여야 합니다.");
-        setIsSubmitting(false);
-        return;
+        if (fullLocation.trim().length < 1 || fullLocation.trim().length > 255) {
+          alert("행사 위치는 1자 이상 255자 이하여야 합니다.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       if (!formData.eventStartDate) {
@@ -738,8 +779,10 @@ const EventEdit: React.FC = () => {
         return `${year}-${month}-${day}`;
       };
 
-      const fullLocation = formData.eventLocationDetail
-        ? `${formData.eventLocation} ${formData.eventLocationDetail}`
+      const fullLocation = !hasStartedEditingAddress
+        ? originalLocation
+        : formData.eventLocationDetail
+        ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
         : formData.eventLocation;
 
       const existingImages = images.filter((img) => img.imageUrl && !img.file);
@@ -988,31 +1031,58 @@ const EventEdit: React.FC = () => {
                   <img src={eventLocationIcon} alt="행사 위치" className={styles["label-icon"]} />
                   행사 위치
                 </label>
-                <div className={styles["location-input-container"]}>
+                {!hasStartedEditingAddress ? (
                   <input
                     type="text"
-                    name="eventLocation"
-                    value={formData.eventLocation}
-                    onChange={handleInputChange}
-                    placeholder="도로명 주소"
+                    value={originalLocation}
+                    readOnly
+                    placeholder="기존 주소"
                     className={styles["form-input"]}
+                    style={{ backgroundColor: "#f9fafb", cursor: "pointer" }}
+                    onClick={handleReadOnlyAddressClick}
                   />
-                  <img
-                    src={locationSearchIcon}
-                    alt="위치 검색"
-                    className={styles["input-icon"]}
-                    onClick={() => setIsAddressModalOpen(true)}
-                  />
-                </div>
-                <input
-                  type="text"
-                  name="eventLocationDetail"
-                  value={formData.eventLocationDetail}
-                  onChange={handleInputChange}
-                  placeholder="상세 주소"
-                  className={styles["form-input"]}
-                  style={{ marginTop: "2px" }}
-                />
+                ) : (
+                  <>
+                    <div className={styles["location-input-container"]}>
+                      <input
+                        type="text"
+                        name="eventLocation"
+                        value={formData.eventLocation}
+                        onChange={handleInputChange}
+                        onFocus={handleAddressInputFocus}
+                        placeholder="도로명 주소"
+                        className={styles["form-input"]}
+                      />
+                      <img
+                        src={locationSearchIcon}
+                        alt="위치 검색"
+                        className={styles["input-icon"]}
+                        onClick={handleAddressClick}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      name="eventLocationDetail"
+                      value={formData.eventLocationDetail}
+                      onChange={handleInputChange}
+                      placeholder="상세 주소"
+                      className={styles["form-input"]}
+                      style={{ marginTop: "2px" }}
+                    />
+                    <input
+                      type="text"
+                      value={
+                        formData.eventLocationDetail
+                          ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
+                          : formData.eventLocation
+                      }
+                      readOnly
+                      placeholder="합쳐진 주소가 여기에 표시됩니다"
+                      className={styles["form-input"]}
+                      style={{ marginTop: "2px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    />
+                  </>
+                )}
               </div>
 
               {/* 행사 옵션 섹션 */}
@@ -1271,6 +1341,17 @@ const EventEdit: React.FC = () => {
         onConfirm={handleConfirmUpdate}
         onCancel={handleCancelUpdate}
         type="approve"
+      />
+
+      <ConfirmModal
+        isOpen={showAddressWarningModal}
+        title="주소 수정 안내"
+        message="주소 수정시, 기존 주소는 초기화 됩니다."
+        confirmText="확인"
+        cancelText="취소"
+        onConfirm={handleAddressWarningConfirm}
+        onCancel={handleAddressWarningCancel}
+        type="default"
       />
     </div>
   );
