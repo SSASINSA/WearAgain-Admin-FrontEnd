@@ -51,7 +51,7 @@ const Navigation: React.FC = () => {
 
   const getNavItems = () => {
     if (role === "MANAGER") {
-      return allNavItems.filter((item) => item.path === "/" || item.path === "/events");
+      return allNavItems.filter((item) => item.path === "/" || item.path === "/events" || item.path === "/repair");
     }
     return allNavItems;
   };
