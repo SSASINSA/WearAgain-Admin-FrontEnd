@@ -14,6 +14,18 @@ import styles from "./AdminDashboard.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import apiRequest from "utils/api";
 
+const PERIOD_OPTIONS: { key: "MONTH_1" | "MONTH_3" | "YEAR_1"; label: string }[] = [
+  { key: "MONTH_1", label: "1개월" },
+  { key: "MONTH_3", label: "3개월" },
+  { key: "YEAR_1", label: "1년" },
+];
+
+const SERIES_CONFIG = [
+  { key: "participants", name: "참가자 수", fill: "#4FB3B3", dotClass: "participant-dot" },
+  { key: "donated", name: "기부된 옷", fill: "#93B5E1", dotClass: "donation-dot" },
+  { key: "exchanged", name: "교환된 옷", fill: "#C8A2C8", dotClass: "exchange-dot" },
+] as const;
+
 interface StatCardProps {
   title: string;
   value: string;
@@ -107,6 +119,56 @@ interface OverviewResponse {
   };
   createdAt: string;
 }
+
+const StatusRow: React.FC<{
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+  disabled?: boolean;
+}> = ({ loading, error, onRetry, disabled }) => (
+  <div className={styles["status-row"]}>
+    {loading && <span className={styles["status-text"]}>로딩 중...</span>}
+    {error && (
+      <>
+        <span className={styles["status-text"]}>{error}</span>
+        <button className={styles["retry-button"]} onClick={onRetry} disabled={disabled}>
+          다시 시도
+        </button>
+      </>
+    )}
+  </div>
+);
+
+const SkeletonStatCard = () => (
+  <div className={`${styles["skeleton"]} ${styles["skeleton-card"]}`}>
+    <div className={styles["row"]}>
+      <div className={`${styles["icon-dot"]} ${styles["skeleton"]}`} />
+      <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
+    </div>
+    <div className={`${styles["line-long"]} ${styles["skeleton"]}`} />
+    <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
+  </div>
+);
+
+const SkeletonImpactCard = () => (
+  <div className={`${styles["skeleton"]} ${styles["skeleton-impact"]}`}>
+    <div className={`${styles["pill"]} ${styles["skeleton"]}`} />
+    <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
+    <div className={`${styles["line-long"]} ${styles["skeleton"]}`} />
+    <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
+  </div>
+);
+
+const SkeletonBarChart = () => (
+  <div className={`${styles["skeleton"]} ${styles["skeleton-bar"]}`}>
+    <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
+    <div className={styles["bar-row"]}>
+      {Array.from({ length: 7 }).map((_, idx) => (
+        <div key={idx} className={`${styles["bar"]} ${styles["skeleton"]}`} />
+      ))}
+    </div>
+  </div>
+);
 
 const MOCK_EVENT_METRICS: EventMetric[] = [
   {
@@ -533,22 +595,14 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className={styles["control-row"]}>
                 <div className={styles["legend"]}>
-                  {[
-                    { label: "참가자 수", dotClass: styles["participant-dot"] },
-                    { label: "기부된 옷", dotClass: styles["donation-dot"] },
-                    { label: "교환된 옷", dotClass: styles["exchange-dot"] },
-                  ].map((item) => (
-                    <span key={item.label} className={styles["legend-item"]}>
-                      <span className={`${styles["legend-dot"]} ${item.dotClass}`} /> {item.label}
+                  {SERIES_CONFIG.map((item) => (
+                    <span key={item.key} className={styles["legend-item"]}>
+                      <span className={`${styles["legend-dot"]} ${styles[item.dotClass]}`} /> {item.name}
                     </span>
                   ))}
                 </div>
                 <div className={styles["period-toggle"]}>
-                  {[
-                    { key: "MONTH_1", label: "1개월" },
-                    { key: "MONTH_3", label: "3개월" },
-                    { key: "YEAR_1", label: "1년" },
-                  ].map((item) => (
+                  {PERIOD_OPTIONS.map((item) => (
                     <button
                       key={item.key}
                       className={`${styles["period-button"]} ${
@@ -564,29 +618,12 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className={styles["status-row"]}>
-              {isLoading && <span className={styles["status-text"]}>로딩 중...</span>}
-              {error && (
-                <>
-                  <span className={styles["status-text"]}>{error}</span>
-                  <button className={styles["retry-button"]} onClick={fetchEventMetrics} disabled={isLoading}>
-                    다시 시도
-                  </button>
-                </>
-              )}
-            </div>
+            <StatusRow loading={isLoading} error={error} onRetry={fetchEventMetrics} disabled={isLoading} />
 
             <div className={styles["chart-scroll"]} ref={chartRef}>
               <div style={{ width: `${chartWidth}px`, minWidth: "100%" }}>
                 {isLoading ? (
-                  <div className={`${styles["skeleton"]} ${styles["skeleton-bar"]}`}>
-                    <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
-                    <div className={styles["bar-row"]}>
-                      {Array.from({ length: 7 }).map((_, idx) => (
-                        <div key={idx} className={`${styles["bar"]} ${styles["skeleton"]}`} />
-                      ))}
-                    </div>
-                  </div>
+                  <SkeletonBarChart />
                 ) : (
                   <ResponsiveContainer width="100%" height={420}>
                     <BarChart
@@ -612,54 +649,29 @@ const AdminDashboard: React.FC = () => {
                         label={{ value: "참가자/교환/기부(건)", angle: 90, position: "insideRight", offset: 10 }}
                       />
                       <Tooltip content={<CustomTooltip />} formatter={tooltipFormatter} />
-                    <Bar
-                      name="참가자 수"
-                      dataKey="participants"
-                      yAxisId="countAxis"
-                      fill="#4FB3B3"
-                      radius={[4, 4, 0, 0]}
-                      barSize={24}
-                      isAnimationActive={false}
-                    >
-                      <LabelList
-                        dataKey="participants"
-                        position="top"
-                        formatter={(value: any) => participantFormatter(Number(value))}
-                        fill="#4b5563"
-                      />
-                    </Bar>
-                    <Bar
-                      name="기부된 옷"
-                      dataKey="donated"
-                      yAxisId="countAxis"
-                      fill="#93B5E1"
-                      radius={[4, 4, 0, 0]}
-                      barSize={24}
-                      isAnimationActive={false}
-                    >
-                      <LabelList
-                        dataKey="donated"
-                        position="top"
-                        formatter={(value: any) => countFormatter(Number(value))}
-                        fill="#4b5563"
-                      />
-                    </Bar>
-                    <Bar
-                      name="교환된 옷"
-                      dataKey="exchanged"
-                      yAxisId="countAxis"
-                      fill="#C8A2C8"
-                      radius={[4, 4, 0, 0]}
-                      barSize={24}
-                      isAnimationActive={false}
-                    >
-                      <LabelList
-                        dataKey="exchanged"
-                        position="top"
-                        formatter={(value: any) => countFormatter(Number(value))}
-                        fill="#4b5563"
-                      />
-                    </Bar>
+                    {SERIES_CONFIG.map((series) => (
+                      <Bar
+                        key={series.key}
+                        name={series.name}
+                        dataKey={series.key}
+                        yAxisId="countAxis"
+                        fill={series.fill}
+                        radius={[4, 4, 0, 0]}
+                        barSize={24}
+                        isAnimationActive={false}
+                      >
+                        <LabelList
+                          dataKey={series.key}
+                          position="top"
+                          formatter={(value: any) =>
+                            series.key === "participants"
+                              ? participantFormatter(Number(value))
+                              : countFormatter(Number(value))
+                          }
+                          fill="#4b5563"
+                        />
+                      </Bar>
+                    ))}
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -684,43 +696,17 @@ const AdminDashboard: React.FC = () => {
           <section className={styles["stats-cards-section"]}>
             <div className={styles["stats-grid"]}>
               {overviewLoading
-                ? Array.from({ length: 6 }).map((_, idx) => (
-                    <div key={idx} className={`${styles["skeleton"]} ${styles["skeleton-card"]}`}>
-                      <div className={styles["row"]}>
-                        <div className={`${styles["icon-dot"]} ${styles["skeleton"]}`} />
-                        <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
-                      </div>
-                      <div className={`${styles["line-long"]} ${styles["skeleton"]}`} />
-                      <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
-                    </div>
-                  ))
+                ? Array.from({ length: 6 }).map((_, idx) => <SkeletonStatCard key={idx} />)
                 : statsData.map((stat, index) => <StatCard key={index} {...stat} />)}
             </div>
           </section>
 
           <section className={styles["impact-section"]}>
             <h2>누적 환경 임팩트</h2>
-            <div className={styles["status-row"]}>
-              {overviewLoading && <span className={styles["status-text"]}>로딩 중...</span>}
-              {overviewError && (
-                <>
-                  <span className={styles["status-text"]}>{overviewError}</span>
-                  <button className={styles["retry-button"]} onClick={fetchOverview} disabled={overviewLoading}>
-                    다시 시도
-                  </button>
-                </>
-              )}
-            </div>
+            <StatusRow loading={overviewLoading} error={overviewError} onRetry={fetchOverview} disabled={overviewLoading} />
             <div className={styles["impact-grid"]}>
               {overviewLoading
-                ? Array.from({ length: 3 }).map((_, idx) => (
-                    <div key={idx} className={`${styles["skeleton"]} ${styles["skeleton-impact"]}`}>
-                      <div className={`${styles["pill"]} ${styles["skeleton"]}`} />
-                      <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
-                      <div className={`${styles["line-long"]} ${styles["skeleton"]}`} />
-                      <div className={`${styles["line-short"]} ${styles["skeleton"]}`} />
-                    </div>
-                  ))
+                ? Array.from({ length: 3 }).map((_, idx) => <SkeletonImpactCard key={idx} />)
                 : impactCards.map((impact, index) => <ImpactCard key={index} {...impact} />)}
             </div>
           </section>
