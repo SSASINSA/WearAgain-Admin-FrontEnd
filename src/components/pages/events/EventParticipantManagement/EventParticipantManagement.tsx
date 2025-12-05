@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import styles from "./ParticipantManagement.module.css";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
+import { createPortal } from "react-dom";
+import styles from "./EventParticipantManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
-import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import apiRequest from "../../../../utils/api";
 
 const dropdownIcon = "/admin/img/icon/dropdown.svg";
@@ -64,8 +64,9 @@ interface Participant {
   suspended: boolean;
 }
 
-const ParticipantManagement: React.FC = () => {
+const EventParticipantManagement: React.FC = () => {
   const navigate = useNavigate();
+  const { eventId } = useParams<{ eventId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const getPageFromUrl = () => {
@@ -92,6 +93,75 @@ const ParticipantManagement: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [stats, setStats] = useState<EventApplicationPageResponse["summary"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [eventInfo, setEventInfo] = useState<{
+    title: string;
+    status: string;
+    organizerName: string;
+    organizerEmail: string;
+  } | null>(null);
+
+  const mapApiStatusToDisplayStatus = (
+    apiStatus: string
+  ): "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted" => {
+    switch (apiStatus.toUpperCase()) {
+      case "OPEN":
+        return "active";
+      case "CLOSED":
+        return "completed";
+      case "ARCHIVED":
+        return "deleted";
+      case "APPROVAL":
+        return "upcoming";
+      case "DRAFT":
+        return "pending";
+      case "REJECTED":
+        return "rejected";
+      default:
+        return "active";
+    }
+  };
+
+  const getEventStatusBadge = (status: string) => {
+    const displayStatus = mapApiStatusToDisplayStatus(status);
+    switch (displayStatus) {
+      case "active":
+        return <span className={`${styles["event-status-badge"]} ${styles["active"]}`}>진행중</span>;
+      case "completed":
+        return <span className={`${styles["event-status-badge"]} ${styles["completed"]}`}>완료됨</span>;
+      case "upcoming":
+        return <span className={`${styles["event-status-badge"]} ${styles["upcoming"]}`}>승인됨</span>;
+      case "pending":
+        return <span className={`${styles["event-status-badge"]} ${styles["pending"]}`}>승인 대기</span>;
+      case "rejected":
+        return <span className={`${styles["event-status-badge"]} ${styles["rejected"]}`}>승인 거부</span>;
+      case "deleted":
+        return <span className={`${styles["event-status-badge"]} ${styles["deleted"]}`}>삭제됨</span>;
+      default:
+        return null;
+    }
+  };
+
+  const fetchEventInfo = useCallback(async () => {
+    if (!eventId) return;
+
+    try {
+      const response = await apiRequest(`/admin/events/${eventId}`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEventInfo({
+          title: data.title || "",
+          status: data.status || "",
+          organizerName: data.organizerAdminName || "",
+          organizerEmail: data.organizerAdminEmail || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching event info:", error);
+    }
+  }, [eventId]);
   const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
   const [appliedSearchTerm, setAppliedSearchTerm] = useState(getSearchTermFromUrl());
   const [searchScope, setSearchScope] = useState<string>(getSearchScopeFromUrl());
@@ -102,6 +172,10 @@ const ParticipantManagement: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [showCancelModal, setShowCancelModal] = useState<boolean>(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(null);
+  const [selectedParticipantName, setSelectedParticipantName] = useState<string>("");
+  const [cancelReason, setCancelReason] = useState<string>("");
 
   const updateUrlParams = (updates: {
     page?: number;
@@ -186,9 +260,17 @@ const ParticipantManagement: React.FC = () => {
   };
 
   const fetchParticipants = useCallback(async () => {
+    if (!eventId) {
+      alert("행사 ID가 없습니다.");
+      navigate("/events");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
+      
+      params.append("eventId", eventId);
       
       if (selectedStatus !== "all") {
         params.append("status", selectedStatus);
@@ -239,7 +321,7 @@ const ParticipantManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStatus, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage]);
+  }, [eventId, selectedStatus, appliedSearchTerm, appliedSearchScope, sortBy, currentPage, itemsPerPage, navigate]);
 
   useEffect(() => {
     const urlPage = getPageFromUrl();
@@ -260,6 +342,10 @@ const ParticipantManagement: React.FC = () => {
     if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
     if (urlSort !== sortBy) setSortBy(urlSort);
   }, [searchParams]);
+
+  useEffect(() => {
+    fetchEventInfo();
+  }, [fetchEventInfo]);
 
   useEffect(() => {
     fetchParticipants();
@@ -287,6 +373,64 @@ const ParticipantManagement: React.FC = () => {
     updateUrlParams({ page });
   };
 
+  const handleCancelClick = (applicationId: number, participantName: string) => {
+    setSelectedApplicationId(applicationId);
+    setSelectedParticipantName(participantName);
+    setCancelReason("");
+    setShowCancelModal(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!selectedApplicationId || !eventId) return;
+
+    if (!cancelReason.trim()) {
+      alert("취소 사유를 입력해주세요.");
+      return;
+    }
+
+    if (cancelReason.length > 255) {
+      alert("취소 사유는 255자 이하여야 합니다.");
+      return;
+    }
+
+    try {
+      const response = await apiRequest(`/admin/events/${eventId}/applications/${selectedApplicationId}/cancel`, {
+        method: "DELETE",
+        body: JSON.stringify({
+          reason: cancelReason.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.errorCode === "E1015") {
+          throw new Error("신청 정보를 찾을 수 없습니다.");
+        } else if (errorData.errorCode === "E1035") {
+          throw new Error("관리자에 의해 거절된 신청입니다. 재신청이 불가능합니다.");
+        }
+        throw new Error(errorData.message || "참가 신청 취소에 실패했습니다.");
+      }
+
+      alert("참가 신청이 취소되었습니다.");
+      setShowCancelModal(false);
+      setSelectedApplicationId(null);
+      setSelectedParticipantName("");
+      setCancelReason("");
+      await fetchParticipants();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "참가 신청 취소에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error canceling application:", error);
+    }
+  };
+
+  const handleCancelModalCancel = () => {
+    setShowCancelModal(false);
+    setSelectedApplicationId(null);
+    setSelectedParticipantName("");
+    setCancelReason("");
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPLIED":
@@ -302,12 +446,48 @@ const ParticipantManagement: React.FC = () => {
     }
   };
 
+  if (!eventId) {
+    return (
+      <div className={styles["admin-dashboard"]}>
+        <PageHeader title="참가 신청 관리" subtitle="행사 ID가 없습니다." />
+      </div>
+    );
+  }
+
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
         <header className={styles["participant-header"]} style={{ padding: 0, borderBottom: "none", height: "auto" }}>
-          <PageHeader title="참가자 관리" subtitle="이벤트 참가자 목록을 확인하고 관리하세요" />
+          <PageHeader 
+            title="참가 신청 관리" 
+            subtitle="참가 신청 목록을 확인하고 관리하세요" 
+          />
         </header>
+
+        {/* 행사 정보 */}
+        {eventInfo && (
+          <div className={styles["event-info-badge"]}>
+            <h3 className={styles["event-info-title"]}>행사 정보</h3>
+            <div className={styles["event-info-row"]}>
+              <div className={styles["event-info-item"]}>
+                <span className={styles["event-info-label"]}>행사명 :</span>
+                <span className={styles["event-info-name"]}>{eventInfo.title}</span>
+              </div>
+              <div className={styles["event-info-item"]}>
+                <span className={styles["event-info-label"]}>주최자 :</span>
+                <span className={styles["event-info-value"]}>{eventInfo.organizerName}</span>
+              </div>
+              <div className={styles["event-info-item"]}>
+                <span className={styles["event-info-label"]}>연락처 :</span>
+                <span className={styles["event-info-value"]}>{eventInfo.organizerEmail}</span>
+              </div>
+              <div className={styles["event-info-item"]}>
+                <span className={styles["event-info-label"]}>상태 :</span>
+                {getEventStatusBadge(eventInfo.status)}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 통계 카드 섹션 */}
         <div className={styles["stats-section"]}>
@@ -347,6 +527,32 @@ const ParticipantManagement: React.FC = () => {
               </div>
               <div className={styles["stat-icon"]}>
                 <img src="/admin/img/icon/credit.svg" alt="체크인" />
+              </div>
+            </div>
+          </div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
+                <h3>취소됨</h3>
+                <p className={styles["stat-number"]}>
+                  {isLoading ? "..." : stats?.cancelledCount.toLocaleString() || 0}
+                </p>
+              </div>
+              <div className={styles["stat-icon"]}>
+                <img src="/admin/img/icon/ticket.svg" alt="취소됨" />
+              </div>
+            </div>
+          </div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-content"]}>
+              <div className={styles["stat-info"]}>
+                <h3>거절됨</h3>
+                <p className={styles["stat-number"]}>
+                  {isLoading ? "..." : stats?.rejectedCount.toLocaleString() || 0}
+                </p>
+              </div>
+              <div className={styles["stat-icon"]}>
+                <img src="/admin/img/icon/ticket.svg" alt="거절됨" />
               </div>
             </div>
           </div>
@@ -463,18 +669,6 @@ const ParticipantManagement: React.FC = () => {
                 ),
               },
               {
-                key: "event",
-                title: "행사",
-                width: 200,
-                render: (p: Participant) => p.eventTitle,
-              },
-              {
-                key: "eventPeriod",
-                title: "행사 기간",
-                width: 150,
-                render: (p: Participant) => p.eventPeriod,
-              },
-              {
                 key: "optionPath",
                 title: "선택 옵션",
                 width: 150,
@@ -502,6 +696,40 @@ const ParticipantManagement: React.FC = () => {
                   </span>
                 ),
               },
+              {
+                key: "actions",
+                title: "작업",
+                width: 80,
+                align: "center",
+                render: (p: Participant) => (
+                  (p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
+                    <button
+                      onClick={() => handleCancelClick(p.applicationId, p.name)}
+                      style={{
+                        backgroundColor: "#fee2e2",
+                        color: "#991b1b",
+                        border: "1px solid #fca5a5",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#fecaca";
+                        e.currentTarget.style.borderColor = "#f87171";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#fee2e2";
+                        e.currentTarget.style.borderColor = "#fca5a5";
+                      }}
+                    >
+                      취소
+                    </button>
+                  ) : null
+                ),
+              },
             ]}
             data={isLoading ? [] : participants}
             rowKey={(row: Participant) => row.applicationId}
@@ -517,8 +745,54 @@ const ParticipantManagement: React.FC = () => {
           />
         </div>
       </main>
+
+      {showCancelModal && (
+        createPortal(
+          <div className={styles["cancel-modal-overlay"]} onClick={handleCancelModalCancel}>
+            <div className={styles["cancel-modal-content"]} onClick={(e) => e.stopPropagation()}>
+              <div className={styles["cancel-modal-header"]}>
+                <h2 className={styles["cancel-modal-title"]}>참가 신청 취소</h2>
+              </div>
+              <div className={styles["cancel-modal-body"]}>
+                <p className={styles["cancel-modal-message"]}>
+                  {selectedParticipantName}님의 참가 신청을 취소하시겠습니까?
+                </p>
+                <div className={styles["cancel-modal-reason"]}>
+                  <label htmlFor="cancel-reason">취소 사유 (필수)</label>
+                  <textarea
+                    id="cancel-reason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder="취소 사유를 입력해주세요 (최대 255자)"
+                    maxLength={255}
+                    rows={4}
+                    className={styles["cancel-reason-input"]}
+                  />
+                  <div className={styles["cancel-reason-count"]}>
+                    {cancelReason.length}/255
+                  </div>
+                </div>
+              </div>
+              <div className={styles["cancel-modal-footer"]}>
+                <button className={styles["cancel-modal-btn"]} onClick={handleCancelModalCancel}>
+                  취소
+                </button>
+                <button
+                  className={`${styles["cancel-modal-btn"]} ${styles["confirm-btn"]} ${styles["reject"]}`}
+                  onClick={handleCancelConfirm}
+                  disabled={!cancelReason.trim()}
+                >
+                  확인
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      )}
     </div>
   );
 };
 
-export default ParticipantManagement;
+export default EventParticipantManagement;
+

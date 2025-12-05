@@ -19,6 +19,8 @@ import OrderManagement from "./components/pages/store/OrderManagement/OrderManag
 import ParticipantManagement from "./components/pages/participants/ParticipantManagement/ParticipantManagement";
 import ParticipantEdit from "./components/pages/participants/ParticipantEdit/ParticipantEdit";
 import ParticipantDetail from "./components/pages/participants/ParticipantDetail/ParticipantDetail";
+import EventParticipantManagement from "./components/pages/events/EventParticipantManagement/EventParticipantManagement";
+import UserManagement from "./components/pages/users/UserManagement/UserManagement";
 import AdminAccountManagement from "./components/pages/admin/AdminAccountManagement/AdminAccountManagement";
 import AdminUserList from "./components/pages/admin/AdminUserList/AdminUserList";
 import Login from "./components/pages/auth/Login/Login";
@@ -66,6 +68,15 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <EventEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:eventId/participants"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <EventParticipantManagement />
               </ProtectedRoute>
             }
           />
@@ -183,6 +194,15 @@ function App() {
               <ProtectedRoute>
                 <Navigation />
                 <ParticipantDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Navigation />
+                <UserManagement />
               </ProtectedRoute>
             }
           />
