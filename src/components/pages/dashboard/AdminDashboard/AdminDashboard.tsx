@@ -573,15 +573,15 @@ const AdminDashboard: React.FC = () => {
                       />
                       <Tooltip content={<CustomTooltip />} formatter={tooltipFormatter} />
                       <Legend verticalAlign="top" height={24} />
-                      <Bar
-                        name="참가자 수"
-                        dataKey="participants"
-                        yAxisId="countAxis"
-                        fill="#7bdad1"
-                        radius={[4, 4, 0, 0]}
-                        barSize={24}
-                        isAnimationActive={false}
-                      >
+                    <Bar
+                      name="참가자 수"
+                      dataKey="participants"
+                      yAxisId="countAxis"
+                      fill="#4FB3B3"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                      isAnimationActive={false}
+                    >
                       <LabelList
                         dataKey="participants"
                         position="top"
@@ -591,13 +591,13 @@ const AdminDashboard: React.FC = () => {
                     </Bar>
                     <Bar
                       name="기부된 옷"
-                        dataKey="donated"
-                        yAxisId="countAxis"
-                        fill="#9bdcfb"
-                        radius={[4, 4, 0, 0]}
-                        barSize={24}
-                        isAnimationActive={false}
-                      >
+                      dataKey="donated"
+                      yAxisId="countAxis"
+                      fill="#93B5E1"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                      isAnimationActive={false}
+                    >
                       <LabelList
                         dataKey="donated"
                         position="top"
@@ -607,13 +607,13 @@ const AdminDashboard: React.FC = () => {
                     </Bar>
                     <Bar
                       name="교환된 옷"
-                        dataKey="exchanged"
-                        yAxisId="countAxis"
-                        fill="#caa6fb"
-                        radius={[4, 4, 0, 0]}
-                        barSize={24}
-                        isAnimationActive={false}
-                      >
+                      dataKey="exchanged"
+                      yAxisId="countAxis"
+                      fill="#C8A2C8"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                      isAnimationActive={false}
+                    >
                       <LabelList
                         dataKey="exchanged"
                         position="top"

@@ -254,15 +254,15 @@
 }
 
 .participant-dot {
-  background: linear-gradient(90deg, #8eeadf 0%, #b6f5ee 100%);
+  background: linear-gradient(90deg, #4fb3b3 0%, #72c4c4 100%);
 }
 
 .exchange-dot {
-  background: linear-gradient(90deg, #d3b8ff 0%, #e6d8ff 100%);
+  background: linear-gradient(90deg, #c8a2c8 0%, #d9b6d9 100%);
 }
 
 .donation-dot {
-  background: linear-gradient(90deg, #a8d8ff 0%, #c8eaff 100%);
+  background: linear-gradient(90deg, #93b5e1 0%, #abc7ec 100%);
 }
 
 .chart-scroll {
