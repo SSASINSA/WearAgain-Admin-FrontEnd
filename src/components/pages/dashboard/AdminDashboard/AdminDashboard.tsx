@@ -247,8 +247,8 @@ const AdminDashboard: React.FC = () => {
   const yAxisMax = maxCount ? Math.ceil(maxCount * 1.2) : 100;
   const chartRef = useRef<HTMLDivElement | null>(null);
 
-  const countFormatter = (value: number) => `${value.toLocaleString()}벌`;
-  const participantFormatter = (value: number) => `${value.toLocaleString()}명`;
+  const countFormatter = (value: number) => `${value.toLocaleString()}`;
+  const participantFormatter = (value: number) => `${value.toLocaleString()}`;
   const percentFormatter = (value: number) => `${((value || 0) * 100).toFixed(1)}%`;
 
   const statsData = useMemo(() => {
@@ -582,15 +582,15 @@ const AdminDashboard: React.FC = () => {
                         barSize={24}
                         isAnimationActive={false}
                       >
-                        <LabelList
-                          dataKey="participants"
-                          position="top"
-                          formatter={(value: any) => participantFormatter(Number(value))}
-                          fill="#4b5563"
-                        />
-                      </Bar>
-                      <Bar
-                        name="기부된 옷"
+                      <LabelList
+                        dataKey="participants"
+                        position="top"
+                        formatter={(value: any) => participantFormatter(Number(value))}
+                        fill="#4b5563"
+                      />
+                    </Bar>
+                    <Bar
+                      name="기부된 옷"
                         dataKey="donated"
                         yAxisId="countAxis"
                         fill="#9bdcfb"
@@ -598,15 +598,15 @@ const AdminDashboard: React.FC = () => {
                         barSize={24}
                         isAnimationActive={false}
                       >
-                        <LabelList
-                          dataKey="donated"
-                          position="top"
-                          formatter={(value: any) => countFormatter(Number(value))}
-                          fill="#4b5563"
-                        />
-                      </Bar>
-                      <Bar
-                        name="교환된 옷"
+                      <LabelList
+                        dataKey="donated"
+                        position="top"
+                        formatter={(value: any) => countFormatter(Number(value))}
+                        fill="#4b5563"
+                      />
+                    </Bar>
+                    <Bar
+                      name="교환된 옷"
                         dataKey="exchanged"
                         yAxisId="countAxis"
                         fill="#caa6fb"
@@ -614,13 +614,13 @@ const AdminDashboard: React.FC = () => {
                         barSize={24}
                         isAnimationActive={false}
                       >
-                        <LabelList
-                          dataKey="exchanged"
-                          position="top"
-                          formatter={(value: any) => countFormatter(Number(value))}
-                          fill="#4b5563"
-                        />
-                      </Bar>
+                      <LabelList
+                        dataKey="exchanged"
+                        position="top"
+                        formatter={(value: any) => countFormatter(Number(value))}
+                        fill="#4b5563"
+                      />
+                    </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 )}
