@@ -6,7 +6,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   LabelList,
 } from "recharts";
@@ -84,6 +83,7 @@ const ImpactCard: React.FC<ImpactCardProps> = ({
 );
 
 interface EventMetric {
+  eventId: number | string;
   name: string;
   location: string;
   participants: number;
@@ -110,6 +110,7 @@ interface OverviewResponse {
 
 const MOCK_EVENT_METRICS: EventMetric[] = [
   {
+    eventId: 1,
     name: "홍대 빈티지 파티",
     location: "서울 · 마포구",
     participants: 1240,
@@ -117,6 +118,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 180,
   },
   {
+    eventId: 2,
     name: "강남 럭셔리 교환",
     location: "서울 · 강남구",
     participants: 980,
@@ -124,6 +126,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 140,
   },
   {
+    eventId: 3,
     name: "이태원 글로벌 마켓",
     location: "서울 · 용산구",
     participants: 870,
@@ -131,6 +134,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 110,
   },
   {
+    eventId: 4,
     name: "신촌 대학생 파티",
     location: "서울 · 서대문구",
     participants: 720,
@@ -138,6 +142,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 95,
   },
   {
+    eventId: 5,
     name: "건대 캐주얼 마켓",
     location: "서울 · 광진구",
     participants: 610,
@@ -145,6 +150,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 80,
   },
   {
+    eventId: 6,
     name: "잠실 패밀리 스왑",
     location: "서울 · 송파구",
     participants: 540,
@@ -152,6 +158,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 70,
   },
   {
+    eventId: 7,
     name: "분당 커뮤니티 마켓",
     location: "경기 · 성남시",
     participants: 690,
@@ -159,6 +166,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 90,
   },
   {
+    eventId: 8,
     name: "부산 해운대 스왑",
     location: "부산 · 해운대구",
     participants: 810,
@@ -166,6 +174,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 105,
   },
   {
+    eventId: 9,
     name: "대구 동성로 마켓",
     location: "대구 · 중구",
     participants: 580,
@@ -173,6 +182,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 75,
   },
   {
+    eventId: 10,
     name: "제주 로컬 스왑",
     location: "제주 · 제주시",
     participants: 430,
@@ -180,6 +190,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 60,
   },
   {
+    eventId: 11,
     name: "수원 광교 마켓",
     location: "경기 · 수원시",
     participants: 760,
@@ -187,6 +198,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 100,
   },
   {
+    eventId: 12,
     name: "인천 송도 스페셜",
     location: "인천 · 연수구",
     participants: 670,
@@ -194,6 +206,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 85,
   },
   {
+    eventId: 13,
     name: "판교 테크 스왑",
     location: "경기 · 성남시",
     participants: 840,
@@ -201,6 +214,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 120,
   },
   {
+    eventId: 14,
     name: "광주 상무 스왑",
     location: "광주 · 서구",
     participants: 520,
@@ -208,6 +222,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 70,
   },
   {
+    eventId: 15,
     name: "울산 공업 마켓",
     location: "울산 · 남구",
     participants: 590,
@@ -215,6 +230,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 82,
   },
   {
+    eventId: 16,
     name: "청주 청원 스왑",
     location: "충북 · 청주시",
     participants: 470,
@@ -222,6 +238,7 @@ const MOCK_EVENT_METRICS: EventMetric[] = [
     donated: 65,
   },
   {
+    eventId: 17,
     name: "전주 한옥 마켓",
     location: "전북 · 전주시",
     participants: 650,
@@ -246,6 +263,14 @@ const AdminDashboard: React.FC = () => {
     : 0;
   const yAxisMax = maxCount ? Math.ceil(maxCount * 1.2) : 100;
   const chartRef = useRef<HTMLDivElement | null>(null);
+  const nameById = useMemo(() => {
+    const map = new Map<string, string>();
+    eventMetrics.forEach((ev) => {
+      const key = String(ev.eventId ?? ev.name);
+      map.set(key, ev.name);
+    });
+    return map;
+  }, [eventMetrics]);
 
   const countFormatter = (value: number) => `${value.toLocaleString()}`;
   const participantFormatter = (value: number) => `${value.toLocaleString()}`;
@@ -397,9 +422,14 @@ const AdminDashboard: React.FC = () => {
   const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {
+      const eventPayload = payload[0]?.payload || {};
+      const eventId = eventPayload.eventId ?? label;
+      const eventName = eventPayload.name || nameById.get(String(eventId)) || "";
       return (
         <div className={styles["tooltip-container"]}>
-          <p className={styles["tooltip-title"]}>{label}</p>
+          <p className={styles["tooltip-title"]}>
+            {eventName || eventId}
+          </p>
           {(payload as any[]).map((entry: any) => (
             <p key={entry.dataKey} className={styles["tooltip-item"]}>
               <span className={styles["tooltip-dot"]} style={{ backgroundColor: entry.fill || "#000" }} />
@@ -432,11 +462,12 @@ const AdminDashboard: React.FC = () => {
       if (apiItems.length === 0) {
         setEventMetrics(MOCK_EVENT_METRICS);
       } else {
-        const mapped: EventMetric[] = apiItems.map((item) => {
+        const mapped: EventMetric[] = apiItems.map((item, idx) => {
           const start = item.startDate ? String(item.startDate) : "";
           const end = item.endDate ? String(item.endDate) : "";
           const range = start && end ? `${start} ~ ${end}` : start || end || "일정 미정";
           return {
+            eventId: item.eventId ?? item.id ?? idx + 1,
             name: item.title || item.eventName || "이벤트",
             location: range,
             participants: Number(item.participants ?? item.participantCount ?? 0),
@@ -500,35 +531,37 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <h2>행사별 지표</h2>
               </div>
-            <div className={styles["control-row"]}>
-              <div className={styles["legend"]}>
-                <span className={styles["legend-item"]}>
-                  <span className={`${styles["legend-dot"]} ${styles["participant-dot"]}`} /> 참가자 수
-                </span>
-                <span className={styles["legend-item"]}>
-                  <span className={`${styles["legend-dot"]} ${styles["donation-dot"]}`} /> 기부된 옷
-                </span>
-                <span className={styles["legend-item"]}>
-                  <span className={`${styles["legend-dot"]} ${styles["exchange-dot"]}`} /> 교환된 옷
-                </span>
+              <div className={styles["control-row"]}>
+                <div className={styles["legend"]}>
+                  {[
+                    { label: "참가자 수", dotClass: styles["participant-dot"] },
+                    { label: "기부된 옷", dotClass: styles["donation-dot"] },
+                    { label: "교환된 옷", dotClass: styles["exchange-dot"] },
+                  ].map((item) => (
+                    <span key={item.label} className={styles["legend-item"]}>
+                      <span className={`${styles["legend-dot"]} ${item.dotClass}`} /> {item.label}
+                    </span>
+                  ))}
+                </div>
+                <div className={styles["period-toggle"]}>
+                  {[
+                    { key: "MONTH_1", label: "1개월" },
+                    { key: "MONTH_3", label: "3개월" },
+                    { key: "YEAR_1", label: "1년" },
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      className={`${styles["period-button"]} ${
+                        period === item.key ? styles["period-button-active"] : ""
+                      }`}
+                      onClick={() => setPeriod(item.key as "MONTH_1" | "MONTH_3" | "YEAR_1")}
+                      disabled={isLoading}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className={styles["period-toggle"]}>
-                {[
-                  { key: "MONTH_1", label: "1개월" },
-                  { key: "MONTH_3", label: "3개월" },
-                  { key: "YEAR_1", label: "1년" },
-                ].map((item) => (
-                  <button
-                    key={item.key}
-                    className={`${styles["period-button"]} ${period === item.key ? styles["period-button-active"] : ""}`}
-                    onClick={() => setPeriod(item.key as "MONTH_1" | "MONTH_3" | "YEAR_1")}
-                    disabled={isLoading}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
             </div>
 
             <div className={styles["status-row"]}>
@@ -562,7 +595,14 @@ const AdminDashboard: React.FC = () => {
                       margin={{ top: 16, right: 24, left: 8, bottom: 40 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-15} textAnchor="end" height={60} />
+                      <XAxis
+                        dataKey="eventId"
+                        tick={{ fontSize: 12 }}
+                        angle={-15}
+                        textAnchor="end"
+                        height={60}
+                        tickFormatter={(value) => nameById.get(String(value)) || String(value)}
+                      />
                       <YAxis
                         yAxisId="countAxis"
                         orientation="right"
@@ -572,7 +612,6 @@ const AdminDashboard: React.FC = () => {
                         label={{ value: "참가자/교환/기부(건)", angle: 90, position: "insideRight", offset: 10 }}
                       />
                       <Tooltip content={<CustomTooltip />} formatter={tooltipFormatter} />
-                      <Legend verticalAlign="top" height={24} />
                     <Bar
                       name="참가자 수"
                       dataKey="participants"
