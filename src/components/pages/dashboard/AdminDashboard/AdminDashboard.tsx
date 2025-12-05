@@ -170,151 +170,12 @@ const SkeletonBarChart = () => (
   </div>
 );
 
-const MOCK_EVENT_METRICS: EventMetric[] = [
-  {
-    eventId: 1,
-    name: "홍대 빈티지 파티",
-    location: "서울 · 마포구",
-    participants: 1240,
-    exchanged: 920,
-    donated: 180,
-  },
-  {
-    eventId: 2,
-    name: "강남 럭셔리 교환",
-    location: "서울 · 강남구",
-    participants: 980,
-    exchanged: 780,
-    donated: 140,
-  },
-  {
-    eventId: 3,
-    name: "이태원 글로벌 마켓",
-    location: "서울 · 용산구",
-    participants: 870,
-    exchanged: 630,
-    donated: 110,
-  },
-  {
-    eventId: 4,
-    name: "신촌 대학생 파티",
-    location: "서울 · 서대문구",
-    participants: 720,
-    exchanged: 540,
-    donated: 95,
-  },
-  {
-    eventId: 5,
-    name: "건대 캐주얼 마켓",
-    location: "서울 · 광진구",
-    participants: 610,
-    exchanged: 430,
-    donated: 80,
-  },
-  {
-    eventId: 6,
-    name: "잠실 패밀리 스왑",
-    location: "서울 · 송파구",
-    participants: 540,
-    exchanged: 410,
-    donated: 70,
-  },
-  {
-    eventId: 7,
-    name: "분당 커뮤니티 마켓",
-    location: "경기 · 성남시",
-    participants: 690,
-    exchanged: 520,
-    donated: 90,
-  },
-  {
-    eventId: 8,
-    name: "부산 해운대 스왑",
-    location: "부산 · 해운대구",
-    participants: 810,
-    exchanged: 620,
-    donated: 105,
-  },
-  {
-    eventId: 9,
-    name: "대구 동성로 마켓",
-    location: "대구 · 중구",
-    participants: 580,
-    exchanged: 430,
-    donated: 75,
-  },
-  {
-    eventId: 10,
-    name: "제주 로컬 스왑",
-    location: "제주 · 제주시",
-    participants: 430,
-    exchanged: 320,
-    donated: 60,
-  },
-  {
-    eventId: 11,
-    name: "수원 광교 마켓",
-    location: "경기 · 수원시",
-    participants: 760,
-    exchanged: 570,
-    donated: 100,
-  },
-  {
-    eventId: 12,
-    name: "인천 송도 스페셜",
-    location: "인천 · 연수구",
-    participants: 670,
-    exchanged: 500,
-    donated: 85,
-  },
-  {
-    eventId: 13,
-    name: "판교 테크 스왑",
-    location: "경기 · 성남시",
-    participants: 840,
-    exchanged: 650,
-    donated: 120,
-  },
-  {
-    eventId: 14,
-    name: "광주 상무 스왑",
-    location: "광주 · 서구",
-    participants: 520,
-    exchanged: 380,
-    donated: 70,
-  },
-  {
-    eventId: 15,
-    name: "울산 공업 마켓",
-    location: "울산 · 남구",
-    participants: 590,
-    exchanged: 430,
-    donated: 82,
-  },
-  {
-    eventId: 16,
-    name: "청주 청원 스왑",
-    location: "충북 · 청주시",
-    participants: 470,
-    exchanged: 340,
-    donated: 65,
-  },
-  {
-    eventId: 17,
-    name: "전주 한옥 마켓",
-    location: "전북 · 전주시",
-    participants: 650,
-    exchanged: 470,
-    donated: 88,
-  },
-];
-
 const AdminDashboard: React.FC = () => {
   const [overviewData, setOverviewData] = useState<OverviewResponse["overview"] | null>(null);
   const [impactData, setImpactData] = useState<OverviewResponse["impact"] | null>(null);
   const [overviewLoading, setOverviewLoading] = useState<boolean>(false);
   const [overviewError, setOverviewError] = useState<string | null>(null);
-  const [eventMetrics, setEventMetrics] = useState<EventMetric[]>(MOCK_EVENT_METRICS);
+  const [eventMetrics, setEventMetrics] = useState<EventMetric[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<"MONTH_1" | "MONTH_3" | "YEAR_1">("MONTH_1");
@@ -521,28 +382,24 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
       const apiItems = (data?.items || []) as any[];
 
-      if (apiItems.length === 0) {
-        setEventMetrics(MOCK_EVENT_METRICS);
-      } else {
-        const mapped: EventMetric[] = apiItems.map((item, idx) => {
-          const start = item.startDate ? String(item.startDate) : "";
-          const end = item.endDate ? String(item.endDate) : "";
-          const range = start && end ? `${start} ~ ${end}` : start || end || "일정 미정";
-          return {
-            eventId: item.eventId ?? item.id ?? idx + 1,
-            name: item.title || item.eventName || "이벤트",
-            location: range,
-            participants: Number(item.participants ?? item.participantCount ?? 0),
-            exchanged: Number(item.exchangedClothes ?? item.exchanged ?? item.exchangedCount ?? 0),
-            donated: Number(item.donatedClothes ?? item.donated ?? item.donatedCount ?? 0),
-          };
-        });
-        setEventMetrics(mapped);
-      }
+      const mapped: EventMetric[] = apiItems.map((item, idx) => {
+        const start = item.startDate ? String(item.startDate) : "";
+        const end = item.endDate ? String(item.endDate) : "";
+        const range = start && end ? `${start} ~ ${end}` : start || end || "일정 미정";
+        return {
+          eventId: item.eventId ?? item.id ?? idx + 1,
+          name: item.title || item.eventName || "이벤트",
+          location: range,
+          participants: Number(item.participants ?? item.participantCount ?? 0),
+          exchanged: Number(item.exchangedClothes ?? item.exchanged ?? item.exchangedCount ?? 0),
+          donated: Number(item.donatedClothes ?? item.donated ?? item.donatedCount ?? 0),
+        };
+      });
+      setEventMetrics(mapped);
     } catch (err) {
       console.error("Failed to load event metrics", err);
       setError("데이터를 불러오지 못했습니다. 다시 시도해주세요.");
-      setEventMetrics(MOCK_EVENT_METRICS);
+      setEventMetrics([]);
     } finally {
       setIsLoading(false);
     }
