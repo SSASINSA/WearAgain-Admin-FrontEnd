@@ -304,6 +304,7 @@
   height: 20px;
   background: transparent;
   display: block;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1094%) hue-rotate(201deg) brightness(96%) contrast(86%);
 }
 
 .stat-text {
