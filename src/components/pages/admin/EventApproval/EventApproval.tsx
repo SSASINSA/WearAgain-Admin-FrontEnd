@@ -15,9 +15,10 @@ const nextIcon = "/admin/img/icon/arrow-right.svg";
 interface EventOption {
   optionId: number;
   name: string;
-  type: string;
   displayOrder: number;
   capacity: number | null;
+  appliedCount: number | null;
+  remainingCount: number | null;
   children: EventOption[];
 }
 
@@ -161,17 +162,19 @@ const EventApproval: React.FC = () => {
     return `${year}.${month}.${day}`;
   };
 
-  const findOptionByType = (options: EventOption[], type: string): EventOption | null => {
-    for (const opt of options) {
-      if (opt.type === type) {
-        return opt;
+  const calculateTotalCapacity = (options: EventOption[]): number => {
+    let total = 0;
+    const traverse = (opts: EventOption[]) => {
+      for (const opt of opts) {
+        if (opt.children && opt.children.length > 0) {
+          traverse(opt.children);
+        } else if (opt.capacity !== null && opt.capacity !== undefined) {
+          total += opt.capacity;
+        }
       }
-      if (opt.children && opt.children.length > 0) {
-        const found = findOptionByType(opt.children, type);
-        if (found) return found;
-      }
-    }
-    return null;
+    };
+    traverse(options);
+    return total;
   };
 
   const fetchApprovalRequests = useCallback(async () => {
@@ -206,8 +209,7 @@ const EventApproval: React.FC = () => {
       }
 
       const transformedRequests: ApprovalRequest[] = data.approvals.map((item) => {
-        const attendeeOption = findOptionByType(item.options, "ATTENDEE");
-        const staffOption = findOptionByType(item.options, "STAFF");
+        const totalCapacity = calculateTotalCapacity(item.options);
 
         return {
           approvalRequestId: item.approvalRequestId,
@@ -217,8 +219,8 @@ const EventApproval: React.FC = () => {
           location: item.event.location,
           registeredBy: item.requestingAdmin.name,
           registeredDate: formatDateTime(item.createdAt),
-          participantCapacity: attendeeOption?.capacity || null,
-          staffCapacity: staffOption?.capacity || null,
+          participantCapacity: totalCapacity > 0 ? totalCapacity : null,
+          staffCapacity: null,
         };
       });
 

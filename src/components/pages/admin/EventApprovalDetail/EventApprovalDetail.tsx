@@ -14,9 +14,10 @@ const rejectIcon = "/admin/img/icon/x-reject.svg";
 interface EventOption {
   optionId: number;
   name: string;
-  type: string;
   displayOrder: number;
   capacity: number | null;
+  appliedCount: number | null;
+  remainingCount: number | null;
   children: EventOption[];
 }
 
@@ -222,6 +223,38 @@ const EventApprovalDetail: React.FC = () => {
     return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
+  const OptionTreeItem: React.FC<{ option: EventOption; depth: number }> = ({ option, depth }) => {
+    const hasChildren = option.children && option.children.length > 0;
+    const isLeaf = !hasChildren;
+
+    return (
+      <div className={`${styles["option-tree-item"]} ${depth === 0 ? styles["option-category"] : styles["option-child"]}`}>
+        <div className={styles["option-item-row"]}>
+          <div className={styles["option-name-wrapper"]}>
+            <span className={styles["option-equals-icon"]}>=</span>
+            <span className={styles["option-name"]}>{option.name}</span>
+          </div>
+          <div className={styles["option-right-section"]}>
+            {isLeaf && (
+              <span className={styles["option-quantity"]}>
+                수량: {option.appliedCount !== null && option.appliedCount !== undefined ? option.appliedCount : 0}/{option.capacity !== null && option.capacity !== undefined ? option.capacity : 0}
+              </span>
+            )}
+          </div>
+        </div>
+        {hasChildren && (
+          <div className={styles["option-children"]}>
+            {option.children
+              .sort((a, b) => a.displayOrder - b.displayOrder)
+              .map((child) => (
+                <OptionTreeItem key={child.optionId} option={child} depth={depth + 1} />
+              ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className={styles["event-approval-detail-page"]}>
@@ -291,6 +324,20 @@ const EventApprovalDetail: React.FC = () => {
             </div>
           </div>
 
+          {/* 옵션 현황 섹션 */}
+          {approvalData.options && approvalData.options.length > 0 && (
+            <div className={styles["event-options-section"]}>
+              <h3 className={styles["section-title"]}>옵션 현황</h3>
+              <div className={styles["options-tree"]}>
+                {approvalData.options
+                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                  .map((option) => (
+                    <OptionTreeItem key={option.optionId} option={option} depth={0} />
+                  ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* 사이드바 - 승인/거부 액션 */}
@@ -319,40 +366,31 @@ const EventApprovalDetail: React.FC = () => {
                   <span className={styles["info-value"]}>{formatDateTime(approvalData.createdAt)}</span>
                 </div>
                 {approvalData.options && approvalData.options.length > 0 && (() => {
-                  const findOptionsByType = (options: EventOption[], type: string): EventOption[] => {
-                    const results: EventOption[] = [];
-                    for (const opt of options) {
-                      if (opt.type === type) {
-                        results.push(opt);
+                  const calculateTotalCapacity = (options: EventOption[]): number => {
+                    let total = 0;
+                    const traverse = (opts: EventOption[]) => {
+                      for (const opt of opts) {
+                        if (opt.children && opt.children.length > 0) {
+                          traverse(opt.children);
+                        } else if (opt.capacity !== null && opt.capacity !== undefined) {
+                          total += opt.capacity;
+                        }
                       }
-                      if (opt.children && opt.children.length > 0) {
-                        results.push(...findOptionsByType(opt.children, type));
-                      }
-                    }
-                    return results;
+                    };
+                    traverse(options);
+                    return total;
                   };
 
-                  const attendeeOptions = findOptionsByType(approvalData.options, "ATTENDEE");
-                  const staffOptions = findOptionsByType(approvalData.options, "STAFF");
+                  const totalCapacity = calculateTotalCapacity(approvalData.options);
 
                   return (
                     <>
-                      {attendeeOptions.map((opt) => (
-                        <div key={opt.optionId} className={styles["info-item"]}>
-                          <span className={styles["info-label"]}>참가자 정원</span>
-                          <span className={styles["info-value"]}>
-                            {opt.capacity !== null ? `${opt.capacity}명` : "제한 없음"}
-                          </span>
+                      {totalCapacity > 0 && (
+                        <div className={styles["info-item"]}>
+                          <span className={styles["info-label"]}>총 정원</span>
+                          <span className={styles["info-value"]}>{totalCapacity}명</span>
                         </div>
-                      ))}
-                      {staffOptions.map((opt) => (
-                        <div key={opt.optionId} className={styles["info-item"]}>
-                          <span className={styles["info-label"]}>스태프 정원</span>
-                          <span className={styles["info-value"]}>
-                            {opt.capacity !== null ? `${opt.capacity}명` : "제한 없음"}
-                          </span>
-                        </div>
-                      ))}
+                      )}
                     </>
                   );
                 })()}

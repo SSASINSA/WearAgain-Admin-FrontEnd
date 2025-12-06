@@ -69,29 +69,6 @@
   padding: 32px;
 }
 
-.event-tags {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.tag {
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
-.tag.environment {
-  background-color: rgba(6, 176, 183, 0.1);
-  color: #06b0b7;
-}
-
-.tag.workshop {
-  background-color: rgba(100, 44, 141, 0.1);
-  color: #642c8d;
-}
 
 .event-title {
   font-family: "Pretendard", sans-serif;
@@ -268,6 +245,162 @@
   background-color: white;
   border-radius: 16px;
   padding: 32px;
+  margin-bottom: 32px;
+}
+
+.event-options-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.options-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+}
+
+.option-tree-item {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.option-tree-item:last-child {
+  border-bottom: none;
+}
+
+.option-category {
+  background: #f9fafb;
+}
+
+.option-child {
+  background: white;
+  padding-left: 24px;
+}
+
+.option-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  transition: background 0.2s;
+}
+
+.option-category > .option-item-row:hover {
+  background: #f3f4f6;
+}
+
+.option-child > .option-item-row:hover {
+  background: #f9fafb;
+}
+
+.option-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.option-equals-icon {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b7280;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.option-name {
+  font-family: "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 20px;
+}
+
+.option-right-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.option-quantity {
+  font-family: "Pretendard", sans-serif;
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 20px;
+}
+
+.option-children {
+  margin-top: 0;
+  padding-left: 0;
+  border-left: none;
+}
+
+.event-applications-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.applications-table-container {
+  overflow-x: auto;
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Pretendard", sans-serif;
+}
+
+.applications-table thead {
+  background-color: #f9fafb;
+}
+
+.applications-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.applications-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.applications-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.status-badge.applied {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.checked-in {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.cancelled {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .event-info-main-section .info-item {
@@ -298,7 +431,7 @@
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -328,21 +461,6 @@
   background-color: #f97316;
 }
 
-.result-item:nth-child(4) .result-icon {
-  background-color: #3b82f6;
-}
-
-.result-item:nth-child(5) .result-icon {
-  background-color: #642c8d;
-}
-
-.result-item:nth-child(6) .result-icon {
-  background-color: #ec4899;
-}
-
-.result-item:nth-child(7) .result-icon {
-  background-color: #f59e0b;
-}
 
 .result-icon img {
   width: 28px;
@@ -416,7 +534,7 @@
 }
 
 .staff-code-button {
-  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
+  background-color: #06b0b7;
   border: none;
   border-radius: 12px;
   color: white;
@@ -499,6 +617,22 @@
 }
 
 .edit-button:hover img {
+  filter: brightness(0) invert(1);
+}
+
+.participants-button {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.participants-button:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.participants-button img {
   filter: brightness(0) invert(1);
 }
 

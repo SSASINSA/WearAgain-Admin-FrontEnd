@@ -24,7 +24,7 @@ const infoIcon = "/admin/img/icon/info-circle.svg";
 interface EventImage {
   imageId: number;
   url: string;
-  altText: string;
+  altText: string | null;
   displayOrder: number;
 }
 
