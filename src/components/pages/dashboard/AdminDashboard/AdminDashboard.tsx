@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   BarChart,
   Bar,
@@ -9,21 +15,44 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
-import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import styles from "./AdminDashboard.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import apiRequest from "utils/api";
 
-const PERIOD_OPTIONS: { key: "MONTH_1" | "MONTH_3" | "YEAR_1"; label: string }[] = [
+const PERIOD_OPTIONS: {
+  key: "MONTH_1" | "MONTH_3" | "YEAR_1";
+  label: string;
+}[] = [
   { key: "MONTH_1", label: "1개월" },
   { key: "MONTH_3", label: "3개월" },
   { key: "YEAR_1", label: "1년" },
 ];
 
 const SERIES_CONFIG = [
-  { key: "participants", name: "참가자 수", fill: "#4FB3B3", dotClass: "participant-dot" },
-  { key: "donated", name: "기부된 옷", fill: "#93B5E1", dotClass: "donation-dot" },
-  { key: "exchanged", name: "교환된 옷", fill: "#C8A2C8", dotClass: "exchange-dot" },
+  {
+    key: "participants",
+    name: "참가자 수",
+    fill: "#4FB3B3",
+    dotClass: "participant-dot",
+  },
+  {
+    key: "donated",
+    name: "기부된 옷",
+    fill: "#93B5E1",
+    dotClass: "donation-dot",
+  },
+  {
+    key: "exchanged",
+    name: "교환된 옷",
+    fill: "#C8A2C8",
+    dotClass: "exchange-dot",
+  },
 ] as const;
 
 interface StatCardProps {
@@ -35,14 +64,23 @@ interface StatCardProps {
   iconBg: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, changeType, icon, iconBg }) => (
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  change,
+  changeType,
+  icon,
+  iconBg,
+}) => (
   <div className={styles["stat-card"]}>
     <div className={styles["stat-card-header"]}>
       <div className={styles["stat-icon"]} style={{ backgroundColor: iconBg }}>
         <img src={icon} alt="" />
       </div>
       <span
-        className={`${styles["stat-change"]} ${changeType === "positive" ? styles["positive"] : styles["negative"]}`}
+        className={`${styles["stat-change"]} ${
+          changeType === "positive" ? styles["positive"] : styles["negative"]
+        }`}
       >
         {change}
       </span>
@@ -73,12 +111,18 @@ const ImpactCard: React.FC<ImpactCardProps> = ({
   borderColor,
   badge,
 }) => (
-  <div className={styles["impact-card"]} style={{ backgroundColor: bgColor, borderColor }}>
+  <div
+    className={styles["impact-card"]}
+    style={{ backgroundColor: bgColor, borderColor }}
+  >
     <div className={styles["impact-card-header"]}>
       <div className={styles["impact-icon"]} style={{ backgroundColor: color }}>
         <img src={icon} alt="" />
       </div>
-      <span className={styles["impact-badge"]} style={{ backgroundColor: "#ffffff", color }}>
+      <span
+        className={styles["impact-badge"]}
+        style={{ backgroundColor: "#ffffff", color }}
+      >
         {badge}
       </span>
     </div>
@@ -131,7 +175,11 @@ const StatusRow: React.FC<{
     {error && (
       <>
         <span className={styles["status-text"]}>{error}</span>
-        <button className={styles["retry-button"]} onClick={onRetry} disabled={disabled}>
+        <button
+          className={styles["retry-button"]}
+          onClick={onRetry}
+          disabled={disabled}
+        >
           다시 시도
         </button>
       </>
@@ -171,18 +219,30 @@ const SkeletonBarChart = () => (
 );
 
 const AdminDashboard: React.FC = () => {
-  const [overviewData, setOverviewData] = useState<OverviewResponse["overview"] | null>(null);
-  const [impactData, setImpactData] = useState<OverviewResponse["impact"] | null>(null);
+  const [overviewData, setOverviewData] = useState<
+    OverviewResponse["overview"] | null
+  >(null);
+  const [impactData, setImpactData] = useState<
+    OverviewResponse["impact"] | null
+  >(null);
   const [overviewLoading, setOverviewLoading] = useState<boolean>(false);
   const [overviewError, setOverviewError] = useState<string | null>(null);
   const [eventMetrics, setEventMetrics] = useState<EventMetric[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState<"MONTH_1" | "MONTH_3" | "YEAR_1">("MONTH_1");
+  const [period, setPeriod] = useState<"MONTH_1" | "MONTH_3" | "YEAR_1">(
+    "MONTH_1"
+  );
 
   const chartWidth = Math.max((eventMetrics.length || 1) * 140, 780);
   const maxCount = eventMetrics.length
-    ? Math.max(...eventMetrics.flatMap((event) => [event.participants, event.exchanged, event.donated]))
+    ? Math.max(
+        ...eventMetrics.flatMap((event) => [
+          event.participants,
+          event.exchanged,
+          event.donated,
+        ])
+      )
     : 0;
   const yAxisMax = maxCount ? Math.ceil(maxCount * 1.2) : 100;
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -197,7 +257,8 @@ const AdminDashboard: React.FC = () => {
 
   const countFormatter = (value: number) => `${value.toLocaleString()}`;
   const participantFormatter = (value: number) => `${value.toLocaleString()}`;
-  const percentFormatter = (value: number) => `${((value || 0) * 100).toFixed(1)}%`;
+  const percentFormatter = (value: number) =>
+    `${((value || 0) * 100).toFixed(1)}%`;
 
   const statsData = useMemo(() => {
     const ov = overviewData;
@@ -335,9 +396,11 @@ const AdminDashboard: React.FC = () => {
   }, [impactData]);
 
   const tooltipFormatter = (value: ValueType, name: NameType) => {
-    if (name === "participants") return [participantFormatter(Number(value)), "참가자 수"];
+    if (name === "participants")
+      return [participantFormatter(Number(value)), "참가자 수"];
     if (name === "donated") return [countFormatter(Number(value)), "기부된 옷"];
-    if (name === "exchanged") return [countFormatter(Number(value)), "교환된 옷"];
+    if (name === "exchanged")
+      return [countFormatter(Number(value)), "교환된 옷"];
     return [value, name];
   };
 
@@ -347,21 +410,25 @@ const AdminDashboard: React.FC = () => {
     if (active && payload && payload.length) {
       const eventPayload = payload[0]?.payload || {};
       const eventId = eventPayload.eventId ?? label;
-      const eventName = eventPayload.name || nameById.get(String(eventId)) || "";
+      const eventName =
+        eventPayload.name || nameById.get(String(eventId)) || "";
       return (
         <div className={styles["tooltip-container"]}>
-          <p className={styles["tooltip-title"]}>
-            {eventName || eventId}
-          </p>
+          <p className={styles["tooltip-title"]}>{eventName || eventId}</p>
           {(payload as any[]).map((entry: any) => (
             <p key={entry.dataKey} className={styles["tooltip-item"]}>
-              <span className={styles["tooltip-dot"]} style={{ backgroundColor: entry.fill || "#000" }} />
+              <span
+                className={styles["tooltip-dot"]}
+                style={{ backgroundColor: entry.fill || "#000" }}
+              />
               <span className={styles["tooltip-label"]}>
                 {entry.dataKey === "participants" && "참가자 수"}
                 {entry.dataKey === "donated" && "기부된 옷"}
                 {entry.dataKey === "exchanged" && "교환된 옷"}
               </span>
-              <span className={styles["tooltip-value"]}>{tooltipFormatter(entry.value as number, entry.dataKey)[0]}</span>
+              <span className={styles["tooltip-value"]}>
+                {tooltipFormatter(entry.value as number, entry.dataKey)[0]}
+              </span>
             </p>
           ))}
         </div>
@@ -374,7 +441,9 @@ const AdminDashboard: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiRequest(`/admin/dashboard/metrics?period=${period}`);
+      const response = await apiRequest(
+        `/admin/dashboard/metrics?period=${period}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -385,14 +454,19 @@ const AdminDashboard: React.FC = () => {
       const mapped: EventMetric[] = apiItems.map((item, idx) => {
         const start = item.startDate ? String(item.startDate) : "";
         const end = item.endDate ? String(item.endDate) : "";
-        const range = start && end ? `${start} ~ ${end}` : start || end || "일정 미정";
+        const range =
+          start && end ? `${start} ~ ${end}` : start || end || "일정 미정";
         return {
           eventId: item.eventId ?? item.id ?? idx + 1,
           name: item.title || item.eventName || "이벤트",
           location: range,
           participants: Number(item.participants ?? item.participantCount ?? 0),
-          exchanged: Number(item.exchangedClothes ?? item.exchanged ?? item.exchangedCount ?? 0),
-          donated: Number(item.donatedClothes ?? item.donated ?? item.donatedCount ?? 0),
+          exchanged: Number(
+            item.exchangedClothes ?? item.exchanged ?? item.exchangedCount ?? 0
+          ),
+          donated: Number(
+            item.donatedClothes ?? item.donated ?? item.donatedCount ?? 0
+          ),
         };
       });
       setEventMetrics(mapped);
@@ -439,10 +513,109 @@ const AdminDashboard: React.FC = () => {
     }
   }, [eventMetrics.length]);
 
+  const exportToPDF = useCallback(async () => {
+    try {
+      // 기간 정보
+      const periodLabel =
+        PERIOD_OPTIONS.find((opt) => opt.key === period)?.label || "전체";
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${String(
+        now.getMonth() + 1
+      ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+      // 임시 HTML 테이블 생성
+      const tableHTML = `
+        <div style="font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; padding: 40px; background: white;">
+          <h1 style="font-size: 24px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">행사별 지표</h1>
+          <div style="font-size: 14px; color: #6b7280; margin-bottom: 30px;">
+            <div style="margin-bottom: 8px;">기간: ${periodLabel}</div>
+            <div>생성일: ${dateStr}</div>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+              <tr style="background-color: #4FB3B3; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; font-weight: 600;">행사명</th>
+                <th style="padding: 12px; text-align: right; border: 1px solid #e5e7eb; font-weight: 600;">참가자 수</th>
+                <th style="padding: 12px; text-align: right; border: 1px solid #e5e7eb; font-weight: 600;">기부된 옷</th>
+                <th style="padding: 12px; text-align: right; border: 1px solid #e5e7eb; font-weight: 600;">교환된 옷</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${eventMetrics
+                .map(
+                  (event, index) => `
+                <tr style="background-color: ${
+                  index % 2 === 0 ? "#ffffff" : "#f9fafb"
+                };">
+                  <td style="padding: 12px; border: 1px solid #e5e7eb; color: #111827;">${
+                    event.name || "이름 없음"
+                  }</td>
+                  <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #111827;">${event.participants.toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #111827;">${event.donated.toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #111827;">${event.exchanged.toLocaleString()}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // 임시 div 생성
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = tableHTML;
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.top = "0";
+      tempDiv.style.width = "1200px";
+      document.body.appendChild(tempDiv);
+
+      // html2canvas로 캡처
+      const canvas = await html2canvas(tempDiv, {
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        windowWidth: 1200,
+        windowHeight: tempDiv.scrollHeight,
+      } as any);
+
+      // 임시 div 제거
+      document.body.removeChild(tempDiv);
+
+      // 이미지 크기 계산 (A4 가로: 297mm, 세로: 210mm)
+      const imgWidth = 297; // A4 가로 mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // jsPDF 인스턴스 생성 (가로 방향)
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // 이미지를 PDF에 추가
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+      // 파일명 생성
+      const fileName = `행사별_지표_${dateStr}.pdf`;
+
+      // PDF 다운로드
+      doc.save(fileName);
+    } catch (error) {
+      console.error("PDF 내보내기 실패:", error);
+      alert("PDF 내보내기에 실패했습니다. 다시 시도해주세요.");
+    }
+  }, [eventMetrics, period]);
+
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
-        <PageHeader title="대시보드" subtitle="전체 현황과 통계를 한눈에 확인하세요" />
+        <PageHeader
+          title="대시보드"
+          subtitle="전체 현황과 통계를 한눈에 확인하세요"
+        />
 
         <div className={styles["dashboard-content"]}>
           <section className={styles["event-metrics-section"]}>
@@ -454,7 +627,12 @@ const AdminDashboard: React.FC = () => {
                 <div className={styles["legend"]}>
                   {SERIES_CONFIG.map((item) => (
                     <span key={item.key} className={styles["legend-item"]}>
-                      <span className={`${styles["legend-dot"]} ${styles[item.dotClass]}`} /> {item.name}
+                      <span
+                        className={`${styles["legend-dot"]} ${
+                          styles[item.dotClass]
+                        }`}
+                      />{" "}
+                      {item.name}
                     </span>
                   ))}
                 </div>
@@ -463,9 +641,13 @@ const AdminDashboard: React.FC = () => {
                     <button
                       key={item.key}
                       className={`${styles["period-button"]} ${
-                        period === item.key ? styles["period-button-active"] : ""
+                        period === item.key
+                          ? styles["period-button-active"]
+                          : ""
                       }`}
-                      onClick={() => setPeriod(item.key as "MONTH_1" | "MONTH_3" | "YEAR_1")}
+                      onClick={() =>
+                        setPeriod(item.key as "MONTH_1" | "MONTH_3" | "YEAR_1")
+                      }
                       disabled={isLoading}
                     >
                       {item.label}
@@ -475,7 +657,12 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <StatusRow loading={isLoading} error={error} onRetry={fetchEventMetrics} disabled={isLoading} />
+            <StatusRow
+              loading={isLoading}
+              error={error}
+              onRetry={fetchEventMetrics}
+              disabled={isLoading}
+            />
 
             <div className={styles["chart-scroll"]} ref={chartRef}>
               <div style={{ width: `${chartWidth}px`, minWidth: "100%" }}>
@@ -495,55 +682,82 @@ const AdminDashboard: React.FC = () => {
                         angle={-15}
                         textAnchor="end"
                         height={60}
-                        tickFormatter={(value) => nameById.get(String(value)) || String(value)}
+                        tickFormatter={(value) =>
+                          nameById.get(String(value)) || String(value)
+                        }
                       />
                       <YAxis
                         yAxisId="countAxis"
                         orientation="right"
                         domain={[0, yAxisMax]}
-                        tickFormatter={(value) => `${(value as number).toLocaleString()}`}
+                        tickFormatter={(value) =>
+                          `${(value as number).toLocaleString()}`
+                        }
                         tick={{ fontSize: 12 }}
-                        label={{ value: "참가자/교환/기부(건)", angle: 90, position: "insideRight", offset: 10 }}
+                        label={{
+                          value: "참가자/교환/기부(건)",
+                          angle: 90,
+                          position: "insideRight",
+                          offset: 10,
+                        }}
                       />
-                      <Tooltip content={<CustomTooltip />} formatter={tooltipFormatter} />
-                    {SERIES_CONFIG.map((series) => (
-                      <Bar
-                        key={series.key}
-                        name={series.name}
-                        dataKey={series.key}
-                        yAxisId="countAxis"
-                        fill={series.fill}
-                        radius={[4, 4, 0, 0]}
-                        barSize={24}
-                        isAnimationActive={false}
-                      >
-                        <LabelList
+                      <Tooltip
+                        content={<CustomTooltip />}
+                        formatter={tooltipFormatter}
+                      />
+                      {SERIES_CONFIG.map((series) => (
+                        <Bar
+                          key={series.key}
+                          name={series.name}
                           dataKey={series.key}
-                          position="top"
-                          formatter={(value: any) =>
-                            series.key === "participants"
-                              ? participantFormatter(Number(value))
-                              : countFormatter(Number(value))
-                          }
-                          fill="#4b5563"
-                        />
-                      </Bar>
-                    ))}
+                          yAxisId="countAxis"
+                          fill={series.fill}
+                          radius={[4, 4, 0, 0]}
+                          barSize={24}
+                          isAnimationActive={false}
+                        >
+                          <LabelList
+                            dataKey={series.key}
+                            position="top"
+                            formatter={(value: any) =>
+                              series.key === "participants"
+                                ? participantFormatter(Number(value))
+                                : countFormatter(Number(value))
+                            }
+                            fill="#4b5563"
+                          />
+                        </Bar>
+                      ))}
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </div>
+            </div>
+            <div className={styles["export-button-container"]}>
+              <button
+                className={styles["export-button"]}
+                onClick={exportToPDF}
+                disabled={isLoading || eventMetrics.length === 0}
+              >
+                내보내기
+              </button>
             </div>
           </section>
 
           <section className={styles["stats-title-section"]}>
             <h2>전체 행사 현황</h2>
             <div className={styles["status-row"]}>
-              {overviewLoading && <span className={styles["status-text"]}>로딩 중...</span>}
+              {overviewLoading && (
+                <span className={styles["status-text"]}>로딩 중...</span>
+              )}
               {overviewError && (
                 <>
                   <span className={styles["status-text"]}>{overviewError}</span>
-                  <button className={styles["retry-button"]} onClick={fetchOverview} disabled={overviewLoading}>
+                  <button
+                    className={styles["retry-button"]}
+                    onClick={fetchOverview}
+                    disabled={overviewLoading}
+                  >
                     다시 시도
                   </button>
                 </>
@@ -553,21 +767,33 @@ const AdminDashboard: React.FC = () => {
           <section className={styles["stats-cards-section"]}>
             <div className={styles["stats-grid"]}>
               {overviewLoading
-                ? Array.from({ length: 6 }).map((_, idx) => <SkeletonStatCard key={idx} />)
-                : statsData.map((stat, index) => <StatCard key={index} {...stat} />)}
+                ? Array.from({ length: 6 }).map((_, idx) => (
+                    <SkeletonStatCard key={idx} />
+                  ))
+                : statsData.map((stat, index) => (
+                    <StatCard key={index} {...stat} />
+                  ))}
             </div>
           </section>
 
           <section className={styles["impact-section"]}>
             <h2>누적 환경 임팩트</h2>
-            <StatusRow loading={overviewLoading} error={overviewError} onRetry={fetchOverview} disabled={overviewLoading} />
+            <StatusRow
+              loading={overviewLoading}
+              error={overviewError}
+              onRetry={fetchOverview}
+              disabled={overviewLoading}
+            />
             <div className={styles["impact-grid"]}>
               {overviewLoading
-                ? Array.from({ length: 3 }).map((_, idx) => <SkeletonImpactCard key={idx} />)
-                : impactCards.map((impact, index) => <ImpactCard key={index} {...impact} />)}
+                ? Array.from({ length: 3 }).map((_, idx) => (
+                    <SkeletonImpactCard key={idx} />
+                  ))
+                : impactCards.map((impact, index) => (
+                    <ImpactCard key={index} {...impact} />
+                  ))}
             </div>
           </section>
-
         </div>
       </main>
     </div>
