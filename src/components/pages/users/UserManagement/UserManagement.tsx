@@ -304,12 +304,9 @@ const UserManagement: React.FC = () => {
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
-        <header className={styles["user-header"]} style={{ padding: 0, borderBottom: "none", height: "auto" }}>
-          <PageHeader title="유저 관리" subtitle="전체 유저 목록을 확인하고 관리하세요" />
-        </header>
+        <PageHeader title="유저 관리" subtitle="전체 유저 목록을 확인하고 관리하세요" />
 
-        {/* 유저 목록 섹션 */}
-        <div className={styles["users-section"]}>
+        <div className={styles["dashboard-content"]}>
           <DataList
             headerTitle="유저 목록"
             renderFilters={() => (
@@ -431,65 +428,34 @@ const UserManagement: React.FC = () => {
                 render: (u: User) => u.creditBalance.toLocaleString(),
               },
               {
-                key: "suspended",
-                title: "정지 여부",
-                width: 100,
-                render: (u: User) => (
-                  <span
-                    className={styles["status-badge"]}
-                    style={{
-                      backgroundColor: u.suspended ? "#fee2e2" : "#dcfce7",
-                      color: u.suspended ? "#991b1b" : "#166534",
-                      border: `1px solid ${u.suspended ? "#fca5a5" : "#86efac"}`,
-                    }}
-                  >
-                    {u.suspended ? "정지" : "정상"}
-                  </span>
-                ),
-              },
-              {
                 key: "joinedAt",
                 title: "가입일",
                 width: 130,
                 render: (u: User) => u.joinedAt,
               },
               {
+                key: "suspended",
+                title: "정지 여부",
+                width: 100,
+                align: "center",
+                render: (u: User) => (
+                  <span
+                    className={`${styles["status-badge"]} ${u.suspended ? styles["suspended"] : styles["normal"]}`}
+                  >
+                    {u.suspended ? "정지" : "정상"}
+                  </span>
+                ),
+              },
+              {
                 key: "actions",
                 title: "작업",
-                width: 100,
+                width: 80,
+                align: "center",
+                className: styles["actions-cell"],
                 render: (u: User) => (
                   <button
-                    className={styles["suspend-btn"]}
+                    className={`${styles["action-btn"]} ${u.suspended ? styles["unsuspend"] : styles["suspend"]}`}
                     onClick={() => handleSuspendClick(u.id, u.name, u.suspended)}
-                    style={{
-                      backgroundColor: u.suspended ? "#dcfce7" : "#fee2e2",
-                      color: u.suspended ? "#166534" : "#991b1b",
-                      border: `1px solid ${u.suspended ? "#86efac" : "#fca5a5"}`,
-                      padding: "6px 12px",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (u.suspended) {
-                        e.currentTarget.style.backgroundColor = "#bbf7d0";
-                        e.currentTarget.style.borderColor = "#4ade80";
-                      } else {
-                        e.currentTarget.style.backgroundColor = "#fecaca";
-                        e.currentTarget.style.borderColor = "#f87171";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (u.suspended) {
-                        e.currentTarget.style.backgroundColor = "#dcfce7";
-                        e.currentTarget.style.borderColor = "#86efac";
-                      } else {
-                        e.currentTarget.style.backgroundColor = "#fee2e2";
-                        e.currentTarget.style.borderColor = "#fca5a5";
-                      }
-                    }}
                   >
                     {u.suspended ? "정지 해제" : "정지"}
                   </button>

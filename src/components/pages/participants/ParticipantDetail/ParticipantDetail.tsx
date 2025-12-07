@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ParticipantDetail.module.css";
 import apiRequest from "../../../../utils/api";
@@ -43,6 +44,13 @@ const ParticipantDetail: React.FC = () => {
   const [participant, setParticipant] = useState<ParticipantDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [ticketBalance, setTicketBalance] = useState<number>(0);
+  const [creditBalance, setCreditBalance] = useState<number>(0);
+  const [ticketBalanceInput, setTicketBalanceInput] = useState<string>("");
+  const [creditBalanceInput, setCreditBalanceInput] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const fetchParticipant = useCallback(async () => {
     if (!id) {
@@ -123,6 +131,74 @@ const ParticipantDetail: React.FC = () => {
     }
   };
 
+  const handleOpenEditModal = () => {
+    if (participant) {
+      setTicketBalance(participant.ticketBalance);
+      setCreditBalance(participant.creditBalance);
+      setTicketBalanceInput(participant.ticketBalance.toString());
+      setCreditBalanceInput(participant.creditBalance.toString());
+      setModalError(null);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setModalError(null);
+  };
+
+  const handleSubmitEdit = async () => {
+    if (!id || !participant) return;
+
+    if (ticketBalance < 0 || creditBalance < 0) {
+      setModalError("티켓 수와 크레딧은 0 이상이어야 합니다.");
+      return;
+    }
+
+    if (ticketBalance === participant.ticketBalance && creditBalance === participant.creditBalance) {
+      setModalError("변경된 내용이 없습니다.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setModalError(null);
+
+    try {
+      const requestBody: { ticketBalance?: number; creditBalance?: number } = {};
+      if (ticketBalance !== participant.ticketBalance) {
+        requestBody.ticketBalance = ticketBalance;
+      }
+      if (creditBalance !== participant.creditBalance) {
+        requestBody.creditBalance = creditBalance;
+      }
+
+      const response = await apiRequest(`/admin/participants/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.errorCode === "U1002") {
+          setModalError("티켓 수 또는 크레딧 중 하나 이상을 입력해주세요.");
+        } else if (errorData.errorCode === "U1001") {
+          setModalError("참가자를 찾을 수 없습니다.");
+        } else {
+          setModalError(errorData.message || "참가자 정보 수정에 실패했습니다.");
+        }
+        return;
+      }
+
+      setIsEditModalOpen(false);
+      fetchParticipant();
+    } catch (error) {
+      console.error("Error updating participant:", error);
+      setModalError("참가자 정보 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles["participant-detail-page"]}>
@@ -162,11 +238,13 @@ const ParticipantDetail: React.FC = () => {
             {/* 참가자 요약 카드 */}
             <section className={`${styles["section"]} ${styles["summary-card"]}`}>
               <div className={styles["summary-left"]}>
-                <img
-                  className={`${styles["avatar"]} ${styles["large"]}`}
-                  src={participant.avatarUrl || "/admin/img/icon/basic-profile.svg"}
-                  alt={participant.name}
-                />
+                {participant.avatarUrl && (
+                  <img
+                    className={`${styles["avatar"]} ${styles["large"]}`}
+                    src={participant.avatarUrl}
+                    alt={participant.name}
+                  />
+                )}
                 <div className={styles["summary-meta"]}>
                   <h2 className={styles["summary-name"]}>{participant.name}</h2>
                   <div className={styles["inline-stats"]}>
@@ -181,6 +259,10 @@ const ParticipantDetail: React.FC = () => {
                   </div>
                 </div>
               </div>
+              <button className={styles["edit-button"]} onClick={handleOpenEditModal} aria-label="참가자 정보 수정">
+                <img src="/admin/img/icon/edit.svg" alt="수정" />
+                수정
+              </button>
             </section>
 
             {/* 환경 임팩트 기록 섹션 */}
@@ -324,6 +406,95 @@ const ParticipantDetail: React.FC = () => {
           </section>
         </section>
       </main>
+
+      {/* 수정 모달 */}
+      {isEditModalOpen &&
+        createPortal(
+          <div className={styles["edit-modal-overlay"]} onClick={handleCloseEditModal}>
+            <div className={styles["edit-modal-content"]} onClick={(e) => e.stopPropagation()}>
+              <div className={styles["edit-modal-header"]}>
+                <h2 className={styles["edit-modal-title"]}>참가자 잔액 조정</h2>
+                <button className={styles["edit-modal-close"]} onClick={handleCloseEditModal} aria-label="닫기">
+                  ×
+                </button>
+              </div>
+              <div className={styles["edit-modal-body"]}>
+                {modalError && <div className={styles["edit-modal-error"]}>{modalError}</div>}
+                <div className={styles["edit-form-group"]}>
+                  <label htmlFor="ticketBalance">티켓 수</label>
+                  <input
+                    id="ticketBalance"
+                    type="number"
+                    value={ticketBalanceInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setTicketBalanceInput(value);
+                      const numValue = value === "" ? 0 : Math.max(0, Number(value));
+                      setTicketBalance(numValue);
+                    }}
+                    onFocus={(e) => {
+                      if (e.target.value === "0") {
+                        setTicketBalanceInput("");
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === "" || e.target.value === "0") {
+                        setTicketBalanceInput("0");
+                        setTicketBalance(0);
+                      }
+                    }}
+                    min="0"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className={styles["edit-form-group"]}>
+                  <label htmlFor="creditBalance">크레딧</label>
+                  <input
+                    id="creditBalance"
+                    type="number"
+                    value={creditBalanceInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setCreditBalanceInput(value);
+                      const numValue = value === "" ? 0 : Math.max(0, Number(value));
+                      setCreditBalance(numValue);
+                    }}
+                    onFocus={(e) => {
+                      if (e.target.value === "0") {
+                        setCreditBalanceInput("");
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === "" || e.target.value === "0") {
+                        setCreditBalanceInput("0");
+                        setCreditBalance(0);
+                      }
+                    }}
+                    min="0"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+              <div className={styles["edit-modal-footer"]}>
+                <button
+                  className={`${styles["edit-modal-btn"]} ${styles["cancel-btn"]}`}
+                  onClick={handleCloseEditModal}
+                  disabled={isSubmitting}
+                >
+                  취소
+                </button>
+                <button
+                  className={`${styles["edit-modal-btn"]} ${styles["confirm-btn"]}`}
+                  onClick={handleSubmitEdit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "저장 중..." : "저장"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

@@ -63,6 +63,11 @@ const OrderManagement: React.FC = () => {
     return searchParams.get("sort") || "LATEST";
   };
 
+  const getSizeFromUrl = () => {
+    const size = searchParams.get("size");
+    return size ? parseInt(size, 10) : 20;
+  };
+
   const [selectedStatus, setSelectedStatus] = useState<string>(getStatusFromUrl());
   const [searchTerm, setSearchTerm] = useState<string>(getSearchTermFromUrl());
   const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>(getSearchTermFromUrl());
@@ -70,7 +75,7 @@ const OrderManagement: React.FC = () => {
   const [appliedSearchScope, setAppliedSearchScope] = useState<string>(getSearchScopeFromUrl());
   const [sortBy, setSortBy] = useState<string>(getSortFromUrl());
   const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
-  const [pageSize, setPageSize] = useState<number>(20);
+  const [pageSize, setPageSize] = useState<number>(getSizeFromUrl());
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalElements, setTotalElements] = useState<number>(0);
@@ -85,6 +90,7 @@ const OrderManagement: React.FC = () => {
     keywordScope?: string;
     status?: string;
     sort?: string;
+    size?: number;
   }) => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -128,6 +134,14 @@ const OrderManagement: React.FC = () => {
       }
     }
 
+    if (updates.size !== undefined) {
+      if (updates.size === 20) {
+        newParams.delete("size");
+      } else {
+        newParams.set("size", updates.size.toString());
+      }
+    }
+
     setSearchParams(newParams, { replace: true });
   };
 
@@ -137,6 +151,7 @@ const OrderManagement: React.FC = () => {
     const urlKeywordScope = getSearchScopeFromUrl();
     const urlStatus = getStatusFromUrl();
     const urlSort = getSortFromUrl();
+    const urlSize = getSizeFromUrl();
 
     if (urlPage !== currentPage) setCurrentPage(urlPage);
     if (urlKeyword !== appliedSearchTerm) {
@@ -149,6 +164,7 @@ const OrderManagement: React.FC = () => {
     }
     if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
     if (urlSort !== sortBy) setSortBy(urlSort);
+    if (urlSize !== pageSize) setPageSize(urlSize);
   }, [searchParams]);
 
   const fetchOrders = useCallback(async () => {
@@ -390,7 +406,6 @@ const OrderManagement: React.FC = () => {
                 key: "unitPrice",
                 title: "단가",
                 width: 100,
-                align: "right",
                 className: styles["price-cell"],
                 render: (row: Order) => `${formatPrice(row.unitPrice)}원`,
               },
@@ -398,7 +413,6 @@ const OrderManagement: React.FC = () => {
                 key: "totalPrice",
                 title: "총액",
                 width: 120,
-                align: "right",
                 className: styles["price-cell"],
                 render: (row: Order) => `${formatPrice(row.totalPrice)}원`,
               },
@@ -408,13 +422,6 @@ const OrderManagement: React.FC = () => {
                 width: 120,
                 dataIndex: "pickupLocation",
                 className: styles["location-cell"],
-              },
-              {
-                key: "status",
-                title: "상태",
-                width: 100,
-                align: "center",
-                render: (row: Order) => getStatusBadge(row.status),
               },
               {
                 key: "purchasedAt",
@@ -441,6 +448,13 @@ const OrderManagement: React.FC = () => {
                     </div>
                   ) : "-"
                 ),
+              },
+              {
+                key: "status",
+                title: "상태",
+                width: 100,
+                align: "center",
+                render: (row: Order) => getStatusBadge(row.status),
               },
               {
                 key: "actions",
@@ -477,7 +491,7 @@ const OrderManagement: React.FC = () => {
             onPageSizeChange={(s) => {
               setPageSize(s);
               setCurrentPage(0);
-              updateUrlParams({ page: 0 });
+              updateUrlParams({ page: 0, size: s });
             }}
           />
         </div>
