@@ -94,12 +94,7 @@ const ProductEdit: React.FC = () => {
           });
           setQuantity(data.stock.toString());
           const fetchedMaxPurchase = data.maxPurchasePerUser;
-          if (fetchedMaxPurchase === null || fetchedMaxPurchase === undefined) {
-            setMaxPurchasePerUser("");
-          } else {
-            const parsedMax = parseInt(fetchedMaxPurchase as unknown as string, 10);
-            setMaxPurchasePerUser(Number.isNaN(parsedMax) ? "" : parsedMax.toString());
-          }
+          setMaxPurchasePerUser(fetchedMaxPurchase != null ? fetchedMaxPurchase.toString() : "");
           setPickupLocations(data.pickupLocations && data.pickupLocations.length > 0 ? data.pickupLocations : [""]);
 
           const imagePreviews: ProductImage[] = [];
