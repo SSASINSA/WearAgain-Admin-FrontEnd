@@ -309,6 +309,29 @@ const PostsManagement: React.FC = () => {
     }
   };
 
+  const handleDelete = async (postId: number) => {
+    const confirmed = window.confirm("정말 이 게시글을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const response = await apiRequest(`/admin/posts/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "게시글 삭제에 실패했습니다.");
+      }
+
+      alert("게시글이 삭제되었습니다.");
+      fetchPosts();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "게시글 삭제에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error deleting post:", err);
+    }
+  };
+
   return (
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
@@ -470,8 +493,12 @@ const PostsManagement: React.FC = () => {
                   width: 60,
                   align: "center",
                   className: styles["actions-cell"],
-                  render: () => (
-                    <button className={`${styles["action-btn"]} ${styles["delete"]}`} title="삭제">
+                  render: (row: any) => (
+                    <button
+                      className={`${styles["action-btn"]} ${styles["delete"]}`}
+                      title="삭제"
+                      onClick={() => handleDelete(row.id)}
+                    >
                       <img src="/admin/img/icon/delete.svg" alt="삭제" />
                     </button>
                   ),
