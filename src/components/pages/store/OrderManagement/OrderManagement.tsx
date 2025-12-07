@@ -410,13 +410,6 @@ const OrderManagement: React.FC = () => {
                 className: styles["location-cell"],
               },
               {
-                key: "status",
-                title: "상태",
-                width: 100,
-                align: "center",
-                render: (row: Order) => getStatusBadge(row.status),
-              },
-              {
                 key: "purchasedAt",
                 title: "주문일",
                 width: 120,
@@ -441,6 +434,13 @@ const OrderManagement: React.FC = () => {
                     </div>
                   ) : "-"
                 ),
+              },
+              {
+                key: "status",
+                title: "상태",
+                width: 100,
+                align: "center",
+                render: (row: Order) => getStatusBadge(row.status),
               },
               {
                 key: "actions",
