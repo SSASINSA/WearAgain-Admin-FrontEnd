@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DaumPostcode from "react-daum-postcode";
@@ -14,7 +14,6 @@ const eventContentIcon = "/admin/img/icon/document.svg";
 const eventDateIcon = "/admin/img/icon/calendar.svg";
 const eventLocationIcon = "/admin/img/icon/location-pin.svg";
 const locationSearchIcon = "/admin/img/icon/search.svg";
-const saveIcon = "/admin/img/icon/save.svg";
 const updateIcon = "/admin/img/icon/edit.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
@@ -25,7 +24,7 @@ const infoIcon = "/admin/img/icon/info-circle.svg";
 interface EventImage {
   imageId: number;
   url: string;
-  altText: string;
+  altText: string | null;
   displayOrder: number;
 }
 
@@ -88,27 +87,20 @@ interface EventImageState {
   imageId: number | null;
 }
 
-interface OptionValue {
+interface EventOptionNode {
   id: string;
-  value: string;
-}
-
-interface EventOption {
-  id: string;
-  type: string;
   name: string;
-  values: OptionValue[];
-  required: boolean;
+  displayOrder: number;
+  capacity: number | null;
+  children: EventOptionNode[];
+  parentId: string | null;
 }
 
-interface OptionCombination {
-  id: string;
-  optionValues: { [key: string]: string };
-  optionPrice: string;
-  stock: string;
-  addStock: string;
-  sku: string;
-  status: string;
+interface EventAdminCreateOptionRequest {
+  name: string;
+  displayOrder: number;
+  capacity: number | null;
+  children: EventAdminCreateOptionRequest[];
 }
 
 const DateInputWithIcon = React.forwardRef<
@@ -153,11 +145,12 @@ const EventEdit: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [options, setOptions] = useState<EventOption[]>([]);
-  const [optionCombinations, setOptionCombinations] = useState<OptionCombination[]>([]);
-  const [isCombinedOption, setIsCombinedOption] = useState(false);
-  const [requiredOptions, setRequiredOptions] = useState(false);
-  const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
+  const [options, setOptions] = useState<EventOptionNode[]>([]);
+  const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
+  const [showAddDropdown, setShowAddDropdown] = useState(false);
+  const [showMoreMenuId, setShowMoreMenuId] = useState<string | null>(null);
+  const addDropdownRef = useRef<HTMLDivElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchEventDetail = async () => {
@@ -193,6 +186,11 @@ const EventEdit: React.FC = () => {
         });
         setOriginalLocation(data.location || "");
 
+        if (data.options && data.options.length > 0) {
+          const convertedOptions = convertApiOptionsToNodes(data.options);
+          setOptions(convertedOptions);
+        }
+
         if (data.images && data.images.length > 0) {
           const imageStates: EventImageState[] = data.images
             .sort((a, b) => a.displayOrder - b.displayOrder)
@@ -227,6 +225,217 @@ const EventEdit: React.FC = () => {
 
     fetchEventDetail();
   }, [id]);
+
+  const generateOptionId = () => `option-${Date.now()}-${Math.random()}`;
+
+  const convertApiOptionsToNodes = (apiOptions: any[]): EventOptionNode[] => {
+    const nodes: EventOptionNode[] = [];
+    let nodeIdCounter = 0;
+
+    const convertNode = (apiNode: any, parentId: string | null, displayOrder: number): EventOptionNode => {
+      const nodeId = `option-${nodeIdCounter++}`;
+      const node: EventOptionNode = {
+        id: nodeId,
+        name: apiNode.name || "",
+        displayOrder: displayOrder,
+        capacity: apiNode.capacity || null,
+        children: [],
+        parentId: parentId,
+      };
+
+      if (apiNode.children && apiNode.children.length > 0) {
+        node.children = apiNode.children.map((child: any, index: number) =>
+          convertNode(child, nodeId, index + 1)
+        );
+      }
+
+      return node;
+    };
+
+    const flattenNode = (node: EventOptionNode): EventOptionNode[] => {
+      const result: EventOptionNode[] = [node];
+      if (node.children && node.children.length > 0) {
+        node.children.forEach((child) => {
+          result.push(...flattenNode(child));
+        });
+      }
+      return result;
+    };
+
+    apiOptions.forEach((apiOption, index) => {
+      const rootNode = convertNode(apiOption, null, index + 1);
+      nodes.push(...flattenNode(rootNode));
+    });
+
+    return nodes;
+  };
+
+  const getNextDisplayOrder = (parentId: string | null): number => {
+    const siblings = options.filter((opt) => opt.parentId === parentId);
+    if (siblings.length === 0) return 1;
+    return Math.max(...siblings.map((opt) => opt.displayOrder)) + 1;
+  };
+
+  const handleAddCategory = () => {
+    const newCategory: EventOptionNode = {
+      id: generateOptionId(),
+      name: "",
+      displayOrder: getNextDisplayOrder(null),
+      capacity: null,
+      children: [],
+      parentId: null,
+    };
+    setOptions([...options, newCategory]);
+    setEditingOptionId(newCategory.id);
+    setShowAddDropdown(false);
+  };
+
+  const getOptionDepth = (optionId: string): number => {
+    const option = options.find((opt) => opt.id === optionId);
+    if (!option || !option.parentId) return 0;
+    return 1 + getOptionDepth(option.parentId);
+  };
+
+  const handleAddChild = (parentId: string) => {
+    const parent = options.find((opt) => opt.id === parentId);
+    if (!parent) return;
+
+    const parentDepth = getOptionDepth(parentId);
+    if (parentDepth >= 3) {
+      alert("최대 3depth까지만 추가할 수 있습니다.");
+      return;
+    }
+
+    const siblings = options.filter((opt) => opt.parentId === parentId);
+    const newChild: EventOptionNode = {
+      id: generateOptionId(),
+      name: "",
+      displayOrder: siblings.length > 0 ? Math.max(...siblings.map((opt) => opt.displayOrder)) + 1 : 1,
+      capacity: null,
+      children: [],
+      parentId: parentId,
+    };
+    setOptions((prevOptions) => {
+      const updatedOptions = prevOptions.map((opt) => {
+        if (opt.id === parentId) {
+          return { ...opt, capacity: null };
+        }
+        return opt;
+      });
+      return [...updatedOptions, newChild];
+    });
+    setEditingOptionId(newChild.id);
+    setTimeout(() => {
+      setShowMoreMenuId(null);
+    }, 0);
+  };
+
+  const handleRemoveOption = (optionId: string) => {
+    if (!window.confirm("이 옵션을 삭제하시겠습니까? 하위 항목도 함께 삭제됩니다.")) {
+      return;
+    }
+
+    setOptions((prevOptions) => {
+      const idsToRemove = new Set<string>();
+      const collectIds = (nodeId: string) => {
+        idsToRemove.add(nodeId);
+        prevOptions.filter((opt) => opt.parentId === nodeId).forEach((child) => collectIds(child.id));
+      };
+      collectIds(optionId);
+
+      const newOptions = prevOptions.filter((opt) => !idsToRemove.has(opt.id));
+      return reorderDisplayOrders(newOptions);
+    });
+    
+    setShowMoreMenuId(null);
+  };
+
+  const reorderDisplayOrders = (opts: EventOptionNode[]): EventOptionNode[] => {
+    const groupedByParent = new Map<string | null, EventOptionNode[]>();
+    opts.forEach((opt) => {
+      const parentId = opt.parentId;
+      if (!groupedByParent.has(parentId)) {
+        groupedByParent.set(parentId, []);
+      }
+      groupedByParent.get(parentId)!.push(opt);
+    });
+
+    const reordered: EventOptionNode[] = [];
+    groupedByParent.forEach((siblings, parentId) => {
+      siblings
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .forEach((opt, index) => {
+          reordered.push({
+            ...opt,
+            displayOrder: index + 1,
+          });
+        });
+    });
+
+    return reordered;
+  };
+
+  const handleOptionChange = (optionId: string, field: string, value: string | number | null) => {
+    setOptions(
+      options.map((opt) => {
+        if (opt.id === optionId) {
+          if (field === "capacity") {
+            return { ...opt, capacity: value as number | null };
+          }
+          return { ...opt, [field]: value };
+        }
+        return opt;
+      })
+    );
+  };
+
+  const convertToApiFormat = (opts: EventOptionNode[]): EventAdminCreateOptionRequest[] => {
+    const rootOptions = opts.filter((opt) => opt.parentId === null);
+    return rootOptions
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((opt) => convertNodeToApiFormat(opt, opts));
+  };
+
+  const convertNodeToApiFormat = (
+    node: EventOptionNode,
+    allOptions: EventOptionNode[]
+  ): EventAdminCreateOptionRequest => {
+    const children = allOptions
+      .filter((opt) => opt.parentId === node.id)
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((child) => convertNodeToApiFormat(child, allOptions));
+
+    const hasChildren = allOptions.some((opt) => opt.parentId === node.id);
+
+    return {
+      name: node.name,
+      displayOrder: node.displayOrder,
+      capacity: hasChildren ? null : node.capacity,
+      children: children,
+    };
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      
+      if (addDropdownRef.current && !addDropdownRef.current.contains(target)) {
+        setShowAddDropdown(false);
+      }
+      
+      const clickedMoreMenu = target.closest('[class*="option-more-menu"]');
+      const clickedMoreBtn = target.closest('[class*="option-more-btn"]');
+      
+      if (!clickedMoreMenu && !clickedMoreBtn) {
+        setShowMoreMenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -539,102 +748,95 @@ const EventEdit: React.FC = () => {
         return;
       }
 
-      const validateOptions = (options: any[], depth: number = 0): void => {
-        if (depth > 3) {
-          throw new Error("options의 최대 depth는 3입니다.");
-        }
-
-        const displayOrders: number[] = [];
-        const names: string[] = [];
-
-        for (let i = 0; i < options.length; i++) {
-          const option = options[i];
-
-          if (!option.name || option.name.trim().length === 0) {
-            throw new Error(`options[${i}]의 name은 필수이며 1자 이상 100자 이하여야 합니다.`);
+      const validateOptions = (opts: EventOptionNode[]): void => {
+        const validateNode = (node: EventOptionNode, depth: number, parentId: string | null): void => {
+          if (depth > 2) {
+            throw new Error("options의 최대 depth는 3입니다.");
           }
 
-          if (option.name.trim().length < 1 || option.name.trim().length > 100) {
-            throw new Error(`options[${i}]의 name은 1자 이상 100자 이하여야 합니다.`);
+          if (!node.name || node.name.trim().length === 0) {
+            throw new Error(`옵션의 이름을 입력해주세요.`);
           }
 
-          if (names.includes(option.name.trim())) {
-            throw new Error(`options[${i}]의 name이 중복되었습니다.`);
-          }
-          names.push(option.name.trim());
-
-          if (!option.type || option.type.trim().length === 0) {
-            throw new Error(`options[${i}]의 type은 필수이며 1자 이상 50자 이하여야 합니다.`);
+          if (node.name.trim().length < 1 || node.name.trim().length > 100) {
+            throw new Error(`옵션 "${node.name}"의 이름은 1자 이상 100자 이하여야 합니다.`);
           }
 
-          if (option.type.trim().length < 1 || option.type.trim().length > 50) {
-            throw new Error(`options[${i}]의 type은 1자 이상 50자 이하여야 합니다.`);
+          const siblings = opts.filter((opt) => opt.parentId === parentId && opt.id !== node.id);
+          const duplicateName = siblings.find((sibling) => sibling.name.trim() === node.name.trim());
+          if (duplicateName) {
+            throw new Error(`옵션 "${node.name}"의 이름이 중복되었습니다.`);
           }
 
-          if (option.displayOrder === undefined || option.displayOrder === null) {
-            throw new Error(`options[${i}]의 displayOrder는 필수이며 1 이상이어야 합니다.`);
-          }
-
-          if (typeof option.displayOrder !== "number" || option.displayOrder < 1) {
-            throw new Error(`options[${i}]의 displayOrder는 1 이상의 정수여야 합니다.`);
-          }
-
-          displayOrders.push(option.displayOrder);
-
-          if (option.capacity !== undefined && option.capacity !== null) {
-            if (typeof option.capacity !== "number" || !Number.isInteger(option.capacity)) {
-              throw new Error(`options[${i}]의 capacity는 정수여야 합니다.`);
+          const siblingDisplayOrders = siblings.map((s) => s.displayOrder).sort((a, b) => a - b);
+          const allSiblingDisplayOrders = [...siblingDisplayOrders, node.displayOrder].sort((a, b) => a - b);
+          for (let i = 0; i < allSiblingDisplayOrders.length; i++) {
+            if (allSiblingDisplayOrders[i] !== i + 1) {
+              throw new Error(`옵션 "${node.name}"의 displayOrder는 동일 레벨에서 1부터 연속된 순번이어야 합니다.`);
             }
           }
 
-          if (option.children && Array.isArray(option.children) && option.children.length > 0) {
-            validateOptions(option.children, depth + 1);
+          const children = opts.filter((opt) => opt.parentId === node.id);
+          if (children.length > 0) {
+            if (node.capacity !== null && node.capacity !== undefined) {
+              throw new Error(`옵션 "${node.name}"은 자식이 있으므로 수용 인원을 설정할 수 없습니다.`);
+            }
+            children.forEach((child) => validateNode(child, depth + 1, node.id));
+          } else {
+            if (node.capacity !== null && node.capacity !== undefined) {
+              if (typeof node.capacity !== "number" || !Number.isInteger(node.capacity) || node.capacity < 1 || node.capacity > 999) {
+                throw new Error(`옵션 "${node.name}"의 수용 인원은 1 이상 999 이하의 정수여야 합니다.`);
+              }
+            }
           }
-        }
+        };
 
-        const sortedDisplayOrders = [...displayOrders].sort((a, b) => a - b);
-        for (let i = 0; i < sortedDisplayOrders.length; i++) {
-          if (sortedDisplayOrders[i] !== i + 1) {
-            throw new Error(`options의 displayOrder는 1부터 연속되어야 합니다.`);
-          }
-        }
+        const rootOptions = opts.filter((opt) => opt.parentId === null);
+        rootOptions.forEach((root) => validateNode(root, 0, null));
       };
 
-      const options: any[] = [];
-
       try {
-        validateOptions(options);
+        const cleanedOptions = options.map((opt) => {
+          const hasChildren = options.some((o) => o.parentId === opt.id);
+          if (hasChildren) {
+            return { ...opt, capacity: null };
+          }
+          return opt;
+        });
+        validateOptions(cleanedOptions);
+        
+        const apiOptions = convertToApiFormat(cleanedOptions);
+
+        const requestData: EventUpdateRequest = {
+          title: formData.eventName.trim(),
+          description: formData.eventDescription.trim(),
+          usageGuide: formData.usageGuide || undefined,
+          precautions: formData.precautions || undefined,
+          location: fullLocation.trim(),
+          startDate: formatDate(formData.eventStartDate),
+          endDate: formatDate(formData.eventEndDate),
+          images: eventImages.length > 0 ? eventImages : null,
+          options: apiOptions.length > 0 ? apiOptions : null,
+        };
+
+        const response = await apiRequest(`/admin/events/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(requestData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "행사 수정에 실패했습니다.");
+        }
+
+        alert("행사가 수정되었습니다.");
+        setShowConfirmModal(false);
+        navigate(`/events/${id}`);
       } catch (error) {
         alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
         setIsSubmitting(false);
         return;
       }
-
-      const requestData: EventUpdateRequest = {
-        title: formData.eventName.trim(),
-        description: formData.eventDescription.trim(),
-        usageGuide: formData.usageGuide || undefined,
-        precautions: formData.precautions || undefined,
-        location: fullLocation.trim(),
-        startDate: formatDate(formData.eventStartDate),
-        endDate: formatDate(formData.eventEndDate),
-        images: eventImages.length > 0 ? eventImages : null,
-        options: options.length > 0 ? options : null,
-      };
-
-      const response = await apiRequest(`/admin/events/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "행사 수정에 실패했습니다.");
-      }
-
-    alert("행사가 수정되었습니다.");
-    setShowConfirmModal(false);
-    navigate(`/events/${id}`);
     } catch (error) {
       console.error("행사 수정 실패:", error);
       alert(error instanceof Error ? error.message : "행사 수정에 실패했습니다.");
@@ -647,184 +849,7 @@ const EventEdit: React.FC = () => {
     setShowConfirmModal(false);
   };
 
-  const handleAddOption = () => {
-    const newOption: EventOption = {
-      id: `option-${Date.now()}`,
-      type: "기본",
-      name: "",
-      values: [],
-      required: false,
-    };
-    setOptions([...options, newOption]);
-  };
 
-  const handleRemoveOption = (optionId: string) => {
-    const filteredOptions = options.filter((opt) => opt.id !== optionId);
-    setOptions(filteredOptions);
-  };
-
-  const handleOptionChange = (optionId: string, field: string, value: string | boolean) => {
-    setOptions(
-      options.map((opt) => {
-        if (opt.id === optionId) {
-          return { ...opt, [field]: value };
-        }
-        return opt;
-      })
-    );
-  };
-
-  const handleAddOptionValue = (optionId: string, value: string) => {
-    if (!value.trim()) return;
-
-    setOptions(
-      options.map((opt) => {
-        if (opt.id === optionId) {
-          const newValue: OptionValue = {
-            id: `value-${Date.now()}-${Math.random()}`,
-            value: value.trim(),
-          };
-          return { ...opt, values: [...opt.values, newValue] };
-        }
-        return opt;
-      })
-    );
-  };
-
-  const handleRemoveOptionValue = (optionId: string, valueId: string) => {
-    setOptions(
-      options.map((opt) => {
-        if (opt.id === optionId) {
-          return { ...opt, values: opt.values.filter((v) => v.id !== valueId) };
-        }
-        return opt;
-      })
-    );
-  };
-
-  const generateCombinations = useCallback(
-    (opts: EventOption[]) => {
-      if (!isCombinedOption || opts.length === 0) {
-        setOptionCombinations([]);
-        return;
-      }
-
-      const validOptions = opts.filter((opt) => opt.name && opt.values.length > 0);
-      if (validOptions.length === 0) {
-        setOptionCombinations([]);
-        return;
-      }
-
-      const combinations: OptionCombination[] = [];
-      const generate = (current: { [key: string]: string }, remaining: EventOption[]) => {
-        if (remaining.length === 0) {
-          combinations.push({
-            id: `comb-${Date.now()}-${Math.random()}`,
-            optionValues: { ...current },
-            optionPrice: "",
-            stock: "0",
-            addStock: "",
-            sku: "",
-            status: "판매중",
-          });
-          return;
-        }
-
-        const [first, ...rest] = remaining;
-        first.values.forEach((val) => {
-          generate({ ...current, [first.name]: val.value }, rest);
-        });
-      };
-
-      generate({}, validOptions);
-      setOptionCombinations(combinations);
-    },
-    [isCombinedOption]
-  );
-
-  useEffect(() => {
-    generateCombinations(options);
-  }, [options, generateCombinations]);
-
-  const handleCombinationChange = (combinationId: string, field: string, value: string) => {
-    setOptionCombinations(
-      optionCombinations.map((comb) => {
-        if (comb.id === combinationId) {
-          return { ...comb, [field]: value };
-        }
-        return comb;
-      })
-    );
-  };
-
-  const formatPrice = (price: string) => {
-    if (!price) return "";
-    const numPrice = parseInt(price, 10);
-    if (isNaN(numPrice)) return "";
-    return `KRW ${numPrice.toLocaleString()}`;
-  };
-
-  const handlePriceInput = (combinationId: string, value: string) => {
-    const numericValue = value.replace(/[^0-9]/g, "");
-    handleCombinationChange(combinationId, "optionPrice", numericValue);
-  };
-
-  const handleSaveDraft = async () => {
-    try {
-      const formatDate = (date: Date | null): string => {
-        if (!date) return "";
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
-
-      const fullLocation = !hasStartedEditingAddress
-        ? originalLocation
-        : formData.eventLocationDetail
-        ? `${formData.eventLocation}, ${formData.eventLocationDetail}`
-        : formData.eventLocation;
-
-      const existingImages = images.filter((img) => img.imageUrl && !img.file);
-      const allImages: EventImageRequest[] = existingImages
-        .filter((img) => img.imageUrl)
-        .map((img, index) => ({
-          url: img.imageUrl!,
-          altText: `행사 이미지 ${index + 1}`,
-          displayOrder: index + 1,
-        }));
-
-      const options: any[] = [];
-
-      const requestData: EventUpdateRequest = {
-        title: formData.eventName.trim(),
-        description: formData.eventDescription.trim(),
-        usageGuide: formData.usageGuide || undefined,
-        precautions: formData.precautions || undefined,
-        location: fullLocation.trim(),
-        startDate: formatDate(formData.eventStartDate),
-        endDate: formatDate(formData.eventEndDate),
-        images: allImages.length > 0 ? allImages : null,
-        options: options.length > 0 ? options : null,
-        status: "DRAFT",
-      };
-
-      const response = await apiRequest(`/admin/events/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "임시저장에 실패했습니다.");
-      }
-
-    alert("임시저장되었습니다.");
-    } catch (error) {
-      console.error("임시저장 실패:", error);
-      alert(error instanceof Error ? error.message : "임시저장에 실패했습니다.");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -1087,209 +1112,466 @@ const EventEdit: React.FC = () => {
 
               {/* 행사 옵션 섹션 */}
               <div className={styles["form-group"]}>
-                <label className={styles["form-label"]}>
-                  <img src={eventContentIcon} alt="행사 옵션" className={styles["label-icon"]} />
-                  행사 옵션
-                </label>
-                <div className={styles["options-section"]}>
-                  {options.map((option) => (
-                    <div key={option.id} className={styles["option-row"]}>
-                      <div className={styles["option-type"]}>
-                        <label>옵션타입</label>
-                        <select value={option.type} onChange={(e) => handleOptionChange(option.id, "type", e.target.value)}>
-                          <option value="기본">기본</option>
-                        </select>
+                <div className={styles["option-header"]}>
+                  <label className={styles["option-title"]}>
+                    티켓을 설정해 주세요. <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <div className={styles["add-option-container"]} ref={addDropdownRef}>
+                    <button
+                      type="button"
+                      className={styles["add-option-button"]}
+                      onClick={() => setShowAddDropdown(!showAddDropdown)}
+                    >
+                      추가
+                      <img src="/admin/img/icon/dropdown.svg" alt="드롭다운" className={styles["dropdown-icon"]} />
+                    </button>
+                    {showAddDropdown && (
+                      <div className={styles["add-option-dropdown"]}>
+                        <button type="button" onClick={handleAddCategory}>
+                          카테고리 추가
+                        </button>
                       </div>
-                      <div className={styles["option-name"]}>
-                        <label>옵션명</label>
-                        <input
-                          type="text"
-                          value={option.name}
-                          onChange={(e) => handleOptionChange(option.id, "name", e.target.value)}
-                          placeholder="옵션명을 입력하세요"
-                        />
-                      </div>
-                      <div className={styles["option-values"]}>
-                        <label>옵션값</label>
-                        <div className={styles["option-values-input"]}>
-                          {option.values.map((val) => (
-                            <span key={val.id} className={styles["option-tag"]}>
-                              {val.value}
+                    )}
+                  </div>
+                </div>
+                <div className={styles["options-tree"]}>
+                  {options
+                    .filter((opt) => opt.parentId === null)
+                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                    .map((category) => (
+                      <div key={category.id} className={styles["option-tree-item"]}>
+                        <div className={styles["option-item-row"]}>
+                          <img src="/admin/img/icon/dropdown.svg" alt="드래그" className={styles["drag-icon"]} />
+                          {editingOptionId === category.id ? (
+                            <div className={styles["option-edit-form"]}>
+                              <input
+                                type="text"
+                                value={category.name}
+                                onChange={(e) => handleOptionChange(category.id, "name", e.target.value)}
+                                placeholder="카테고리 이름"
+                                className={styles["option-name-input"]}
+                                autoFocus
+                                onKeyPress={(e) => {
+                                  if (e.key === "Enter") {
+                                    setEditingOptionId(null);
+                                  }
+                                }}
+                              />
                               <button
                                 type="button"
-                                onClick={() => handleRemoveOptionValue(option.id, val.id)}
-                                className={styles["tag-remove"]}
+                                className={styles["option-save-btn"]}
+                                onClick={() => setEditingOptionId(null)}
                               >
-                                <img src="/admin/img/icon/x-reject.svg" alt="제거" />
+                                완료
                               </button>
-                            </span>
-                          ))}
-                          <input
-                            type="text"
-                            placeholder="옵션값 입력 후 Enter"
-                            onKeyPress={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleAddOptionValue(option.id, e.currentTarget.value);
-                                e.currentTarget.value = "";
-                              }
-                            }}
-                            className={styles["option-value-input"]}
-                          />
-                        </div>
-                      </div>
-                      <div className={styles["option-required"]}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={option.required}
-                            onChange={(e) => handleOptionChange(option.id, "required", e.target.checked)}
-                          />
-                          필수
-                        </label>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveOption(option.id)}
-                        className={styles["option-remove-btn"]}
-                      >
-                        <img src="/admin/img/icon/x-reject.svg" alt="옵션 제거" />
-                      </button>
-                    </div>
-                  ))}
-
-                  <button type="button" onClick={handleAddOption} className={styles["add-option-btn"]}>
-                    옵션 추가
-                  </button>
-                </div>
-
-                {optionCombinations.length > 0 && (
-                  <div className={styles["combinations-section"]}>
-                    <div className={styles["combinations-header"]}>
-                      <div className={styles["checkbox-group"]}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={requiredOptions}
-                            onChange={(e) => setRequiredOptions(e.target.checked)}
-                          />
-                          필수옵션
-                          <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
-                        </label>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={isCombinedOption}
-                            onChange={(e) => setIsCombinedOption(e.target.checked)}
-                          />
-                          조합형 옵션
-                          <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className={styles["combinations-table"]}>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th></th>
-                            {options
-                              .filter((opt) => opt.name && opt.values.length > 0)
-                              .map((opt) => (
-                                <th key={opt.id}>{opt.name}</th>
-                              ))}
-                            <th>
-                              옵션가격
-                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
-                            </th>
-                            <th>재고</th>
-                            <th>
-                              재고추가?
-                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
-                            </th>
-                            <th>
-                              재고번호 (SKU)
-                              <img src={infoIcon} alt="정보" className={styles["info-icon-small"]} />
-                            </th>
-                            <th>상태</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {optionCombinations.map((combination) => (
-                            <tr key={combination.id}>
-                              <td>
-                                <input type="checkbox" />
-                              </td>
-                              {options
-                                .filter((opt) => opt.name && opt.values.length > 0)
-                                .map((opt) => (
-                                  <td key={opt.id}>{combination.optionValues[opt.name] || ""}</td>
-                                ))}
-                              <td>
-                                <div className={styles["price-input-cell"]}>
-                                  <input
-                                    type="text"
-                                    value={
-                                      focusedPriceInput === combination.id
-                                        ? combination.optionPrice
-                                        : combination.optionPrice
-                                        ? formatPrice(combination.optionPrice)
-                                        : ""
-                                    }
-                                    onChange={(e) => handlePriceInput(combination.id, e.target.value)}
-                                    onFocus={() => setFocusedPriceInput(combination.id)}
-                                    onBlur={() => setFocusedPriceInput(null)}
-                                    placeholder="0"
-                                  />
+                            </div>
+                          ) : (
+                            <>
+                              <span className={styles["option-name"]}>{category.name || "이름 없음"}</span>
+                            </>
+                          )}
+                          <div className={styles["option-actions"]}>
+                            <button
+                              type="button"
+                              className={styles["option-edit-btn"]}
+                              onClick={() => setEditingOptionId(category.id)}
+                            >
+                              수정
+                            </button>
+                            <div className={styles["option-more-container"]} ref={moreMenuRef}>
+                              <button
+                                type="button"
+                                className={styles["option-more-btn"]}
+                                onClick={() => setShowMoreMenuId(showMoreMenuId === category.id ? null : category.id)}
+                              >
+                                <span className={styles["more-dots"]}>⋯</span>
+                              </button>
+                              {showMoreMenuId === category.id && (
+                                <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddChild(category.id);
+                                    }}
+                                  >
+                                    항목 추가
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveOption(category.id);
+                                    }}
+                                    style={{ display: "block" }}
+                                  >
+                                    삭제
+                                  </button>
                                 </div>
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={combination.stock}
-                                  onChange={(e) => handleCombinationChange(combination.id, "stock", e.target.value)}
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={combination.addStock}
-                                  onChange={(e) => handleCombinationChange(combination.id, "addStock", e.target.value)}
-                                  placeholder="0"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  type="text"
-                                  value={combination.sku}
-                                  onChange={(e) => handleCombinationChange(combination.id, "sku", e.target.value)}
-                                  placeholder="SKU 번호"
-                                />
-                              </td>
-                              <td>
-                                <select
-                                  value={combination.status}
-                                  onChange={(e) => handleCombinationChange(combination.id, "status", e.target.value)}
-                                >
-                                  <option value="판매중">판매중</option>
-                                  <option value="품절">품절</option>
-                                  <option value="판매중지">판매중지</option>
-                                </select>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {options
+                          .filter((opt) => opt.parentId === category.id)
+                          .sort((a, b) => a.displayOrder - b.displayOrder)
+                          .map((item) => {
+                            const itemDepth = getOptionDepth(item.id);
+                            const hasChildren = options.some((opt) => opt.parentId === item.id);
+                            return (
+                              <div key={item.id} className={styles["option-tree-item-child"]}>
+                                <div className={styles["option-item-row"]}>
+                                  <img src="/admin/img/icon/dropdown.svg" alt="드래그" className={styles["drag-icon"]} />
+                                  {editingOptionId === item.id ? (
+                                    <div className={styles["option-edit-form"]}>
+                                      <input
+                                        type="text"
+                                        value={item.name}
+                                        onChange={(e) => handleOptionChange(item.id, "name", e.target.value)}
+                                        placeholder="항목 이름"
+                                        className={styles["option-name-input"]}
+                                        autoFocus
+                                        onKeyPress={(e) => {
+                                          if (e.key === "Enter") {
+                                            setEditingOptionId(null);
+                                          }
+                                        }}
+                                      />
+                                      {!hasChildren && (
+                                        <input
+                                          type="number"
+                                          value={item.capacity || ""}
+                                          onChange={(e) =>
+                                            handleOptionChange(
+                                              item.id,
+                                              "capacity",
+                                              e.target.value ? parseInt(e.target.value, 10) : null
+                                            )
+                                          }
+                                          placeholder="수용 인원"
+                                          className={styles["option-capacity-input"]}
+                                          min={1}
+                                          max={999}
+                                          onKeyPress={(e) => {
+                                            if (e.key === "Enter") {
+                                              setEditingOptionId(null);
+                                            }
+                                          }}
+                                        />
+                                      )}
+                                      <button
+                                        type="button"
+                                        className={styles["option-save-btn"]}
+                                        onClick={() => setEditingOptionId(null)}
+                                      >
+                                        완료
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <span className={styles["option-name"]}>{item.name || "이름 없음"}</span>
+                                      {!hasChildren && (
+                                        <>
+                                          <span className={styles["option-quantity"]}>
+                                            수량 : 0/{item.capacity || 0}
+                                          </span>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                  <div className={styles["option-actions"]}>
+                                    <button
+                                      type="button"
+                                      className={styles["option-edit-btn"]}
+                                      onClick={() => setEditingOptionId(item.id)}
+                                    >
+                                      수정
+                                    </button>
+                                    <div className={styles["option-more-container"]}>
+                                      <button
+                                        type="button"
+                                        className={styles["option-more-btn"]}
+                                        onClick={() => setShowMoreMenuId(showMoreMenuId === item.id ? null : item.id)}
+                                      >
+                                        <span className={styles["more-dots"]}>⋯</span>
+                                      </button>
+                                      {showMoreMenuId === item.id && (
+                                        <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
+                                          {itemDepth < 3 && (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAddChild(item.id);
+                                              }}
+                                            >
+                                              항목 추가
+                                            </button>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleRemoveOption(item.id);
+                                            }}
+                                            style={{ display: "block" }}
+                                          >
+                                            삭제
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                {options
+                                  .filter((opt) => opt.parentId === item.id)
+                                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                                  .map((subItem) => {
+                                    const subItemDepth = getOptionDepth(subItem.id);
+                                    const subItemHasChildren = options.some((opt) => opt.parentId === subItem.id);
+                                    return (
+                                      <div key={subItem.id} className={styles["option-tree-item-child"]} style={{ paddingLeft: "40px" }}>
+                                        <div className={styles["option-item-row"]}>
+                                          <img src="/admin/img/icon/dropdown.svg" alt="드래그" className={styles["drag-icon"]} />
+                                          {editingOptionId === subItem.id ? (
+                                            <div className={styles["option-edit-form"]}>
+                                              <input
+                                                type="text"
+                                                value={subItem.name}
+                                                onChange={(e) => handleOptionChange(subItem.id, "name", e.target.value)}
+                                                placeholder="항목 이름"
+                                                className={styles["option-name-input"]}
+                                                autoFocus
+                                                onKeyPress={(e) => {
+                                                  if (e.key === "Enter") {
+                                                    setEditingOptionId(null);
+                                                  }
+                                                }}
+                                              />
+                                              {!subItemHasChildren && (
+                                                <input
+                                                  type="number"
+                                                  value={subItem.capacity || ""}
+                                                  onChange={(e) =>
+                                                    handleOptionChange(
+                                                      subItem.id,
+                                                      "capacity",
+                                                      e.target.value ? parseInt(e.target.value, 10) : null
+                                                    )
+                                                  }
+                                                  placeholder="수용 인원"
+                                                  className={styles["option-capacity-input"]}
+                                                  min={1}
+                                                  max={999}
+                                                  onKeyPress={(e) => {
+                                                    if (e.key === "Enter") {
+                                                      setEditingOptionId(null);
+                                                    }
+                                                  }}
+                                                />
+                                              )}
+                                              <button
+                                                type="button"
+                                                className={styles["option-save-btn"]}
+                                                onClick={() => setEditingOptionId(null)}
+                                              >
+                                                완료
+                                              </button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span className={styles["option-name"]}>{subItem.name || "이름 없음"}</span>
+                                              {!subItemHasChildren && (
+                                                <>
+                                                  <span className={styles["option-quantity"]}>
+                                                    수량 : 0/{subItem.capacity || 0}
+                                                  </span>
+                                                </>
+                                              )}
+                                            </>
+                                          )}
+                                          <div className={styles["option-actions"]}>
+                                            <button
+                                              type="button"
+                                              className={styles["option-edit-btn"]}
+                                              onClick={() => setEditingOptionId(subItem.id)}
+                                            >
+                                              수정
+                                            </button>
+                                            <div className={styles["option-more-container"]}>
+                                              <button
+                                                type="button"
+                                                className={styles["option-more-btn"]}
+                                                onClick={() => setShowMoreMenuId(showMoreMenuId === subItem.id ? null : subItem.id)}
+                                              >
+                                                <span className={styles["more-dots"]}>⋯</span>
+                                              </button>
+                                              {showMoreMenuId === subItem.id && (
+                                                <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
+                                                  {subItemDepth < 2 && (
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddChild(subItem.id);
+                                                      }}
+                                                    >
+                                                      항목 추가
+                                                    </button>
+                                                  )}
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleRemoveOption(subItem.id);
+                                                    }}
+                                                    style={{ display: "block" }}
+                                                  >
+                                                    삭제
+                                                  </button>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        {options
+                                          .filter((opt) => opt.parentId === subItem.id)
+                                          .sort((a, b) => a.displayOrder - b.displayOrder)
+                                          .map((finalItem) => {
+                                            const finalItemHasChildren = options.some((opt) => opt.parentId === finalItem.id);
+                                            return (
+                                              <div key={finalItem.id} className={styles["option-tree-item-child"]} style={{ paddingLeft: "80px" }}>
+                                                <div className={styles["option-item-row"]}>
+                                                  <img src="/admin/img/icon/dropdown.svg" alt="드래그" className={styles["drag-icon"]} />
+                                                  {editingOptionId === finalItem.id ? (
+                                                    <div className={styles["option-edit-form"]}>
+                                                      <input
+                                                        type="text"
+                                                        value={finalItem.name}
+                                                        onChange={(e) => handleOptionChange(finalItem.id, "name", e.target.value)}
+                                                        placeholder="항목 이름"
+                                                        className={styles["option-name-input"]}
+                                                        autoFocus
+                                                        onKeyPress={(e) => {
+                                                          if (e.key === "Enter") {
+                                                            setEditingOptionId(null);
+                                                          }
+                                                        }}
+                                                      />
+                                                      {!finalItemHasChildren && (
+                                                        <input
+                                                          type="number"
+                                                          value={finalItem.capacity || ""}
+                                                          onChange={(e) =>
+                                                            handleOptionChange(
+                                                              finalItem.id,
+                                                              "capacity",
+                                                              e.target.value ? parseInt(e.target.value, 10) : null
+                                                            )
+                                                          }
+                                                          placeholder="수용 인원"
+                                                          className={styles["option-capacity-input"]}
+                                                          min={1}
+                                                          max={999}
+                                                          onKeyPress={(e) => {
+                                                            if (e.key === "Enter") {
+                                                              setEditingOptionId(null);
+                                                            }
+                                                          }}
+                                                        />
+                                                      )}
+                                                      <button
+                                                        type="button"
+                                                        className={styles["option-save-btn"]}
+                                                        onClick={() => setEditingOptionId(null)}
+                                                      >
+                                                        완료
+                                                      </button>
+                                                    </div>
+                                                  ) : (
+                                                    <>
+                                                      <span className={styles["option-name"]}>{finalItem.name || "이름 없음"}</span>
+                                                      {!finalItemHasChildren && (
+                                                        <>
+                                                          <span className={styles["option-quantity"]}>
+                                                            수량 : 0/{finalItem.capacity || 0}
+                                                          </span>
+                                                        </>
+                                                      )}
+                                                    </>
+                                                  )}
+                                                  <div className={styles["option-actions"]}>
+                                                    <button
+                                                      type="button"
+                                                      className={styles["option-edit-btn"]}
+                                                      onClick={() => setEditingOptionId(finalItem.id)}
+                                                    >
+                                                      수정
+                                                    </button>
+                                                    <div className={styles["option-more-container"]}>
+                                                      <button
+                                                        type="button"
+                                                        className={styles["option-more-btn"]}
+                                                        onClick={() => setShowMoreMenuId(showMoreMenuId === finalItem.id ? null : finalItem.id)}
+                                                      >
+                                                        <span className={styles["more-dots"]}>⋯</span>
+                                                      </button>
+                                                      {showMoreMenuId === finalItem.id && (
+                                                        <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
+                                                          <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                              e.stopPropagation();
+                                                              handleRemoveOption(finalItem.id);
+                                                            }}
+                                                            style={{ display: "block" }}
+                                                          >
+                                                            삭제
+                                                          </button>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        {options.filter((opt) => opt.parentId === subItem.id).length === 0 && subItemDepth < 2 && (
+                                          <div className={styles["option-add-child"]}>
+                                            <button type="button" onClick={() => handleAddChild(subItem.id)}>
+                                              + 항목 추가
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                {options.filter((opt) => opt.parentId === item.id).length === 0 && itemDepth < 3 && (
+                                  <div className={styles["option-add-child"]}>
+                                    <button type="button" onClick={() => handleAddChild(item.id)}>
+                                      + 항목 추가
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        {options.filter((opt) => opt.parentId === category.id).length === 0 && (
+                          <div className={styles["option-add-child"]}>
+                            <button type="button" onClick={() => handleAddChild(category.id)}>
+                              + 항목 추가
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  {options.filter((opt) => opt.parentId === null).length === 0 && (
+                    <div className={styles["option-empty"]}>옵션을 추가해주세요.</div>
+                  )}
+                </div>
               </div>
 
               <div className={styles["form-actions"]}>
-                <button type="button" className={styles["save-draft-btn"]} onClick={handleSaveDraft}>
-                  <img src={saveIcon} alt="저장" />
-                  임시저장
-                </button>
                 <button type="submit" className={styles["register-btn"]} disabled={isSubmitting}>
                   <img src={updateIcon} alt="수정" />
                   {isSubmitting ? "수정 중..." : "행사 수정하기"}

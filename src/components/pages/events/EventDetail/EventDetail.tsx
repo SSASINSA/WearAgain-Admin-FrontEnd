@@ -8,31 +8,23 @@ const imgImg = "/admin/img/example/event-hero.png";
 const imgFrame1 = "/admin/img/icon/date-time.svg";
 const imgFrame2 = "/admin/img/icon/location-pin.svg";
 const imgFrame3 = "/admin/img/icon/user-count.svg";
-const imgFrame4 = "/admin/img/icon/co2.svg";
-const imgFrame5 = "/admin/img/icon/energy.svg";
-const imgFrame6 = "/admin/img/icon/water.svg";
-const imgFrame7 = "/admin/img/icon/staff-badge.svg";
-const imgFrame8 = "/admin/img/icon/code-generate.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
-const imgFrame10 = "/admin/img/icon/clothes.svg";
-const imgFrame11 = "/admin/img/icon/exchange-rate.svg";
 const editIcon = "/admin/img/icon/edit.svg";
 
 interface EventImage {
   imageId: number;
   url: string;
-  altText: string;
+  altText: string | null;
   displayOrder: number;
 }
 
 interface EventOption {
   optionId: number;
   name: string;
-  type: string;
   displayOrder: number;
   capacity: number | null;
-  appliedCount: number;
-  remainingCount: number;
+  appliedCount: number | null;
+  remainingCount: number | null;
   children: EventOption[];
 }
 
@@ -181,15 +173,14 @@ const EventDetail: React.FC = () => {
     return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
-  const calculateAttendeeCapacity = (options: EventOption[]): number => {
+  const calculateTotalCapacity = (options: EventOption[]): number => {
     let total = 0;
     const traverse = (opts: EventOption[]) => {
       for (const opt of opts) {
-        if (opt.type === "ATTENDEE" && opt.capacity !== null) {
-          total += opt.capacity;
-        }
         if (opt.children && opt.children.length > 0) {
           traverse(opt.children);
+        } else if (opt.capacity !== null && opt.capacity !== undefined) {
+          total += opt.capacity;
         }
       }
     };
@@ -197,15 +188,14 @@ const EventDetail: React.FC = () => {
     return total;
   };
 
-  const calculateAttendeeAppliedCount = (options: EventOption[]): number => {
+  const calculateTotalAppliedCount = (options: EventOption[]): number => {
     let total = 0;
     const traverse = (opts: EventOption[]) => {
       for (const opt of opts) {
-        if (opt.type === "ATTENDEE") {
-          total += opt.appliedCount || 0;
-        }
         if (opt.children && opt.children.length > 0) {
           traverse(opt.children);
+        } else if (opt.appliedCount !== null && opt.appliedCount !== undefined) {
+          total += opt.appliedCount;
         }
       }
     };
@@ -254,6 +244,100 @@ const EventDetail: React.FC = () => {
     }
   };
 
+  const findOptionById = (options: EventOption[], optionId: number): EventOption | null => {
+    for (const option of options) {
+      if (option.optionId === optionId) {
+        return option;
+      }
+      if (option.children && option.children.length > 0) {
+        const found = findOptionById(option.children, optionId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const getOptionPath = (options: EventOption[], optionId: number): string => {
+    const findPath = (opts: EventOption[], targetId: number, path: string[]): string[] | null => {
+      for (const opt of opts) {
+        const currentPath = [...path, opt.name];
+        if (opt.optionId === targetId) {
+          return currentPath;
+        }
+        if (opt.children && opt.children.length > 0) {
+          const found = findPath(opt.children, targetId, currentPath);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const path = findPath(options, optionId, []);
+    return path ? path.join(" > ") : "알 수 없음";
+  };
+
+  const getApplicationStatusClass = (status: string): string => {
+    switch (status.toUpperCase()) {
+      case "APPLIED":
+        return "applied";
+      case "CHECKED_IN":
+        return "checked-in";
+      case "CANCELLED":
+        return "cancelled";
+      case "REJECTED":
+        return "rejected";
+      default:
+        return "";
+    }
+  };
+
+  const getApplicationStatusText = (status: string): string => {
+    switch (status.toUpperCase()) {
+      case "APPLIED":
+        return "신청됨";
+      case "CHECKED_IN":
+        return "체크인";
+      case "CANCELLED":
+        return "취소됨";
+      case "REJECTED":
+        return "거절됨";
+      default:
+        return status;
+    }
+  };
+
+  const OptionTreeItem: React.FC<{ option: EventOption; depth: number }> = ({ option, depth }) => {
+    const hasChildren = option.children && option.children.length > 0;
+    const isLeaf = !hasChildren;
+
+    return (
+      <div className={`${styles["option-tree-item"]} ${depth === 0 ? styles["option-category"] : styles["option-child"]}`}>
+        <div className={styles["option-item-row"]}>
+          <div className={styles["option-name-wrapper"]}>
+            <span className={styles["option-equals-icon"]}>=</span>
+            <span className={styles["option-name"]}>{option.name}</span>
+          </div>
+          <div className={styles["option-right-section"]}>
+            {isLeaf && (
+              <span className={styles["option-quantity"]}>
+                수량: {option.appliedCount !== null && option.appliedCount !== undefined ? option.appliedCount : 0}/{option.capacity !== null && option.capacity !== undefined ? option.capacity : 0}
+              </span>
+            )}
+          </div>
+        </div>
+        {hasChildren && (
+          <div className={styles["option-children"]}>
+            {option.children
+              .sort((a, b) => a.displayOrder - b.displayOrder)
+              .map((child) => (
+                <OptionTreeItem key={child.optionId} option={child} depth={depth + 1} />
+              ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className={styles["event-detail-page"]}>
@@ -276,9 +360,9 @@ const EventDetail: React.FC = () => {
 
   const mainImage = eventData.images && eventData.images.length > 0 ? eventData.images[0].url : imgImg;
 
-  const attendeeCapacity = calculateAttendeeCapacity(eventData.options);
-  const attendeeAppliedCount = calculateAttendeeAppliedCount(eventData.options);
-  const attendeeRemainingCount = attendeeCapacity - attendeeAppliedCount;
+  const totalCapacity = calculateTotalCapacity(eventData.options);
+  const totalAppliedCount = calculateTotalAppliedCount(eventData.options);
+  const totalRemainingCount = totalCapacity - totalAppliedCount;
 
   return (
     <div className={styles["event-detail-page"]}>
@@ -293,10 +377,6 @@ const EventDetail: React.FC = () => {
               <div className={styles["image-overlay"]}></div>
             </div>
             <div className={styles["event-hero-content"]}>
-              <div className={styles["event-tags"]}>
-                <span className={`${styles["tag"]} ${styles["environment"]}`}>환경보호</span>
-                <span className={`${styles["tag"]} ${styles["workshop"]}`}>워크샵</span>
-              </div>
               <h2 className={styles["event-title"]}>{eventData.title}</h2>
               <p className={styles["event-description"]}>{eventData.description}</p>
             </div>
@@ -362,7 +442,7 @@ const EventDetail: React.FC = () => {
                   <img src={imgFrame3} alt="참가자 아이콘" />
                 </div>
                 <div className={styles["result-content"]}>
-                  <p className={styles["result-number"]}>{attendeeAppliedCount}</p>
+                  <p className={styles["result-number"]}>{totalAppliedCount}</p>
                   <p className={styles["result-label"]}>신청 참가자 수</p>
                 </div>
               </div>
@@ -371,7 +451,7 @@ const EventDetail: React.FC = () => {
                   <img src={imgFrame3} alt="정원 아이콘" />
                 </div>
                 <div className={styles["result-content"]}>
-                  <p className={styles["result-number"]}>{attendeeCapacity}</p>
+                  <p className={styles["result-number"]}>{totalCapacity}</p>
                   <p className={styles["result-label"]}>전체 정원</p>
                 </div>
               </div>
@@ -380,7 +460,7 @@ const EventDetail: React.FC = () => {
                   <img src={imgFrame3} alt="잔여 정원 아이콘" />
                 </div>
                 <div className={styles["result-content"]}>
-                  <p className={styles["result-number"]}>{attendeeRemainingCount}</p>
+                  <p className={styles["result-number"]}>{totalRemainingCount}</p>
                   <p className={styles["result-label"]}>잔여 정원</p>
                 </div>
               </div>
@@ -405,6 +485,59 @@ const EventDetail: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* 옵션 현황 섹션 */}
+          {eventData.options && eventData.options.length > 0 && (
+            <div className={styles["event-options-section"]}>
+              <h3 className={styles["section-title"]}>옵션 현황</h3>
+              <div className={styles["options-tree"]}>
+                {eventData.options
+                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                  .map((option) => (
+                    <OptionTreeItem key={option.optionId} option={option} depth={0} />
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* 신청 현황 섹션 */}
+          {eventData.applications && eventData.applications.length > 0 && (
+            <div className={styles["event-applications-section"]}>
+              <h3 className={styles["section-title"]}>신청 현황</h3>
+              <div className={styles["applications-table-container"]}>
+                <table className={styles["applications-table"]}>
+                  <thead>
+                    <tr>
+                      <th>이름</th>
+                      <th>이메일</th>
+                      <th>옵션</th>
+                      <th>상태</th>
+                      <th>신청일</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {eventData.applications.map((application) => {
+                      const option = findOptionById(eventData.options, application.optionId);
+                      const optionPath = option ? getOptionPath(eventData.options, application.optionId) : "알 수 없음";
+                      return (
+                        <tr key={application.applicationId}>
+                          <td>{application.displayName}</td>
+                          <td>{application.email}</td>
+                          <td>{optionPath}</td>
+                          <td>
+                            <span className={`${styles["status-badge"]} ${styles[getApplicationStatusClass(application.status)]}`}>
+                              {getApplicationStatusText(application.status)}
+                            </span>
+                          </td>
+                          <td>{formatDateTime(application.appliedAt)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 사이드바 - 스태프 코드 발급 */}
@@ -470,9 +603,8 @@ const EventDetail: React.FC = () => {
                 수정하기
               </button>
               <button
-                className={styles["edit-button"]}
+                className={`${styles["edit-button"]} ${styles["participants-button"]}`}
                 onClick={() => navigate(`/events/${id}/participants`)}
-                style={{ backgroundColor: "#3b82f6" }}
               >
                 <img src="/admin/img/icon/users.svg" alt="참가 신청 관리 아이콘" />
                 참가 신청 관리

@@ -9,8 +9,8 @@ const dropdownIcon = "/admin/img/icon/dropdown.svg";
 const plusIcon = "/admin/img/icon/plus.svg";
 const calendarIcon = "/admin/img/icon/calendar.svg";
 const locationIcon = "/admin/img/icon/location.svg";
-const staffIcon = "/admin/img/icon/staff.svg";
-const participantIcon = "/admin/img/icon/user-group.svg";
+const capacityIcon = "/admin/img/icon/ticket.svg";
+const appliedIcon = "/admin/img/icon/participants.svg";
 const detailIcon = "/admin/img/icon/detail.svg";
 const editIcon = "/admin/img/icon/edit.svg";
 const prevIcon = "/admin/img/icon/chevron-left.svg";
@@ -47,8 +47,8 @@ interface Event {
   title: string;
   date: string;
   location: string;
-  participants: number;
-  staff: number;
+  totalCapacity: number;
+  appliedCount: number;
   status: "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted";
   description: string;
 }
@@ -234,8 +234,8 @@ const EventsManagement: React.FC = () => {
           title: apiEvent.title,
           date: formatDateRange(apiEvent.startDate, apiEvent.endDate),
           location: apiEvent.location,
-          participants: apiEvent.appliedCount,
-          staff: 0,
+          totalCapacity: apiEvent.totalCapacity,
+          appliedCount: apiEvent.appliedCount,
           status: displayStatus,
           description: "",
         };
@@ -449,15 +449,15 @@ const EventsManagement: React.FC = () => {
                       <div className={styles["event-stats"]}>
                         <div className={styles["stat-item"]}>
                           <span className={styles["stat-icon"]}>
-                            <img src={participantIcon} alt="참가자" />
+                            <img src={capacityIcon} alt="정원" />
                           </span>
-                          <span className={styles["stat-text"]}>참가자 {event.participants}명</span>
+                          <span className={styles["stat-text"]}>정원 {event.totalCapacity}명</span>
                         </div>
                         <div className={styles["stat-item"]}>
                           <span className={styles["stat-icon"]}>
-                            <img src={staffIcon} alt="스태프" />
+                            <img src={appliedIcon} alt="신청자" />
                           </span>
-                          <span className={styles["stat-text"]}>스태프 {event.staff}명</span>
+                          <span className={styles["stat-text"]}>신청자 {event.appliedCount}명</span>
                         </div>
                       </div>
 
