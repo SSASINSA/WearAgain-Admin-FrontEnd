@@ -59,6 +59,7 @@ interface ProductDetail {
   category: string;
   price: number;
   stock: number;
+  maxPurchasePerUser?: number | null;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   images: ProductImageResponse[];
   pickupLocations: string[];
@@ -97,6 +98,7 @@ const ProductEdit: React.FC = () => {
   const [isCombinedOption, setIsCombinedOption] = useState(false);
   const [requiredOptions, setRequiredOptions] = useState(false);
   const [quantity, setQuantity] = useState<string>("");
+  const [maxPurchasePerUser, setMaxPurchasePerUser] = useState<string>("");
   const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
   const [pickupLocations, setPickupLocations] = useState<string[]>([""]);
 
@@ -120,6 +122,13 @@ const ProductEdit: React.FC = () => {
             status: data.status,
           });
           setQuantity(data.stock.toString());
+          const fetchedMaxPurchase = data.maxPurchasePerUser;
+          if (fetchedMaxPurchase === null || fetchedMaxPurchase === undefined) {
+            setMaxPurchasePerUser("");
+          } else {
+            const parsedMax = parseInt(fetchedMaxPurchase as unknown as string, 10);
+            setMaxPurchasePerUser(Number.isNaN(parsedMax) ? "" : parsedMax.toString());
+          }
           setPickupLocations(data.pickupLocations && data.pickupLocations.length > 0 ? data.pickupLocations : [""]);
 
           const imagePreviews: ProductImage[] = [];
@@ -221,6 +230,12 @@ const ProductEdit: React.FC = () => {
       return;
     }
 
+    const parsedMaxPurchasePerUser = maxPurchasePerUser.trim() === "" ? null : parseInt(maxPurchasePerUser, 10);
+    if (maxPurchasePerUser.trim() !== "" && (isNaN(parsedMaxPurchasePerUser as number) || (parsedMaxPurchasePerUser as number) <= 0)) {
+      setError("구매 제한 수량은 0보다 큰 정수이거나 비워두세요.");
+      return;
+    }
+
     const validPickupLocations = pickupLocations
       .map((loc) => loc.trim())
       .filter((loc) => loc.length > 0)
@@ -255,6 +270,15 @@ const ProductEdit: React.FC = () => {
     setShowConfirmModal(false);
 
     try {
+      const parsedMaxPurchasePerUser =
+        maxPurchasePerUser.trim() === "" ? null : parseInt(maxPurchasePerUser, 10);
+
+      if (maxPurchasePerUser.trim() !== "" && (isNaN(parsedMaxPurchasePerUser as number) || (parsedMaxPurchasePerUser as number) <= 0)) {
+        setError("구매 제한 수량은 0보다 큰 정수이거나 비워두세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const imageUrls: { imageUrl: string; sortOrder: number }[] = [];
       for (let i = 0; i < images.length; i++) {
         const image = images[i];
@@ -284,6 +308,7 @@ const ProductEdit: React.FC = () => {
           category: productData.category,
           price: parseInt(productData.price),
           stock: parseInt(quantity) || 0,
+          maxPurchasePerUser: parsedMaxPurchasePerUser,
           status: productData.status,
           images: imageUrls.length > 0 ? imageUrls : undefined,
           pickupLocations: validPickupLocations,
@@ -584,6 +609,17 @@ const ProductEdit: React.FC = () => {
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="0"
               />
+            </div>
+            <div className={styles["form-group"]}>
+              <label>구매 제한 수량 (선택)</label>
+              <input
+                type="number"
+                value={maxPurchasePerUser}
+                onChange={(e) => setMaxPurchasePerUser(e.target.value)}
+                placeholder=""
+                min={1}
+              />
+              <p className={styles["price-info"]}>입력 시 1인당 구매 가능 수량을 제한합니다.</p>
             </div>
           </div>
 
@@ -946,4 +982,3 @@ const ProductEdit: React.FC = () => {
 };
 
 export default ProductEdit;
-

@@ -17,6 +17,7 @@ interface ProductDetail {
   category: string;
   price: number;
   stock: number;
+   maxPurchasePerUser?: number | null;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   images: ProductImage[];
   pickupLocations: string[];
@@ -177,6 +178,14 @@ const ProductDetail: React.FC = () => {
                 <p className={styles["detail-value"]}>{product.stock}개</p>
               </div>
               <div className={styles["detail-item"]}>
+                <p className={styles["detail-label"]}>구매 제한 수량</p>
+                <p className={styles["detail-value"]}>
+                  {product.maxPurchasePerUser === null || product.maxPurchasePerUser === undefined
+                    ? "제한 없음"
+                    : `${product.maxPurchasePerUser}개`}
+                </p>
+              </div>
+              <div className={styles["detail-item"]}>
                 <p className={styles["detail-label"]}>등록일</p>
                 <p className={styles["detail-value"]}>
                   {new Date(product.createdAt).toLocaleDateString("ko-KR")}
@@ -242,4 +251,3 @@ const ProductDetail: React.FC = () => {
 };
 
 export default ProductDetail;
-
