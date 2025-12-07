@@ -1,42 +1,87 @@
-import React, { useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./PostDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import apiRequest from "../../../../utils/api";
 
-interface PostState {
-  id: number;
+const deleteIcon = "/admin/img/icon/x-reject.svg";
+
+interface Author {
+  authorId: number;
+  displayName: string;
+  email: string;
+}
+
+interface Comment {
+  commentId: number;
+  content: string;
+  status: string;
+  author: Author;
+  createdAt: string;
+}
+
+interface PostDetailResponse {
+  postId: number;
+  status: string;
   title: string;
   content: string;
-  date: string;
-  status: "active" | "inactive" | "reported";
-  author: string;
+  categoryName: string;
+  author: Author;
+  imageUrls: string[];
+  likeCount: number;
+  commentCount: number;
+  reportCount: number;
+  createdAt: string;
+  updatedAt: string;
+  comments: Comment[];
 }
 
 const PostDetail: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const location = useLocation();
-  const state = (location.state || {}) as Partial<PostState>;
-
-  const handleBack = () => {
-    navigate(-1);
-  };
-
-  const renderStatus = (status?: string) => {
-    if (!status) return null;
-    if (status === "active") return <span className={`${styles["status-badge"]} ${styles["active"]}`}>활성</span>;
-    if (status === "inactive") return <span className={`${styles["status-badge"]} ${styles["inactive"]}`}>비활성</span>;
-    if (status === "reported") return <span className={`${styles["status-badge"]} ${styles["reported"]}`}>신고됨</span>;
-    return null;
-  };
-
-  const notFound = !state || !state.id;
+  const { id } = useParams<{ id: string }>();
+  const [postData, setPostData] = useState<PostDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
 
+  const fetchPostDetail = useCallback(async () => {
+    if (!id) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await apiRequest(`/admin/posts/${id}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 404) {
+          throw new Error("게시글을 찾을 수 없습니다.");
+        }
+        throw new Error(errorData.message || "게시글 상세 정보를 가져오는데 실패했습니다.");
+      }
+
+      const data: PostDetailResponse = await response.json();
+      setPostData(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "게시글 상세 정보를 가져오는데 실패했습니다.";
+      setError(errorMessage);
+      console.error("Error fetching post detail:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
-    const headerOffsetPx = 120; // 고정 헤더 하단 여백
+    fetchPostDetail();
+  }, [fetchPostDetail]);
+
+  useEffect(() => {
+    const headerOffsetPx = 120;
     let sidebarTopAbs = 0;
 
     const computeAnchors = () => {
@@ -53,7 +98,6 @@ const PostDetail: React.FC = () => {
 
       const containerRect = el.getBoundingClientRect();
       if (window.scrollY >= sidebarTopAbs) {
-        // 고정 위치 계산
         const fixedLeft = containerRect.left + window.scrollX;
         const width = containerRect.width;
         inner.style.position = "fixed";
@@ -71,7 +115,6 @@ const PostDetail: React.FC = () => {
     };
 
     const onResize = () => {
-      // 레이아웃 변경 시 기준점 재계산
       computeAnchors();
       onScroll();
     };
@@ -86,6 +129,116 @@ const PostDetail: React.FC = () => {
     };
   }, []);
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleDelete = async () => {
+    if (!id || !postData) return;
+
+    const confirmed = window.confirm("정말 이 게시글을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const response = await apiRequest(`/admin/posts/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "게시글 삭제에 실패했습니다.");
+      }
+
+      alert("게시글이 삭제되었습니다.");
+      navigate("/posts");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "게시글 삭제에 실패했습니다.";
+      alert(errorMessage);
+      console.error("Error deleting post:", err);
+    }
+  };
+
+  const renderStatus = (status?: string) => {
+    if (!status) return null;
+    switch (status.toUpperCase()) {
+      case "ACTIVE":
+        return <span className={`${styles["status-badge"]} ${styles["active"]}`}>활성</span>;
+      case "HIDDEN":
+        return <span className={`${styles["status-badge"]} ${styles["inactive"]}`}>비활성</span>;
+      case "REPORTED":
+        return <span className={`${styles["status-badge"]} ${styles["reported"]}`}>신고됨</span>;
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  const formatDateTime = (dateString: string): string => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+  };
+
+  const renderCommentStatus = (status: string) => {
+    switch (status.toUpperCase()) {
+      case "ACTIVE":
+        return <span style={{ color: "#10b981" }}>활성</span>;
+      case "REPORTED":
+        return <span style={{ color: "#ef4444" }}>신고됨</span>;
+      case "INACTIVE":
+        return <span style={{ color: "#6b7280" }}>비활성</span>;
+      default:
+        return null;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles["event-detail-page"]}>
+        <PageHeader title="게시글 상세" subtitle="게시글의 상세 정보를 확인하고 관리할 수 있습니다" />
+        <div style={{ padding: "40px", textAlign: "center" }}>
+          <p>로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !postData) {
+    return (
+      <div className={styles["event-detail-page"]}>
+        <PageHeader title="게시글 상세" subtitle="게시글의 상세 정보를 확인하고 관리할 수 있습니다" />
+        <div style={{ padding: "40px", textAlign: "center", color: "#ef4444" }}>
+          <p>{error || "게시글을 찾을 수 없습니다."}</p>
+          <button
+            onClick={handleBack}
+            style={{
+              marginTop: "16px",
+              padding: "8px 16px",
+              background: "#06b0b7",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            목록으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles["event-detail-page"]}>
       <PageHeader title="게시글 상세" subtitle="게시글의 상세 정보를 확인하고 관리할 수 있습니다" />
@@ -95,109 +248,119 @@ const PostDetail: React.FC = () => {
           {/* 게시글 헤더 섹션 */}
           <div className={styles["event-hero-section"]}>
             <div className={styles["event-hero-image"]}>
-              <img src="/admin/img/example/event-hero.png" alt="게시글 대표 이미지" />
+              {postData.imageUrls && postData.imageUrls.length > 0 ? (
+                <img src={postData.imageUrls[0]} alt="게시글 대표 이미지" />
+              ) : (
+                <img src="/admin/img/example/event-hero.png" alt="게시글 대표 이미지" />
+              )}
               <div className={styles["image-overlay"]}></div>
             </div>
             <div className={styles["event-hero-content"]}>
               <div className={styles["event-tags"]}>
-                {renderStatus(state.status)}
-                <span className={`${styles["tag"]} ${styles["workshop"]}`}>게시글</span>
+                <span className={`${styles["tag"]} ${styles["workshop"]}`}>{postData.categoryName || "게시글"}</span>
               </div>
-              <h2 className={styles["event-title"]}>{state.title || "게시글 제목"}</h2>
-              <p className={styles["event-description"]}>{state.content || "게시글 내용이 없습니다."}</p>
+              <h2 className={styles["event-title"]}>{postData.title}</h2>
+              <p className={styles["event-description"]}>{postData.content}</p>
             </div>
           </div>
 
-          {/* 게시글 상세 정보 섹션 */}
-          <div className={styles["event-details-section"]}>
-            <h3 className={styles["section-title"]}>게시글 상세 정보</h3>
-            <div className={`${styles["event-details-grid"]} ${styles["post-details-grid"]}`}>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>작성일</p>
-                <p className={styles["detail-value"]}>{state.date || "-"}</p>
-              </div>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>작성자</p>
-                <p className={styles["detail-value"]}>{state.author || "-"}</p>
-              </div>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>조회수</p>
-                <p className={styles["detail-value"]}>1,256</p>
-              </div>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>좋아요</p>
-                <p className={styles["detail-value"]}>342</p>
-              </div>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>댓글</p>
-                <p className={styles["detail-value"]}>58</p>
-              </div>
-              <div className={`${styles["detail-item"]} ${styles["post-detail-item"]}`}>
-                <p className={styles["detail-label"]}>공유</p>
-                <p className={styles["detail-value"]}>21</p>
+          {/* 이미지 갤러리 섹션 */}
+          {postData.imageUrls && postData.imageUrls.length > 1 && (
+            <div className={styles["event-details-section"]}>
+              <h3 className={styles["section-title"]}>이미지 갤러리</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+                {postData.imageUrls.map((url, index) => (
+                  <img key={index} src={url} alt={`게시글 이미지 ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
           {/* 댓글 목록 섹션 */}
           <div className={styles["event-results-section"]}>
-            <h3 className={styles["section-title"]}>댓글 목록</h3>
-            <div className={styles["comments-list"]}>
-              <div className={styles["comment-item"]}>
-                <div className={styles["comment-author"]}>
-                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className={styles["comment-avatar"]} />
-                  <div className={styles["comment-author-info"]}>
-                    <p className={styles["comment-author-name"]}>김민수</p>
-                    <p className={styles["comment-date"]}>2024-01-20 14:30</p>
+            <h3 className={styles["section-title"]}>댓글 목록 ({postData.comments.length}개)</h3>
+            {postData.comments && postData.comments.length > 0 ? (
+              <div className={styles["comments-list"]}>
+                {postData.comments.map((comment) => (
+                  <div key={comment.commentId} className={styles["comment-item"]}>
+                    <div className={styles["comment-author"]}>
+                      <img
+                        src="/admin/img/icon/basic-profile.svg"
+                        alt="사용자 프로필"
+                        className={styles["comment-avatar"]}
+                      />
+                      <div className={styles["comment-author-info"]}>
+                        <p className={styles["comment-author-name"]}>
+                          {comment.author.displayName} ({comment.author.email})
+                        </p>
+                        <p className={styles["comment-date"]}>
+                          {formatDateTime(comment.createdAt)} {renderCommentStatus(comment.status)}
+                        </p>
+                      </div>
+                    </div>
+                    <p className={styles["comment-text"]}>{comment.content}</p>
                   </div>
-                </div>
-                <p className={styles["comment-text"]}>옷 교환 행사에 참가해봤는데 정말 좋은 경험이었어요! 환경도 지키고 새 옷도 얻을 수 있어서 일석이조네요.</p>
+                ))}
               </div>
-              <div className={styles["comment-item"]}>
-                <div className={styles["comment-author"]}>
-                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className={styles["comment-avatar"]} />
-                  <div className={styles["comment-author-info"]}>
-                    <p className={styles["comment-author-name"]}>이영희</p>
-                    <p className={styles["comment-date"]}>2024-01-20 15:45</p>
-                  </div>
-                </div>
-                <p className={styles["comment-text"]}>21%파티 덕분에 옷을 버리지 않고 교환할 수 있어서 환경 보호에 기여할 수 있어 뿌듯합니다!</p>
+            ) : (
+              <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
+                <p>댓글이 없습니다.</p>
               </div>
-              <div className={styles["comment-item"]}>
-                <div className={styles["comment-author"]}>
-                  <img src="/admin/img/icon/basic-profile.svg" alt="사용자 프로필" className={styles["comment-avatar"]} />
-                  <div className={styles["comment-author-info"]}>
-                    <p className={styles["comment-author-name"]}>박철수</p>
-                    <p className={styles["comment-date"]}>2024-01-21 09:15</p>
-                  </div>
-                </div>
-                <p className={styles["comment-text"]}>다음 옷 교환 행사는 언제 열리나요? 친구들도 데리고 가고 싶어요!</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* 사이드바 - 게시글 수정 */}
-        <div
-          className={styles["event-detail-sidebar"]}
-          ref={sidebarRef}
-          style={{ alignSelf: "flex-start", height: "max-content" }}
-        >
-          <div ref={sidebarInnerRef} className={styles["staff-code-section"]}>
-            <div className={styles["staff-code-content"]}>
-              <div className={styles["staff-code-icon"]}>
-                <img src="/admin/img/icon/edit-square.svg" alt="게시글 수정 아이콘" />
+        {/* 사이드바 - 삭제 버튼 및 정보 */}
+        <div className={styles["event-detail-sidebar"]} ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
+          <div ref={sidebarInnerRef}>
+            {/* 게시글 정보 섹션 */}
+            <div className={styles["event-info-section"]}>
+              <h4 className={styles["info-title"]}>게시글 정보</h4>
+              <div className={styles["info-list"]}>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>좋아요 수</span>
+                  <span className={styles["info-value"]}>{postData.likeCount}</span>
+                </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>댓글 수</span>
+                  <span className={styles["info-value"]}>{postData.commentCount}</span>
+                </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>생성일</span>
+                  <span className={styles["info-value"]}>{formatDateTime(postData.createdAt)}</span>
+                </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>수정일</span>
+                  <span className={styles["info-value"]}>{formatDateTime(postData.updatedAt)}</span>
+                </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>게시글 상태</span>
+                  <span className={styles["info-value"]}>{renderStatus(postData.status)}</span>
+                </div>
               </div>
-              <h4 className={styles["staff-code-title"]}>게시글 수정</h4>
-              <p className={styles["staff-code-description"]}>제목, 내용, 상태를 수정할 수 있습니다</p>
+
+              {/* 삭제 버튼 - 게시글 정보 카드 내부 하단 */}
+              <div className={styles["delete-actions-section"]}>
+                <button className={styles["delete-button"]} onClick={handleDelete}>
+                  <img src={deleteIcon} alt="삭제 아이콘" />
+                  게시글 삭제
+                </button>
+              </div>
             </div>
-            <button className={styles["staff-code-button"]} onClick={() => navigate(`/posts/${id}/edit`, { state })}>
-              <img src="/admin/img/icon/code-generate.svg" alt="수정 아이콘" />
-              게시글 수정
-            </button>
-            <div className={styles["staff-code-notice"]}>
-              <img src="/admin/img/icon/alert.svg" alt="알림 아이콘" />
-              <p>수정 내역은 즉시 적용됩니다</p>
+
+            {/* 사용자 정보 섹션 */}
+            <div className={styles["event-info-section"]}>
+              <h4 className={styles["info-title"]}>사용자 정보</h4>
+              <div className={styles["info-list"]}>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>사용자 이름</span>
+                  <span className={styles["info-value"]}>{postData.author.displayName}</span>
+                </div>
+                <div className={styles["info-item"]}>
+                  <span className={styles["info-label"]}>이메일</span>
+                  <span className={styles["info-value"]}>{postData.author.email}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

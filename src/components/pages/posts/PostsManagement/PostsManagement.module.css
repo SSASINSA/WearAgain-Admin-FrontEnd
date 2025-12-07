@@ -407,11 +407,14 @@
 }
 
 .date-cell {
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
 }
 
-.date-cell div {
-  line-height: 1.2;
+@media (min-width: 1200px) {
+  .date-cell {
+    white-space: nowrap;
+  }
 }
 
 .status-badge {
@@ -578,4 +581,32 @@
   .posts-table td {
     padding: 8px 12px;
   }
+}
+
+.loading-container,
+.error-container {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.error-container {
+  color: #ef4444;
+}
+
+.error-container button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #06b0b7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.error-container button:hover {
+  background-color: #05969c;
 }
