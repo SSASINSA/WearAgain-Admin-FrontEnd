@@ -101,7 +101,7 @@ const Navigation: React.FC = () => {
               <li className={location.pathname === "/store/orders" ? styles["active"] : ""}>
                 <Link to="/store/orders" className={styles["nav-dropdown-item"]}>
                   <img src="/admin/img/icon/document.svg" alt="" />
-                  <span>상품 주문 내역</span>
+                  <span>상품 주문 관리</span>
                 </Link>
               </li>
             </ul>
