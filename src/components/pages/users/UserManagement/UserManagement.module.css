@@ -620,6 +620,11 @@
   display: inline-block;
 }
 
+.status-text {
+  font-size: 14px;
+  display: inline-block;
+}
+
 
 .users-section .dl-table th,
 .users-section .dl-table td {

@@ -431,27 +431,26 @@ const UserManagement: React.FC = () => {
                 render: (u: User) => u.creditBalance.toLocaleString(),
               },
               {
+                key: "joinedAt",
+                title: "가입일",
+                width: 130,
+                render: (u: User) => u.joinedAt,
+              },
+              {
                 key: "suspended",
                 title: "정지 여부",
                 width: 100,
                 render: (u: User) => (
                   <span
-                    className={styles["status-badge"]}
+                    className={styles["status-text"]}
                     style={{
-                      backgroundColor: u.suspended ? "#fee2e2" : "#dcfce7",
                       color: u.suspended ? "#991b1b" : "#166534",
-                      border: `1px solid ${u.suspended ? "#fca5a5" : "#86efac"}`,
+                      fontWeight: 600,
                     }}
                   >
                     {u.suspended ? "정지" : "정상"}
                   </span>
                 ),
-              },
-              {
-                key: "joinedAt",
-                title: "가입일",
-                width: 130,
-                render: (u: User) => u.joinedAt,
               },
               {
                 key: "actions",
