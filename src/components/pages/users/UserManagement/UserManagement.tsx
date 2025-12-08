@@ -201,7 +201,7 @@ const UserManagement: React.FC = () => {
         setSummary(data.summary);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("유저 목록 조회 실패:", error);
       alert("유저 목록을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -289,9 +289,7 @@ const UserManagement: React.FC = () => {
       setSelectedUserName("");
       await fetchUsers();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `유저 ${isSuspending ? "정지 해제" : "정지"}에 실패했습니다.`;
-      alert(errorMessage);
-      console.error("Error suspending/unsuspending user:", error);
+      console.error("유저 정지/해제 실패:", error);
     }
   };
 

@@ -287,20 +287,6 @@ const ParticipantManagement: React.FC = () => {
     updateUrlParams({ page });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "APPLIED":
-        return "#10b981";
-      case "CHECKED_IN":
-        return "#3b82f6";
-      case "CANCELLED":
-        return "#f59e0b";
-      case "REJECTED":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
 
   return (
     <div className={styles["admin-dashboard"]}>
@@ -449,7 +435,6 @@ const ParticipantManagement: React.FC = () => {
                 width: 250,
                 render: (p: Participant) => (
                   <div className={styles["participant-info"]}>
-                    <img src="/admin/img/icon/basic-profile.svg" alt={p.name} className={styles["participant-avatar"]} />
                     <div className={styles["participant-details"]}>
                       <p
                         className={`${styles["participant-name"]} ${styles["clickable"]}`}
@@ -496,11 +481,31 @@ const ParticipantManagement: React.FC = () => {
                 key: "status",
                 title: "상태",
                 width: 100,
-                render: (p: Participant) => (
-                  <span className={styles["status-badge"]} style={{ backgroundColor: getStatusColor(p.status) }}>
-                    {getStatusDisplayName(p.status)}
-                  </span>
-                ),
+                align: "center",
+                render: (p: Participant) => {
+                  let statusClass = "";
+                  switch (p.status) {
+                    case "APPLIED":
+                      statusClass = styles["applied"];
+                      break;
+                    case "CHECKED_IN":
+                      statusClass = styles["checked-in"];
+                      break;
+                    case "CANCELLED":
+                      statusClass = styles["cancelled"];
+                      break;
+                    case "REJECTED":
+                      statusClass = styles["rejected"];
+                      break;
+                    default:
+                      statusClass = "";
+                  }
+                  return (
+                    <span className={`${styles["status-badge"]} ${statusClass}`}>
+                      {getStatusDisplayName(p.status)}
+                    </span>
+                  );
+                },
               },
             ]}
             data={isLoading ? [] : participants}

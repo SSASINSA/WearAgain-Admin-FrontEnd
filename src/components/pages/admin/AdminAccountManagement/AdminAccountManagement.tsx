@@ -224,7 +224,7 @@ const AdminAccountManagement: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "승인 요청 목록을 가져오는데 실패했습니다.";
       setError(errorMessage);
-      console.error("Error fetching signup requests:", err);
+      console.error("승인 요청 목록 조회 실패:", err);
     } finally {
       setIsLoading(false);
     }
@@ -317,9 +317,7 @@ const AdminAccountManagement: React.FC = () => {
       setSelectedRequestId(null);
       await fetchSignupRequests();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "승인 요청 처리에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error approving signup request:", err);
+      console.error("승인 요청 처리 실패:", err);
     }
   };
 
@@ -342,9 +340,7 @@ const AdminAccountManagement: React.FC = () => {
       setSelectedRequestId(null);
       await fetchSignupRequests();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "거부 요청 처리에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error rejecting signup request:", err);
+      console.error("거부 요청 처리 실패:", err);
     }
   };
 

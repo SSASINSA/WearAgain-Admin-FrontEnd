@@ -70,7 +70,7 @@ const PostDetail: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "게시글 상세 정보를 가져오는데 실패했습니다.";
       setError(errorMessage);
-      console.error("Error fetching post detail:", err);
+      console.error("게시글 상세 정보 조회 실패:", err);
     } finally {
       setIsLoading(false);
     }
@@ -152,9 +152,7 @@ const PostDetail: React.FC = () => {
       alert("게시글이 삭제되었습니다.");
       navigate("/posts");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "게시글 삭제에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error deleting post:", err);
+      console.error("게시글 삭제 실패:", err);
     }
   };
 

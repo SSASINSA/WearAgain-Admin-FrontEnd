@@ -159,7 +159,7 @@ const EventParticipantManagement: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error fetching event info:", error);
+      console.error("행사 정보 조회 실패:", error);
     }
   }, [eventId]);
   const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
@@ -316,7 +316,7 @@ const EventParticipantManagement: React.FC = () => {
       setTotalPages(data.totalPages);
       setStats(data.summary);
     } catch (error) {
-      console.error("Error fetching participants:", error);
+      console.error("참가자 목록 조회 실패:", error);
       alert("참가자 목록을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -418,9 +418,7 @@ const EventParticipantManagement: React.FC = () => {
       setCancelReason("");
       await fetchParticipants();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "참가 신청 취소에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error canceling application:", error);
+      console.error("참가 신청 취소 실패:", error);
     }
   };
 
@@ -431,20 +429,6 @@ const EventParticipantManagement: React.FC = () => {
     setCancelReason("");
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "APPLIED":
-        return "#10b981";
-      case "CHECKED_IN":
-        return "#3b82f6";
-      case "CANCELLED":
-        return "#f59e0b";
-      case "REJECTED":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
 
   if (!eventId) {
     return (
@@ -655,7 +639,6 @@ const EventParticipantManagement: React.FC = () => {
                 width: 250,
                 render: (p: Participant) => (
                   <div className={styles["participant-info"]}>
-                    <img src="/admin/img/icon/basic-profile.svg" alt={p.name} className={styles["participant-avatar"]} />
                     <div className={styles["participant-details"]}>
                       <p
                         className={`${styles["participant-name"]} ${styles["clickable"]}`}
@@ -690,40 +673,43 @@ const EventParticipantManagement: React.FC = () => {
                 key: "status",
                 title: "상태",
                 width: 100,
-                render: (p: Participant) => (
-                  <span className={styles["status-badge"]} style={{ backgroundColor: getStatusColor(p.status) }}>
-                    {getStatusDisplayName(p.status)}
-                  </span>
-                ),
+                align: "center",
+                render: (p: Participant) => {
+                  let statusClass = "";
+                  switch (p.status) {
+                    case "APPLIED":
+                      statusClass = styles["applied"];
+                      break;
+                    case "CHECKED_IN":
+                      statusClass = styles["checked-in"];
+                      break;
+                    case "CANCELLED":
+                      statusClass = styles["cancelled"];
+                      break;
+                    case "REJECTED":
+                      statusClass = styles["rejected"];
+                      break;
+                    default:
+                      statusClass = "";
+                  }
+                  return (
+                    <span className={`${styles["status-badge"]} ${statusClass}`}>
+                      {getStatusDisplayName(p.status)}
+                    </span>
+                  );
+                },
               },
               {
                 key: "actions",
                 title: "작업",
                 width: 80,
                 align: "center",
+                className: styles["actions-cell"],
                 render: (p: Participant) => (
                   (p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
                     <button
+                      className={`${styles["action-btn"]} ${styles["cancel"]}`}
                       onClick={() => handleCancelClick(p.applicationId, p.name)}
-                      style={{
-                        backgroundColor: "#fee2e2",
-                        color: "#991b1b",
-                        border: "1px solid #fca5a5",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        transition: "all 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#fecaca";
-                        e.currentTarget.style.borderColor = "#f87171";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "#fee2e2";
-                        e.currentTarget.style.borderColor = "#fca5a5";
-                      }}
                     >
                       취소
                     </button>

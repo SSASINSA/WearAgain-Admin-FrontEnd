@@ -229,20 +229,97 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 16px;
-  text-align: center;
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.clothes-item img {
+
+.clothes-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-thumbnail {
   width: 100%;
-  height: auto; 
-  border-radius: 8px;
-  object-fit: contain; 
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: #f3f4f6;
+  position: relative;
+}
+
+.event-thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+}
+
+.event-thumbnail-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.5;
+}
+
+.event-title {
+  font-weight: 500;
+  font-size: 14px;
+  margin: 12px 16px 8px 16px;
+  color: #111827;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.event-meta {
+  padding: 0 16px 16px 16px;
+}
+
+.event-status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
   margin-bottom: 8px;
 }
-.clothes-item p {
+
+.event-status-badge.applied {
+  color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+.event-status-badge.checked-in {
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.event-date {
   font-size: 12px;
   color: #6b7280;
+  margin: 0 0 4px 0;
+}
+
+.event-applied-at {
+  font-size: 12px;
+  color: #9ca3af;
   margin: 0;
+}
+
+.no-events-message {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
 }
 
 

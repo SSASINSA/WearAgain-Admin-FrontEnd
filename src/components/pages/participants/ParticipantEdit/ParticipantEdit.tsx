@@ -76,7 +76,7 @@ const ParticipantEdit: React.FC = () => {
       setCreditBalance(data.creditBalance);
       setMagicScissorCount(data.mascot?.magicScissorCount || 0);
     } catch (error) {
-      console.error("Error fetching participant:", error);
+      console.error("참가자 정보 조회 실패:", error);
       alert("참가자 정보를 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -121,9 +121,7 @@ const ParticipantEdit: React.FC = () => {
       alert("참가자 정보가 수정되었습니다.");
       navigate(`/repair/${id}`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "참가자 정보 수정에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error updating participant:", error);
+      console.error("참가자 정보 수정 실패:", error);
     } finally {
       setIsSubmitting(false);
     }

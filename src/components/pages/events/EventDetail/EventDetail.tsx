@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EventDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import apiRequest from "utils/api";
 
 const imgImg = "/admin/img/example/event-hero.png";
@@ -77,12 +78,25 @@ interface EventDetailResponse {
   impactAnalytics: ImpactAnalytics;
 }
 
+interface StaffCodeResponse {
+  eventId: number;
+  staffCode: string;
+  issuedAt: string;
+}
+
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState<EventDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [staffCode, setStaffCode] = useState<string | null>(null);
+  const [staffCodeIssuedAt, setStaffCodeIssuedAt] = useState<string | null>(null);
+  const [isLoadingStaffCode, setIsLoadingStaffCode] = useState<boolean>(false);
+  const [isIssuingCode, setIsIssuingCode] = useState<boolean>(false);
+  const [staffCodeError, setStaffCodeError] = useState<string | null>(null);
+  const [showIssueModal, setShowIssueModal] = useState<boolean>(false);
+  const [showReissueModal, setShowReissueModal] = useState<boolean>(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -107,15 +121,58 @@ const EventDetail: React.FC = () => {
         const data: EventDetailResponse = await response.json();
         setEventData(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "행사 상세 정보를 가져오는데 실패했습니다.";
-        setError(errorMessage);
-        console.error("Error fetching event detail:", err);
+        console.error("행사 상세 정보 조회 실패:", err);
+        setError("행사 상세 정보를 가져오는데 실패했습니다.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchEventDetail();
+  }, [id]);
+
+  const fetchStaffCode = useCallback(async (): Promise<"hasCode" | "noCode" | "noPermission"> => {
+    if (!id) return "noCode";
+
+    try {
+      setIsLoadingStaffCode(true);
+      setStaffCodeError(null);
+
+      const response = await apiRequest(`/admin/events/${id}/staff-code`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorCode = errorData.errorCode;
+
+        if (errorCode === "E1025") {
+          setStaffCode(null);
+          setStaffCodeIssuedAt(null);
+          return "noCode";
+        }
+
+        if (errorCode === "E1024") {
+          setStaffCode(null);
+          setStaffCodeIssuedAt(null);
+          setStaffCodeError(null);
+          return "noPermission";
+        }
+
+        throw new Error(errorData.message || "스태프 코드 조회에 실패했습니다.");
+      }
+
+      const data: StaffCodeResponse = await response.json();
+      setStaffCode(data.staffCode);
+      setStaffCodeIssuedAt(data.issuedAt);
+      return "hasCode";
+    } catch (err) {
+      console.error("스태프 코드 조회 실패:", err);
+      setStaffCodeError("스태프 코드 조회에 실패했습니다.");
+      return "noCode";
+    } finally {
+      setIsLoadingStaffCode(false);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -183,6 +240,86 @@ const EventDetail: React.FC = () => {
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${year}.${month}.${day} ${hours}:${minutes}`;
+  };
+
+  const formatDateTimeLocal = (utcDateString: string | null): string => {
+    if (!utcDateString) return "";
+    const date = new Date(utcDateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+  };
+
+  const handleIssueStaffCode = async () => {
+    if (!id) return;
+
+    try {
+      setIsIssuingCode(true);
+      setStaffCodeError(null);
+
+      const response = await apiRequest(`/admin/events/${id}/staff-code`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorCode = errorData.errorCode;
+
+        if (errorCode === "E1024") {
+          return;
+        }
+
+        throw new Error(errorData.message || "스태프 코드 발급에 실패했습니다.");
+      }
+
+      const data: StaffCodeResponse = await response.json();
+      setStaffCode(data.staffCode);
+      setStaffCodeIssuedAt(data.issuedAt);
+      alert("스태프 코드가 발급되었습니다.");
+    } catch (err) {
+      console.error("스태프 코드 발급 실패:", err);
+    } finally {
+      setIsIssuingCode(false);
+    }
+  };
+
+  const handleLoadOrIssueStaffCode = async () => {
+    if (!id) return;
+
+    const result = await fetchStaffCode();
+    if (result === "noCode") {
+      setShowIssueModal(true);
+    }
+    // result === "noPermission"일 때는 모달을 띄우지 않음
+  };
+
+  const handleIssueConfirm = async () => {
+    setShowIssueModal(false);
+    await handleIssueStaffCode();
+  };
+
+  const handleReissueClick = () => {
+    setShowReissueModal(true);
+  };
+
+  const handleReissueConfirm = async () => {
+    setShowReissueModal(false);
+    await handleIssueStaffCode();
+  };
+
+  const handleCopyCode = async () => {
+    if (!staffCode) return;
+
+    try {
+      await navigator.clipboard.writeText(staffCode);
+      alert("코드가 클립보드에 복사되었습니다.");
+    } catch (err) {
+      console.error("코드 복사 실패:", err);
+      alert("코드 복사에 실패했습니다.");
+    }
   };
 
   const calculateTotalCapacity = (options: EventOption[]): number => {
@@ -608,17 +745,55 @@ const EventDetail: React.FC = () => {
         {/* 사이드바 - 스태프 코드 발급 */}
         <div className={styles["event-detail-sidebar"]} ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            {eventData.staffCode ? (
+            {staffCodeError && staffCodeError.includes("담당자만") ? (
+              <div className={styles["staff-code-section"]}>
+                <div className={styles["staff-code-content"]}>
+                  <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
+                  <p className={styles["staff-code-description"]} style={{ color: "#ef4444" }}>
+                    {staffCodeError}
+                  </p>
+                </div>
+              </div>
+            ) : isLoadingStaffCode ? (
+              <div className={styles["staff-code-section"]}>
+                <div className={styles["staff-code-content"]}>
+                  <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
+                  <p className={styles["staff-code-description"]}>로딩 중...</p>
+                </div>
+              </div>
+            ) : staffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
                   <p className={styles["staff-code-description"]}>발급된 스태프 코드</p>
                 </div>
                 <div className={styles["staff-code-display"]}>
-                  <p className={styles["staff-code-value"]}>{eventData.staffCode}</p>
-                  {eventData.staffCodeIssuedAt && (
-                    <p className={styles["staff-code-issued"]}>발급일: {formatDateTime(eventData.staffCodeIssuedAt)}</p>
+                  <div className={styles["staff-code-value-wrapper"]}>
+                    <p className={styles["staff-code-value"]}>{staffCode}</p>
+                    <button
+                      className={styles["staff-code-copy-button"]}
+                      onClick={handleCopyCode}
+                      title="코드 복사"
+                    >
+                      복사
+                    </button>
+                  </div>
+                  {staffCodeIssuedAt && (
+                    <p className={styles["staff-code-issued"]}>
+                      발급일: {formatDateTimeLocal(staffCodeIssuedAt)}
+                    </p>
                   )}
+                </div>
+                <button
+                  className={styles["staff-code-button"]}
+                  onClick={handleReissueClick}
+                  disabled={isIssuingCode}
+                >
+                  {isIssuingCode ? "발급 중..." : "재발급"}
+                </button>
+                <div className={styles["staff-code-notice"]}>
+                  <img src={imgFrame9} alt="알림 아이콘" />
+                  <p>재발급 시 이전 코드는 즉시 무효화됩니다</p>
                 </div>
               </div>
             ) : (
@@ -627,8 +802,12 @@ const EventDetail: React.FC = () => {
                   <h4 className={styles["staff-code-title"]}>스태프 코드 발급</h4>
                   <p className={styles["staff-code-description"]}>행사 운영진을 위한 전용 코드를 발급받으세요</p>
                 </div>
-                <button className={styles["staff-code-button"]}>
-                  스태프 코드 발급
+                <button
+                  className={styles["staff-code-button"]}
+                  onClick={handleLoadOrIssueStaffCode}
+                  disabled={isIssuingCode || isLoadingStaffCode}
+                >
+                  {isIssuingCode || isLoadingStaffCode ? "처리 중..." : "스태프 코드 조회/발급"}
                 </button>
                 <div className={styles["staff-code-notice"]}>
                   <img src={imgFrame9} alt="알림 아이콘" />
@@ -678,6 +857,28 @@ const EventDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showIssueModal}
+        title="스태프 코드 발급"
+        message="스태프 코드를 발급하시겠습니까?"
+        confirmText="발급"
+        cancelText="취소"
+        onConfirm={handleIssueConfirm}
+        onCancel={() => setShowIssueModal(false)}
+        type="default"
+      />
+
+      <ConfirmModal
+        isOpen={showReissueModal}
+        title="스태프 코드 재발급"
+        message="스태프 코드를 재발급하시겠습니까? 재발급 시 이전 코드는 즉시 무효화됩니다."
+        confirmText="재발급"
+        cancelText="취소"
+        onConfirm={handleReissueConfirm}
+        onCancel={() => setShowReissueModal(false)}
+        type="default"
+      />
     </div>
   );
 };

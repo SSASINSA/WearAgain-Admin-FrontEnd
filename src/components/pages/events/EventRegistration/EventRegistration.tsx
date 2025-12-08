@@ -476,7 +476,6 @@ const EventRegistration: React.FC = () => {
       }
     } catch (error) {
       console.error("행사 등록 실패:", error);
-      alert(error instanceof Error ? error.message : "행사 등록에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -514,7 +513,7 @@ const EventRegistration: React.FC = () => {
   const handleAddChild = (parentId: string) => {
     const parent = options.find((opt) => opt.id === parentId);
     if (!parent) {
-      console.error("Parent option not found:", parentId);
+      console.error("부모 옵션을 찾을 수 없음:", parentId);
       return;
     }
 
