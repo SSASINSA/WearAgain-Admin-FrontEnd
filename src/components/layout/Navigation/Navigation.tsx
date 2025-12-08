@@ -7,16 +7,12 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const { role, isLoading: isRoleLoading } = useAuth();
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
-  const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
   const [isAdminFeaturesDropdownOpen, setIsAdminFeaturesDropdownOpen] = useState(false);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (location.pathname === "/admin-users") {
       setIsAdminDropdownOpen(true);
-    }
-    if (location.pathname === "/login" || location.pathname === "/signup") {
-      setIsTestDropdownOpen(true);
     }
     if (location.pathname === "/approval" || location.pathname === "/events/approval") {
       setIsAdminFeaturesDropdownOpen(true);
@@ -150,28 +146,6 @@ const Navigation: React.FC = () => {
               </ul>
             </li>
           )}
-          <li className={`${styles["nav-dropdown"]} ${isTestDropdownOpen ? styles["open"] : ""}`}>
-            <button
-              className={`${styles["nav-item"]} ${styles["nav-dropdown-toggle"]}`}
-              onClick={() => setIsTestDropdownOpen(!isTestDropdownOpen)}
-            >
-              <img src="/admin/img/icon/user-icon.svg" alt="" />
-              <span>테스트용(삭제 예정)</span>
-              <span className={`${styles["dropdown-arrow"]} ${isTestDropdownOpen ? styles["open"] : ""}`}>▼</span>
-            </button>
-            <ul className={styles["nav-dropdown-menu"]}>
-              <li className={location.pathname === "/login" ? styles["active"] : ""}>
-                <Link to="/login" className={styles["nav-dropdown-item"]}>
-                  로그인
-                </Link>
-              </li>
-              <li className={location.pathname === "/signup" ? styles["active"] : ""}>
-                <Link to="/signup" className={styles["nav-dropdown-item"]}>
-                  회원가입
-                </Link>
-              </li>
-            </ul>
-          </li>
         </ul>
       </nav>
     </aside>
