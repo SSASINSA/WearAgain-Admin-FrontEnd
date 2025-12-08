@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EventDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
 import apiRequest from "utils/api";
 
 const imgImg = "/admin/img/example/event-hero.png";
@@ -82,6 +83,8 @@ const EventDetail: React.FC = () => {
   const [isLoadingStaffCode, setIsLoadingStaffCode] = useState<boolean>(false);
   const [isIssuingCode, setIsIssuingCode] = useState<boolean>(false);
   const [staffCodeError, setStaffCodeError] = useState<string | null>(null);
+  const [showIssueModal, setShowIssueModal] = useState<boolean>(false);
+  const [showReissueModal, setShowReissueModal] = useState<boolean>(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -116,51 +119,49 @@ const EventDetail: React.FC = () => {
     fetchEventDetail();
   }, [id]);
 
-  useEffect(() => {
-    const fetchStaffCode = async () => {
-      if (!id) return;
+  const fetchStaffCode = useCallback(async (): Promise<"hasCode" | "noCode" | "noPermission"> => {
+    if (!id) return "noCode";
 
-      try {
-        setIsLoadingStaffCode(true);
-        setStaffCodeError(null);
+    try {
+      setIsLoadingStaffCode(true);
+      setStaffCodeError(null);
 
-        const response = await apiRequest(`/admin/events/${id}/staff-code`, {
-          method: "GET",
-        });
+      const response = await apiRequest(`/admin/events/${id}/staff-code`, {
+        method: "GET",
+      });
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          const errorCode = errorData.errorCode;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorCode = errorData.errorCode;
 
-          if (errorCode === "E1025") {
-            setStaffCode(null);
-            setStaffCodeIssuedAt(null);
-            return;
-          }
-
-          if (errorCode === "E1024") {
-            setStaffCodeError("행사 담당자만 코드를 볼 수 있습니다.");
-            return;
-          }
-
-          throw new Error(errorData.message || "스태프 코드 조회에 실패했습니다.");
+        if (errorCode === "E1025") {
+          setStaffCode(null);
+          setStaffCodeIssuedAt(null);
+          return "noCode";
         }
 
-        const data: StaffCodeResponse = await response.json();
-        setStaffCode(data.staffCode);
-        setStaffCodeIssuedAt(data.issuedAt);
-      } catch (err) {
-        console.error("스태프 코드 조회 실패:", err);
-        setStaffCodeError("스태프 코드 조회에 실패했습니다.");
-      } finally {
-        setIsLoadingStaffCode(false);
-      }
-    };
+        if (errorCode === "E1024") {
+          setStaffCode(null);
+          setStaffCodeIssuedAt(null);
+          setStaffCodeError(null);
+          return "noPermission";
+        }
 
-    if (eventData) {
-      fetchStaffCode();
+        throw new Error(errorData.message || "스태프 코드 조회에 실패했습니다.");
+      }
+
+      const data: StaffCodeResponse = await response.json();
+      setStaffCode(data.staffCode);
+      setStaffCodeIssuedAt(data.issuedAt);
+      return "hasCode";
+    } catch (err) {
+      console.error("스태프 코드 조회 실패:", err);
+      setStaffCodeError("스태프 코드 조회에 실패했습니다.");
+      return "noCode";
+    } finally {
+      setIsLoadingStaffCode(false);
     }
-  }, [id, eventData]);
+  }, [id]);
 
   useEffect(() => {
     const headerOffsetPx = 120;
@@ -265,12 +266,36 @@ const EventDetail: React.FC = () => {
       const data: StaffCodeResponse = await response.json();
       setStaffCode(data.staffCode);
       setStaffCodeIssuedAt(data.issuedAt);
-      alert("새 스태프 코드가 발급되었습니다.");
+      alert("스태프 코드가 발급되었습니다.");
     } catch (err) {
       console.error("스태프 코드 발급 실패:", err);
     } finally {
       setIsIssuingCode(false);
     }
+  };
+
+  const handleLoadOrIssueStaffCode = async () => {
+    if (!id) return;
+
+    const result = await fetchStaffCode();
+    if (result === "noCode") {
+      setShowIssueModal(true);
+    }
+    // result === "noPermission"일 때는 모달을 띄우지 않음
+  };
+
+  const handleIssueConfirm = async () => {
+    setShowIssueModal(false);
+    await handleIssueStaffCode();
+  };
+
+  const handleReissueClick = () => {
+    setShowReissueModal(true);
+  };
+
+  const handleReissueConfirm = async () => {
+    setShowReissueModal(false);
+    await handleIssueStaffCode();
   };
 
   const handleCopyCode = async () => {
@@ -696,7 +721,7 @@ const EventDetail: React.FC = () => {
                 </div>
                 <button
                   className={styles["staff-code-button"]}
-                  onClick={handleIssueStaffCode}
+                  onClick={handleReissueClick}
                   disabled={isIssuingCode}
                 >
                   {isIssuingCode ? "발급 중..." : "재발급"}
@@ -714,10 +739,10 @@ const EventDetail: React.FC = () => {
                 </div>
                 <button
                   className={styles["staff-code-button"]}
-                  onClick={handleIssueStaffCode}
-                  disabled={isIssuingCode}
+                  onClick={handleLoadOrIssueStaffCode}
+                  disabled={isIssuingCode || isLoadingStaffCode}
                 >
-                  {isIssuingCode ? "발급 중..." : "스태프 코드 발급"}
+                  {isIssuingCode || isLoadingStaffCode ? "처리 중..." : "스태프 코드 조회/발급"}
                 </button>
                 <div className={styles["staff-code-notice"]}>
                   <img src={imgFrame9} alt="알림 아이콘" />
@@ -767,6 +792,28 @@ const EventDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showIssueModal}
+        title="스태프 코드 발급"
+        message="스태프 코드를 발급하시겠습니까?"
+        confirmText="발급"
+        cancelText="취소"
+        onConfirm={handleIssueConfirm}
+        onCancel={() => setShowIssueModal(false)}
+        type="default"
+      />
+
+      <ConfirmModal
+        isOpen={showReissueModal}
+        title="스태프 코드 재발급"
+        message="스태프 코드를 재발급하시겠습니까? 재발급 시 이전 코드는 즉시 무효화됩니다."
+        confirmText="재발급"
+        cancelText="취소"
+        onConfirm={handleReissueConfirm}
+        onCancel={() => setShowReissueModal(false)}
+        type="default"
+      />
     </div>
   );
 };
