@@ -10,6 +10,9 @@ const imgFrame2 = "/admin/img/icon/location-pin.svg";
 const imgFrame3 = "/admin/img/icon/user-count.svg";
 const imgFrame9 = "/admin/img/icon/alert.svg";
 const editIcon = "/admin/img/icon/edit.svg";
+const co2Icon = "/admin/img/icon/co2.svg";
+const waterIcon = "/admin/img/icon/water.svg";
+const energyIcon = "/admin/img/icon/energy.svg";
 
 interface EventImage {
   imageId: number;
@@ -38,6 +41,14 @@ interface EventApplication {
   reason: string | null;
 }
 
+interface ImpactAnalytics {
+  available: boolean;
+  co2Saved: number | null;
+  waterSaved: number | null;
+  energySaved: number | null;
+  message: string | null;
+}
+
 interface EventDetailResponse {
   eventId: number;
   title: string;
@@ -63,6 +74,7 @@ interface EventDetailResponse {
   images: EventImage[];
   options: EventOption[];
   applications: EventApplication[];
+  impactAnalytics: ImpactAnalytics;
 }
 
 const EventDetail: React.FC = () => {
@@ -465,6 +477,59 @@ const EventDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 환경 임팩트 섹션 */}
+          <div className={styles["event-impact-section"]}>
+            <h3 className={styles["section-title"]}>환경 임팩트</h3>
+            {eventData.impactAnalytics?.available ? (
+              <div className={styles["impact-grid"]}>
+                <div className={styles["impact-item"]}>
+                  <div className={`${styles["impact-icon"]} ${styles["co2-icon"]}`}>
+                    <img src={co2Icon} alt="CO2 아이콘" />
+                  </div>
+                  <div className={styles["impact-content"]}>
+                    <p className={styles["impact-number"]}>
+                      {eventData.impactAnalytics.co2Saved !== null && eventData.impactAnalytics.co2Saved !== undefined
+                        ? Math.round(eventData.impactAnalytics.co2Saved).toLocaleString()
+                        : 0}
+                    </p>
+                    <p className={styles["impact-label"]}>CO2 절감량 (kg)</p>
+                  </div>
+                </div>
+                <div className={styles["impact-item"]}>
+                  <div className={`${styles["impact-icon"]} ${styles["water-icon"]}`}>
+                    <img src={waterIcon} alt="물 아이콘" />
+                  </div>
+                  <div className={styles["impact-content"]}>
+                    <p className={styles["impact-number"]}>
+                      {eventData.impactAnalytics.waterSaved !== null && eventData.impactAnalytics.waterSaved !== undefined
+                        ? Math.round(eventData.impactAnalytics.waterSaved).toLocaleString()
+                        : 0}
+                    </p>
+                    <p className={styles["impact-label"]}>물 절약량 (L)</p>
+                  </div>
+                </div>
+                <div className={styles["impact-item"]}>
+                  <div className={`${styles["impact-icon"]} ${styles["energy-icon"]}`}>
+                    <img src={energyIcon} alt="에너지 아이콘" />
+                  </div>
+                  <div className={styles["impact-content"]}>
+                    <p className={styles["impact-number"]}>
+                      {eventData.impactAnalytics.energySaved !== null && eventData.impactAnalytics.energySaved !== undefined
+                        ? Math.round(eventData.impactAnalytics.energySaved).toLocaleString()
+                        : 0}
+                    </p>
+                    <p className={styles["impact-label"]}>에너지 절약량 (kWh)</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={styles["impact-message"]}>
+                <img src={imgFrame9} alt="알림 아이콘" />
+                <p>{eventData.impactAnalytics?.message || "행사 종료 후 집계 예정입니다."}</p>
+              </div>
+            )}
           </div>
 
           {/* 행사 정보 섹션 */}
