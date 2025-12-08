@@ -641,7 +641,6 @@ const EventParticipantManagement: React.FC = () => {
                 width: 250,
                 render: (p: Participant) => (
                   <div className={styles["participant-info"]}>
-                    <img src="/admin/img/icon/basic-profile.svg" alt={p.name} className={styles["participant-avatar"]} />
                     <div className={styles["participant-details"]}>
                       <p
                         className={`${styles["participant-name"]} ${styles["clickable"]}`}
