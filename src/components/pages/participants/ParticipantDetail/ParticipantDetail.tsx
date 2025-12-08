@@ -7,6 +7,7 @@ import apiRequest from "../../../../utils/api";
 interface RecentEvent {
   eventId: number;
   title: string;
+  thumbnailUrl: string | null;
   status: "APPLIED" | "CHECKED_IN";
   startDate: string;
   endDate: string;
@@ -73,7 +74,7 @@ const ParticipantDetail: React.FC = () => {
       const data: ParticipantDetailResponse = await response.json();
       setParticipant(data);
     } catch (error) {
-      console.error("Error fetching participant:", error);
+      console.error("참가자 정보 조회 실패:", error);
       setError("참가자 정보를 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -118,6 +119,16 @@ const ParticipantDetail: React.FC = () => {
       return `${year}.${month}.${day}`;
     };
     return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+  };
+
+  const formatDateTimeLocal = (utcDateString: string): string => {
+    const date = new Date(utcDateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
   const getEventStatusText = (status: string): string => {
@@ -192,7 +203,7 @@ const ParticipantDetail: React.FC = () => {
       setIsEditModalOpen(false);
       fetchParticipant();
     } catch (error) {
-      console.error("Error updating participant:", error);
+      console.error("참가자 정보 수정 실패:", error);
       setModalError("참가자 정보 수정에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
@@ -359,48 +370,45 @@ const ParticipantDetail: React.FC = () => {
                     style={{ cursor: "pointer" }}
                     onClick={() => navigate(`/events/${event.eventId}`)}
                   >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "120px",
-                        backgroundColor: "#f3f4f6",
-                        borderRadius: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <img
-                        src="/admin/img/icon/calendar.svg"
-                        alt="행사"
-                        style={{ width: "48px", height: "48px", opacity: 0.5 }}
-                      />
+                    <div className={styles["event-thumbnail"]}>
+                      {event.thumbnailUrl ? (
+                        <img
+                          src={event.thumbnailUrl}
+                          alt={event.title}
+                          className={styles["event-thumbnail-image"]}
+                        />
+                      ) : (
+                        <div className={styles["event-thumbnail-placeholder"]}>
+                          <img
+                            src="/admin/img/icon/calendar.svg"
+                            alt="행사"
+                            className={styles["event-thumbnail-icon"]}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <p style={{ fontWeight: 500, marginBottom: "4px", fontSize: "14px" }}>{event.title}</p>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: event.status === "CHECKED_IN" ? "#166534" : "#92400e",
-                        backgroundColor: event.status === "CHECKED_IN" ? "#dcfce7" : "#fef3c7",
-                        padding: "4px 8px",
-                        borderRadius: "12px",
-                        display: "inline-block",
-                        marginBottom: "4px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {getEventStatusText(event.status)}
-                    </p>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>
-                      {formatDateRange(event.startDate, event.endDate)}
-                    </p>
+                    <p className={styles["event-title"]}>{event.title}</p>
+                    <div className={styles["event-meta"]}>
+                      <span
+                        className={`${styles["event-status-badge"]} ${
+                          event.status === "CHECKED_IN" ? styles["checked-in"] : styles["applied"]
+                        }`}
+                      >
+                        {getEventStatusText(event.status)}
+                      </span>
+                      <p className={styles["event-date"]}>
+                        {formatDateRange(event.startDate, event.endDate)}
+                      </p>
+                      <p className={styles["event-applied-at"]}>
+                        {formatDateTimeLocal(event.appliedAt)} 신청
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
-                참여한 행사가 없습니다.
+              <div className={styles["no-events-message"]}>
+                최근 90일 내 신청 이력이 없습니다
               </div>
             )}
           </section>
