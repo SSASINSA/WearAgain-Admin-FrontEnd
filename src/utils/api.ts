@@ -111,15 +111,30 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}): P
             ...options,
             headers,
           });
+          
+          if (!response.ok) {
+            const retryErrorData: ApiError = await response.json().catch(() => ({}));
+            if (retryErrorData.errorCode !== "AD1009" && retryErrorData.message) {
+              if (typeof window !== "undefined") {
+                alert(retryErrorData.message);
+              }
+            }
+          }
         } else {
           if (typeof window !== "undefined") {
             window.dispatchEvent(new Event("authTokenExpired"));
           }
           throw new Error("토큰 재발급에 실패했습니다.");
         }
-      } else if (response.status === 401 || response.status === 403) {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("authTokenExpired"));
+      } else {
+        if (errorData.message && typeof window !== "undefined") {
+          alert(errorData.message);
+        }
+        
+        if (response.status === 401 || response.status === 403) {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("authTokenExpired"));
+          }
         }
       }
     } catch (error) {

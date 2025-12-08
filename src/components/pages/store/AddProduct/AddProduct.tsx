@@ -322,7 +322,6 @@ const AddProduct: React.FC = () => {
       navigate("/store");
     } catch (error) {
       console.error("상품 등록 실패:", error);
-      alert(error instanceof Error ? error.message : "상품 등록에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }

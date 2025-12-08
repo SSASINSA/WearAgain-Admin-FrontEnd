@@ -231,7 +231,7 @@ const EventApproval: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "승인 대기 목록을 가져오는데 실패했습니다.";
       setError(errorMessage);
-      console.error("Error fetching approval requests:", err);
+      console.error("승인 요청 목록 조회 실패:", err);
     } finally {
       setIsLoading(false);
     }

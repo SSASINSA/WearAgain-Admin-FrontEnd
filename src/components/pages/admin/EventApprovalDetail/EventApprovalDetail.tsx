@@ -80,7 +80,7 @@ const EventApprovalDetail: React.FC = () => {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "승인 요청 상세 정보를 가져오는데 실패했습니다.";
         setError(errorMessage);
-        console.error("Error fetching approval detail:", err);
+        console.error("승인 요청 상세 정보 조회 실패:", err);
       } finally {
         setIsLoading(false);
       }
@@ -166,7 +166,6 @@ const EventApprovalDetail: React.FC = () => {
       navigate("/events/approval");
     } catch (error) {
       console.error("행사 승인 실패:", error);
-      alert(error instanceof Error ? error.message : "행사 승인에 실패했습니다.");
     } finally {
       setIsProcessing(false);
     }
@@ -193,7 +192,6 @@ const EventApprovalDetail: React.FC = () => {
       navigate("/events/approval");
     } catch (error) {
       console.error("행사 거부 실패:", error);
-      alert(error instanceof Error ? error.message : "행사 거부에 실패했습니다.");
     } finally {
       setIsProcessing(false);
     }

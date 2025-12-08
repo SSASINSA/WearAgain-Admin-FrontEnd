@@ -217,7 +217,7 @@ const EventEdit: React.FC = () => {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "행사 정보를 가져오는데 실패했습니다.";
         setError(errorMessage);
-        console.error("Error fetching event detail:", err);
+        console.error("행사 상세 정보 조회 실패:", err);
       } finally {
         setIsLoading(false);
     }
@@ -839,7 +839,6 @@ const EventEdit: React.FC = () => {
       }
     } catch (error) {
       console.error("행사 수정 실패:", error);
-      alert(error instanceof Error ? error.message : "행사 수정에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }

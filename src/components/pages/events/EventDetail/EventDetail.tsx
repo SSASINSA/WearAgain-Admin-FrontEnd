@@ -106,9 +106,8 @@ const EventDetail: React.FC = () => {
         const data: EventDetailResponse = await response.json();
         setEventData(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "행사 상세 정보를 가져오는데 실패했습니다.";
-        setError(errorMessage);
-        console.error("Error fetching event detail:", err);
+        console.error("행사 상세 정보 조회 실패:", err);
+        setError("행사 상세 정보를 가져오는데 실패했습니다.");
       } finally {
         setIsLoading(false);
       }
@@ -151,9 +150,8 @@ const EventDetail: React.FC = () => {
         setStaffCode(data.staffCode);
         setStaffCodeIssuedAt(data.issuedAt);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "스태프 코드 조회에 실패했습니다.";
-        setStaffCodeError(errorMessage);
-        console.error("Error fetching staff code:", err);
+        console.error("스태프 코드 조회 실패:", err);
+        setStaffCodeError("스태프 코드 조회에 실패했습니다.");
       } finally {
         setIsLoadingStaffCode(false);
       }
@@ -258,7 +256,6 @@ const EventDetail: React.FC = () => {
         const errorCode = errorData.errorCode;
 
         if (errorCode === "E1024") {
-          alert("행사 담당자만 코드를 발급할 수 있습니다.");
           return;
         }
 
@@ -270,9 +267,7 @@ const EventDetail: React.FC = () => {
       setStaffCodeIssuedAt(data.issuedAt);
       alert("새 스태프 코드가 발급되었습니다.");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "스태프 코드 발급에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error issuing staff code:", err);
+      console.error("스태프 코드 발급 실패:", err);
     } finally {
       setIsIssuingCode(false);
     }
@@ -285,7 +280,7 @@ const EventDetail: React.FC = () => {
       await navigator.clipboard.writeText(staffCode);
       alert("코드가 클립보드에 복사되었습니다.");
     } catch (err) {
-      console.error("Failed to copy code:", err);
+      console.error("코드 복사 실패:", err);
       alert("코드 복사에 실패했습니다.");
     }
   };

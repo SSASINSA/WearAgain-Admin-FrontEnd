@@ -115,7 +115,7 @@ const AdminUserList: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "관리자 계정 목록을 가져오는데 실패했습니다.";
       setError(errorMessage);
-      console.error("Error fetching admin users:", err);
+      console.error("관리자 계정 목록 조회 실패:", err);
     } finally {
       setIsLoading(false);
     }
@@ -207,9 +207,7 @@ const AdminUserList: React.FC = () => {
       setSelectedUserName("");
       await fetchAdminUsers();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "관리자 계정 삭제에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error deleting admin user:", err);
+      console.error("관리자 계정 삭제 실패:", err);
     }
   };
 

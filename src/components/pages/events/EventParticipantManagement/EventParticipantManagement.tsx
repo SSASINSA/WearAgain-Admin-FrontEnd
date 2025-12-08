@@ -159,7 +159,7 @@ const EventParticipantManagement: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error fetching event info:", error);
+      console.error("행사 정보 조회 실패:", error);
     }
   }, [eventId]);
   const [searchTerm, setSearchTerm] = useState(getSearchTermFromUrl());
@@ -316,7 +316,7 @@ const EventParticipantManagement: React.FC = () => {
       setTotalPages(data.totalPages);
       setStats(data.summary);
     } catch (error) {
-      console.error("Error fetching participants:", error);
+      console.error("참가자 목록 조회 실패:", error);
       alert("참가자 목록을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -418,9 +418,7 @@ const EventParticipantManagement: React.FC = () => {
       setCancelReason("");
       await fetchParticipants();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "참가 신청 취소에 실패했습니다.";
-      alert(errorMessage);
-      console.error("Error canceling application:", error);
+      console.error("참가 신청 취소 실패:", error);
     }
   };
 
