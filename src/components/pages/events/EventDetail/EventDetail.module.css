@@ -241,6 +241,103 @@
   margin-bottom: 32px;
 }
 
+.event-impact-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.impact-item {
+  text-align: center;
+}
+
+.impact-icon {
+  border-radius: 16px;
+  height: 72px;
+  width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.impact-icon.co2-icon {
+  background-color: #10b981;
+}
+
+.impact-icon.water-icon {
+  background-color: #2563eb;
+}
+
+.impact-icon.energy-icon {
+  background-color: #d97706;
+}
+
+.impact-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+.impact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.impact-number {
+  font-family: "Pretendard", sans-serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  line-height: 44px;
+}
+
+.impact-label {
+  font-family: "Pretendard", sans-serif;
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 20px;
+}
+
+.impact-message {
+  background-color: #f9fafb;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.impact-message img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  filter: none;
+}
+
+.impact-message p {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 24px;
+}
+
 .event-info-main-section {
   background-color: white;
   border-radius: 16px;
@@ -759,6 +856,10 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .impact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .event-details-grid {
     flex-direction: column;
     gap: 24px;
@@ -778,6 +879,7 @@
   .event-usage-section,
   .event-precaution-section,
   .event-results-section,
+  .event-impact-section,
   .event-info-main-section,
   .staff-code-section,
   .event-info-section {
@@ -785,6 +887,11 @@
   }
 
   .results-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .impact-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
