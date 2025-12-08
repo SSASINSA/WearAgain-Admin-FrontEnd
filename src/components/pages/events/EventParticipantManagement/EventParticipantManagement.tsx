@@ -431,20 +431,6 @@ const EventParticipantManagement: React.FC = () => {
     setCancelReason("");
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "APPLIED":
-        return "#10b981";
-      case "CHECKED_IN":
-        return "#3b82f6";
-      case "CANCELLED":
-        return "#f59e0b";
-      case "REJECTED":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
 
   if (!eventId) {
     return (
@@ -690,40 +676,43 @@ const EventParticipantManagement: React.FC = () => {
                 key: "status",
                 title: "상태",
                 width: 100,
-                render: (p: Participant) => (
-                  <span className={styles["status-badge"]} style={{ backgroundColor: getStatusColor(p.status) }}>
-                    {getStatusDisplayName(p.status)}
-                  </span>
-                ),
+                align: "center",
+                render: (p: Participant) => {
+                  let statusClass = "";
+                  switch (p.status) {
+                    case "APPLIED":
+                      statusClass = styles["applied"];
+                      break;
+                    case "CHECKED_IN":
+                      statusClass = styles["checked-in"];
+                      break;
+                    case "CANCELLED":
+                      statusClass = styles["cancelled"];
+                      break;
+                    case "REJECTED":
+                      statusClass = styles["rejected"];
+                      break;
+                    default:
+                      statusClass = "";
+                  }
+                  return (
+                    <span className={`${styles["status-badge"]} ${statusClass}`}>
+                      {getStatusDisplayName(p.status)}
+                    </span>
+                  );
+                },
               },
               {
                 key: "actions",
                 title: "작업",
                 width: 80,
                 align: "center",
+                className: styles["actions-cell"],
                 render: (p: Participant) => (
                   (p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
                     <button
+                      className={`${styles["action-btn"]} ${styles["cancel"]}`}
                       onClick={() => handleCancelClick(p.applicationId, p.name)}
-                      style={{
-                        backgroundColor: "#fee2e2",
-                        color: "#991b1b",
-                        border: "1px solid #fca5a5",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        transition: "all 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#fecaca";
-                        e.currentTarget.style.borderColor = "#f87171";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "#fee2e2";
-                        e.currentTarget.style.borderColor = "#fca5a5";
-                      }}
                     >
                       취소
                     </button>
