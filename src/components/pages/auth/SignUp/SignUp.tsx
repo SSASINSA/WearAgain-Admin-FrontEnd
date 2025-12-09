@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./SignUp.module.css";
 
@@ -19,6 +19,7 @@ const SignUp: React.FC = () => {
     password: "",
     confirmPassword: "",
     description: "",
+    requestedRole: "MANAGER" as "MANAGER" | "ADMIN",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -27,6 +28,33 @@ const SignUp: React.FC = () => {
   const [modalTitle, setModalTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [ripples, setRipples] = useState<{ [key: string]: { x: number; y: number; size: number; id: number } }>({});
+  const rippleIdRef = useRef(0);
+
+  const createRipple = (event: React.MouseEvent<HTMLButtonElement>, buttonKey: string) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const size = Math.max(width, height);
+    const x = width / 2;
+    const y = height / 2;
+    const id = rippleIdRef.current++;
+    
+    setRipples((prev) => ({
+      ...prev,
+      [buttonKey]: { x, y, size, id },
+    }));
+
+    setTimeout(() => {
+      setRipples((prev) => {
+        const newRipples = { ...prev };
+        delete newRipples[buttonKey];
+        return newRipples;
+      });
+    }, 600);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -69,6 +97,11 @@ const SignUp: React.FC = () => {
       return;
     }
 
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setShowConfirmModal(false);
     setIsLoading(true);
 
     try {
@@ -81,7 +114,7 @@ const SignUp: React.FC = () => {
           email: formData.email,
           password: formData.password,
           name: formData.name,
-          requestedRole: "ADMIN",
+          requestedRole: formData.requestedRole,
           reason: formData.description,
         }),
       });
@@ -99,6 +132,7 @@ const SignUp: React.FC = () => {
           password: "",
           confirmPassword: "",
           description: "",
+          requestedRole: "MANAGER",
         });
       } else {
         setModalTitle("가입 신청 실패");
@@ -258,6 +292,68 @@ const SignUp: React.FC = () => {
                         required
                       />
                     </div>
+
+                    <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
+                      <div className="[font-family:'Poppins-Regular',Helvetica] font-normal text-[#9699b7] text-sm leading-[normal] tracking-[0.10px] w-full">
+                        어떤 계정으로 신청하려고 하시나요?
+                      </div>
+                      <div className="flex items-stretch gap-3 w-full">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            createRipple(e, "MANAGER");
+                            setFormData((prev) => ({ ...prev, requestedRole: "MANAGER" }));
+                          }}
+                          className={`${styles["role-button"]} flex-1 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] rounded-lg border-[1.6px] border-solid transition-all cursor-pointer ${
+                            formData.requestedRole === "MANAGER"
+                              ? "bg-white border-[#0062ff] text-[#0062ff]"
+                              : "bg-white border-[#e0e2e9] text-[#171725] hover:border-[#0062ff] hover:text-[#0062ff]"
+                          }`}
+                        >
+                          {ripples["MANAGER"] && (
+                            <span
+                              className={styles.ripple}
+                              style={{
+                                left: ripples["MANAGER"].x - ripples["MANAGER"].size / 2,
+                                top: ripples["MANAGER"].y - ripples["MANAGER"].size / 2,
+                                width: ripples["MANAGER"].size,
+                                height: ripples["MANAGER"].size,
+                              }}
+                            />
+                          )}
+                          <span className="[font-family:'Poppins-SemiBold',Helvetica] font-semibold text-base leading-[normal] tracking-[0.10px] relative z-10">
+                            행사 주최자
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            createRipple(e, "ADMIN");
+                            setFormData((prev) => ({ ...prev, requestedRole: "ADMIN" }));
+                          }}
+                          className={`${styles["role-button"]} flex-1 pt-[var(--space-component-padding-medium)] pr-[var(--space-component-padding-xlarge)] pb-[var(--space-component-padding-medium)] pl-[var(--space-component-padding-xlarge)] rounded-lg border-[1.6px] border-solid transition-all cursor-pointer ${
+                            formData.requestedRole === "ADMIN"
+                              ? "bg-white border-[#0062ff] text-[#0062ff]"
+                              : "bg-white border-[#e0e2e9] text-[#171725] hover:border-[#0062ff] hover:text-[#0062ff]"
+                          }`}
+                        >
+                          {ripples["ADMIN"] && (
+                            <span
+                              className={styles.ripple}
+                              style={{
+                                left: ripples["ADMIN"].x - ripples["ADMIN"].size / 2,
+                                top: ripples["ADMIN"].y - ripples["ADMIN"].size / 2,
+                                width: ripples["ADMIN"].size,
+                                height: ripples["ADMIN"].size,
+                              }}
+                            />
+                          )}
+                          <span className="[font-family:'Poppins-SemiBold',Helvetica] font-semibold text-base leading-[normal] tracking-[0.10px] relative z-10">
+                            서버 관리자
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <button
@@ -306,6 +402,33 @@ const SignUp: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className={styles["signup-modal-overlay"]} onClick={() => setShowConfirmModal(false)}>
+          <div className={styles["signup-modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["signup-modal-header"]}>
+              <h2>회원가입 확인</h2>
+              <button className={styles["signup-modal-close"]} onClick={() => setShowConfirmModal(false)}>
+                ×
+              </button>
+            </div>
+            <div className={styles["signup-modal-body"]}>
+              <p>입력하신 정보로 회원가입을 진행하시겠습니까?</p>
+            </div>
+            <div className={styles["signup-modal-footer"]} style={{ gap: "12px", justifyContent: "flex-end" }}>
+              <button
+                className={styles["signup-modal-btn-cancel"]}
+                onClick={() => setShowConfirmModal(false)}
+              >
+                취소
+              </button>
+              <button className={styles["signup-modal-btn"]} onClick={handleConfirmSubmit}>
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className={styles["signup-modal-overlay"]} onClick={handleCloseModal}>
