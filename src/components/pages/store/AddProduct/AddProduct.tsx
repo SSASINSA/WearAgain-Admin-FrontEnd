@@ -40,7 +40,7 @@ interface ProductRegistrationRequest {
   category: string;
   price: number;
   stock: number;
-  maxPurchasePerUser: number;
+  maxPurchasePerUser: number | null;
   status: string;
   images: ProductImageRequest[];
   pickupLocations: string[];
@@ -73,6 +73,7 @@ const AddProduct: React.FC = () => {
   const [pressedAction, setPressedAction] = useState<string | null>(null);
 
   const [quantity, setQuantity] = useState<string>("");
+  const [maxPurchasePerUser, setMaxPurchasePerUser] = useState<string>("");
   const [pickupLocations, setPickupLocations] = useState<string[]>([""]);
 
   const getPressHandlers = (id: string) => ({
@@ -247,6 +248,17 @@ const AddProduct: React.FC = () => {
         }
       }
 
+      let maxPurchasePerUserValue: number | null = null;
+      if (maxPurchasePerUser.trim() !== "") {
+        const parsedMax = parseInt(maxPurchasePerUser, 10);
+        if (isNaN(parsedMax) || parsedMax <= 0) {
+          alert("구매 제한 수량은 0보다 큰 정수이거나 비워두세요.");
+          setIsSubmitting(false);
+          return;
+        }
+        maxPurchasePerUserValue = parsedMax;
+      }
+
       const uploadedImages: ProductImageUploadResponse[] = [];
 
       for (let i = 0; i < imagesToUpload.length; i++) {
@@ -300,7 +312,7 @@ const AddProduct: React.FC = () => {
         category: productData.category.trim(),
         price: price,
         stock: stock,
-        maxPurchasePerUser: 1,
+        maxPurchasePerUser: maxPurchasePerUserValue,
         status: "ACTIVE",
         images: productImages,
         pickupLocations: validPickupLocations,
@@ -456,6 +468,17 @@ const AddProduct: React.FC = () => {
             <div className={styles["form-group"]}>
               <label>수량</label>
               <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
+            </div>
+            <div className={styles["form-group"]}>
+              <label>구매 제한 수량 (선택)</label>
+              <input
+                type="number"
+                value={maxPurchasePerUser}
+                onChange={(e) => setMaxPurchasePerUser(e.target.value)}
+                placeholder=""
+                min={1}
+              />
+              <p className={styles["price-info"]}>입력 시 1인당 구매 가능 수량을 제한합니다.</p>
             </div>
           </div>
 
