@@ -925,10 +925,7 @@ const EventRegistration: React.FC = () => {
                     <img
                       src={ticketIcon}
                       alt="티켓"
-                      className={styles["label-icon"]}
-                      style={{
-                        filter: "invert(47%) sepia(6%) saturate(399%) hue-rotate(176deg) brightness(92%) contrast(87%)",
-                      }}
+                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
                     />
                     티켓 설정
                   </label>
