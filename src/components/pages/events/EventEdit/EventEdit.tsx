@@ -20,6 +20,7 @@ const checkIcon = "/admin/img/icon/check.svg";
 const cameraIcon = "/admin/img/icon/camera.svg";
 const imageAddIcon = "/admin/img/icon/image-add.svg";
 const infoIcon = "/admin/img/icon/info-circle.svg";
+const ticketIcon = "/admin/img/icon/ticket.svg";
 
 interface EventImage {
   imageId: number;
@@ -54,6 +55,7 @@ interface EventDetailResponse {
   startDate: string;
   endDate: string;
   status: string;
+  optionDepth: number;
   totalCapacity: number;
   appliedCount: number;
   remainingCount: number;
@@ -76,6 +78,7 @@ interface EventUpdateRequest {
   endDate?: string;
   images?: EventImageRequest[] | null;
   options?: any[] | null;
+  optionDepth?: number;
   status?: string;
 }
 
@@ -146,6 +149,7 @@ const EventEdit: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [options, setOptions] = useState<EventOptionNode[]>([]);
+  const [optionDepth, setOptionDepth] = useState<number>(1);
   const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
   const [showAddDropdown, setShowAddDropdown] = useState(false);
   const [showMoreMenuId, setShowMoreMenuId] = useState<string | null>(null);
@@ -185,6 +189,10 @@ const EventEdit: React.FC = () => {
           eventLocationDetail: "",
         });
         setOriginalLocation(data.location || "");
+
+        if (data.optionDepth) {
+          setOptionDepth(data.optionDepth);
+        }
 
         if (data.options && data.options.length > 0) {
           const convertedOptions = convertApiOptionsToNodes(data.options);
@@ -301,8 +309,10 @@ const EventEdit: React.FC = () => {
     if (!parent) return;
 
     const parentDepth = getOptionDepth(parentId);
-    if (parentDepth >= 3) {
-      alert("최대 3depth까지만 추가할 수 있습니다.");
+    if (parentDepth >= optionDepth - 1) {
+      const parent = options.find((opt) => opt.id === parentId);
+      const parentName = parent ? parent.name : "해당 옵션";
+      alert(`옵션 "${parentName}"은 최대 깊이에 도달했습니다. 더 이상 하위 옵션을 추가할 수 없습니다.`);
       return;
     }
 
@@ -749,9 +759,16 @@ const EventEdit: React.FC = () => {
       }
 
       const validateOptions = (opts: EventOptionNode[]): void => {
+        const getDepthInOpts = (optionId: string): number => {
+          const option = opts.find((o) => o.id === optionId);
+          if (!option) return 0;
+          if (option.parentId === null) return 0;
+          return 1 + getDepthInOpts(option.parentId);
+        };
+
         const validateNode = (node: EventOptionNode, depth: number, parentId: string | null): void => {
-          if (depth > 2) {
-            throw new Error("options의 최대 depth는 3입니다.");
+          if (depth >= optionDepth) {
+            throw new Error(`선택한 옵션 Depth(${optionDepth}레벨)를 초과할 수 없습니다.`);
           }
 
           if (!node.name || node.name.trim().length === 0) {
@@ -783,6 +800,9 @@ const EventEdit: React.FC = () => {
             }
             children.forEach((child) => validateNode(child, depth + 1, node.id));
           } else {
+            if (depth < optionDepth - 1) {
+              throw new Error(`옵션 "${node.name}"의 하위 옵션을 입력해주세요.`);
+            }
             if (node.capacity !== null && node.capacity !== undefined) {
               if (typeof node.capacity !== "number" || !Number.isInteger(node.capacity) || node.capacity < 1 || node.capacity > 999) {
                 throw new Error(`옵션 "${node.name}"의 수용 인원은 1 이상 999 이하의 정수여야 합니다.`);
@@ -792,7 +812,33 @@ const EventEdit: React.FC = () => {
         };
 
         const rootOptions = opts.filter((opt) => opt.parentId === null);
+        if (rootOptions.length === 0) {
+          throw new Error("최소 1개 이상의 옵션이 필요합니다.");
+        }
         rootOptions.forEach((root) => validateNode(root, 0, null));
+
+        for (let depth = 0; depth < optionDepth; depth++) {
+          const optionsAtDepth = opts.filter((opt) => {
+            const optDepth = getDepthInOpts(opt.id);
+            return optDepth === depth;
+          });
+          if (optionsAtDepth.length === 0) {
+            if (depth === 0) {
+              throw new Error("최상위 옵션을 입력해주세요.");
+            } else {
+              const parentOptions = opts.filter((opt) => {
+                const optDepth = getDepthInOpts(opt.id);
+                return optDepth === depth - 1;
+              });
+              if (parentOptions.length > 0) {
+                const parentNames = parentOptions.map((opt) => `"${opt.name}"`).join(", ");
+                throw new Error(`옵션 ${parentNames}의 하위 옵션을 입력해주세요.`);
+              } else {
+                throw new Error(`하위 옵션을 입력해주세요.`);
+              }
+            }
+          }
+        }
       };
 
       try {
@@ -817,6 +863,7 @@ const EventEdit: React.FC = () => {
           endDate: formatDate(formData.eventEndDate),
           images: eventImages.length > 0 ? eventImages : null,
           options: apiOptions.length > 0 ? apiOptions : null,
+          optionDepth: optionDepth,
         };
 
         const response = await apiRequest(`/admin/events/${id}`, {
@@ -1112,10 +1159,78 @@ const EventEdit: React.FC = () => {
               {/* 행사 옵션 섹션 */}
               <div className={styles["form-group"]}>
                 <div className={styles["option-header"]}>
-                  <label className={styles["option-title"]}>
-                    티켓을 설정해 주세요. <span style={{ color: "#ef4444" }}>*</span>
+                  <label className={styles["form-label"]}>
+                    <img
+                      src={ticketIcon}
+                      alt="티켓"
+                      className={`${styles["label-icon"]} ${styles["icon-colored"]}`}
+                    />
+                    티켓 설정
                   </label>
-                  <div className={styles["add-option-container"]} ref={addDropdownRef}>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <select
+                      value={optionDepth}
+                      onChange={(e) => {
+                        const newOptionDepth = parseInt(e.target.value, 10);
+                        const oldOptionDepth = optionDepth;
+                        setOptionDepth(newOptionDepth);
+                        setOptions((prevOptions) => {
+                          // 레벨이 낮아질 때만 초과 옵션 제거
+                          if (newOptionDepth < oldOptionDepth) {
+                            const getOptionDepth = (optionId: string): number => {
+                              const option = prevOptions.find((o) => o.id === optionId);
+                              if (!option) return 0;
+                              if (option.parentId === null) return 0;
+                              return 1 + getOptionDepth(option.parentId);
+                            };
+                            const filteredOptions = prevOptions.filter((opt) => {
+                              const depth = getOptionDepth(opt.id);
+                              return depth < newOptionDepth;
+                            });
+                            return filteredOptions.map((opt, index) => ({
+                              ...opt,
+                              displayOrder: index + 1,
+                            }));
+                          }
+                          // 레벨이 높아지거나 같을 때는 기존 옵션 유지
+                          return prevOptions;
+                        });
+                      }}
+                      style={{
+                        padding: "6px 32px 6px 12px",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        color: "#1f2937",
+                        background: "white",
+                        cursor: "pointer",
+                        appearance: "none",
+                        WebkitAppearance: "none",
+                        MozAppearance: "none",
+                      }}
+                    >
+                      <option value="" disabled style={{ color: "#9ca3af" }}>세부 레벨</option>
+                      <option value={1}>1레벨</option>
+                      <option value={2}>2레벨</option>
+                      <option value={3}>3레벨</option>
+                    </select>
+                    <img
+                      src="/admin/img/icon/dropdown.svg"
+                      alt="드롭다운"
+                      style={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        width: "12px",
+                        height: "12px",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </div>
+                  <div className={styles["add-option-container"]} ref={addDropdownRef} style={{ marginLeft: "auto" }}>
                     <button
                       type="button"
                       className={styles["add-option-button"]}
