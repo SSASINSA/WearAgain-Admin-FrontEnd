@@ -706,14 +706,16 @@ const EventParticipantManagement: React.FC = () => {
                 align: "center",
                 className: styles["actions-cell"],
                 render: (p: Participant) => (
-                  (p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
-                    <button
-                      className={`${styles["action-btn"]} ${styles["cancel"]}`}
-                      onClick={() => handleCancelClick(p.applicationId, p.name)}
-                    >
-                      취소
-                    </button>
-                  ) : null
+                  <div className={styles["actions-wrapper"]}>
+                    {(p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
+                      <button
+                        className={`${styles["action-btn"]} ${styles["cancel"]}`}
+                        onClick={() => handleCancelClick(p.applicationId, p.name)}
+                      >
+                        취소
+                      </button>
+                    ) : null}
+                  </div>
                 ),
               },
             ]}
