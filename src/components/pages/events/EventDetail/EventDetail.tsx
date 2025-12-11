@@ -363,7 +363,7 @@ const EventDetail: React.FC = () => {
       const status = data.status ? data.status.toUpperCase() : "";
 
       if (status === "FAILED") {
-        throw new Error("보고서 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        throw new Error("보고서 집계가 완료되지 않았습니다. 잠시 후 다시 시도해주세요.");
       }
 
       if (status === "READY" && data.downloadUrl) {
