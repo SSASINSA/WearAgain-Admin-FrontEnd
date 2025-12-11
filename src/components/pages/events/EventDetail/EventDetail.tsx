@@ -14,6 +14,7 @@ const editIcon = "/admin/img/icon/edit.svg";
 const co2Icon = "/admin/img/icon/co2.svg";
 const waterIcon = "/admin/img/icon/water.svg";
 const energyIcon = "/admin/img/icon/energy.svg";
+const reportIcon = "/admin/img/icon/document.svg";
 
 interface EventImage {
   imageId: number;
@@ -84,6 +85,13 @@ interface StaffCodeResponse {
   issuedAt: string;
 }
 
+interface EventReportResponse {
+  reportId: string;
+  status: string;
+  downloadUrl?: string;
+  message?: string;
+}
+
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -97,6 +105,7 @@ const EventDetail: React.FC = () => {
   const [staffCodeError, setStaffCodeError] = useState<string | null>(null);
   const [showIssueModal, setShowIssueModal] = useState<boolean>(false);
   const [showReissueModal, setShowReissueModal] = useState<boolean>(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState<boolean>(false);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -322,6 +331,61 @@ const EventDetail: React.FC = () => {
     }
   };
 
+  const buildDownloadUrl = (rawUrl: string): string => {
+    if (!rawUrl) return "";
+    const base = process.env.REACT_APP_API_BASE_URL || window.location.origin;
+    try {
+      if (rawUrl.startsWith("http")) {
+        return rawUrl;
+      }
+      return new URL(rawUrl, base).toString();
+    } catch (error) {
+      console.error("보고서 다운로드 URL 변환 실패:", error);
+      return rawUrl;
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    if (!id) return;
+
+    try {
+      setIsDownloadingReport(true);
+      const response = await apiRequest(`/admin/reports?eventId=${id}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 보고서 다운로드에 실패했습니다.");
+      }
+
+      const data: EventReportResponse = await response.json();
+      const status = data.status ? data.status.toUpperCase() : "";
+
+      if (status === "FAILED") {
+        throw new Error("보고서 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
+
+      if (status === "READY" && data.downloadUrl) {
+        const downloadUrl = buildDownloadUrl(data.downloadUrl);
+        const anchor = document.createElement("a");
+        anchor.href = downloadUrl;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+        anchor.click();
+        return;
+      }
+
+      alert("보고서를 준비 중입니다. 잠시 후 다시 시도해주세요.");
+    } catch (err) {
+      console.error("행사 보고서 다운로드 실패:", err);
+      const message = err instanceof Error ? err.message : "행사 보고서 다운로드에 실패했습니다.";
+      alert(message);
+    } finally {
+      setIsDownloadingReport(false);
+    }
+  };
+
   const calculateTotalCapacity = (options: EventOption[]): number => {
     let total = 0;
     const traverse = (opts: EventOption[]) => {
@@ -371,6 +435,10 @@ const EventDetail: React.FC = () => {
       default:
         return "active";
     }
+  };
+
+  const isEventCompleted = (status: string): boolean => {
+    return mapApiStatusToDisplayStatus(status) === "completed";
   };
 
   const getStatusBadge = (status: string) => {
@@ -512,6 +580,7 @@ const EventDetail: React.FC = () => {
   const totalCapacity = calculateTotalCapacity(eventData.options);
   const totalAppliedCount = calculateTotalAppliedCount(eventData.options);
   const totalRemainingCount = totalCapacity - totalAppliedCount;
+  const isCompletedEvent = isEventCompleted(eventData.status);
 
   return (
     <div className={styles["event-detail-page"]}>
@@ -839,13 +908,25 @@ const EventDetail: React.FC = () => {
 
             {/* 액션 버튼들 */}
             <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
-              <button
-                className={styles["edit-button"]}
-                onClick={() => navigate(`/events/${id}/edit`)}
-              >
-                <img src={editIcon} alt="수정 아이콘" />
-                수정하기
-              </button>
+              {isCompletedEvent && (
+                <button
+                  className={`${styles["edit-button"]} ${styles["download-button"]}`}
+                  onClick={handleDownloadReport}
+                  disabled={isDownloadingReport}
+                >
+                  <img src={reportIcon} alt="보고서 다운로드 아이콘" />
+                  {isDownloadingReport ? "다운로드 중..." : "보고서 다운로드"}
+                </button>
+              )}
+              {!isCompletedEvent && (
+                <button
+                  className={styles["edit-button"]}
+                  onClick={() => navigate(`/events/${id}/edit`)}
+                >
+                  <img src={editIcon} alt="수정 아이콘" />
+                  수정하기
+                </button>
+              )}
               <button
                 className={`${styles["edit-button"]} ${styles["participants-button"]}`}
                 onClick={() => navigate(`/events/${id}/participants`)}

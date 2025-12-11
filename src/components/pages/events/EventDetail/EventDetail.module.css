@@ -790,6 +790,22 @@
   filter: brightness(0) invert(1);
 }
 
+.download-button {
+  background-color: #111827;
+  border-color: #111827;
+  color: white;
+}
+
+.download-button:hover {
+  background-color: #1f2937;
+  border-color: #1f2937;
+  color: white;
+}
+
+.download-button img {
+  filter: brightness(0) invert(1);
+}
+
 
 .event-info-section {
   background-color: white;
