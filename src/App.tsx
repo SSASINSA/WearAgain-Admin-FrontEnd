@@ -90,27 +90,9 @@ function App() {
             }
           />
           <Route
-            path="/events/approval"
-            element={
-              <ProtectedRoute>
-                <Navigation />
-                <EventApproval />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/events/approval/:id"
-            element={
-              <ProtectedRoute>
-                <Navigation />
-                <EventApprovalDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/posts"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <PostsManagement />
               </ProtectedRoute>
@@ -119,7 +101,7 @@ function App() {
           <Route
             path="/posts/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <PostDetail />
               </ProtectedRoute>
@@ -128,7 +110,7 @@ function App() {
           <Route
             path="/store"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <StoreManagement />
               </ProtectedRoute>
@@ -137,7 +119,7 @@ function App() {
           <Route
             path="/store/add"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <AddProduct />
               </ProtectedRoute>
@@ -146,7 +128,7 @@ function App() {
           <Route
             path="/store/orders"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <OrderManagement />
               </ProtectedRoute>
@@ -155,7 +137,7 @@ function App() {
           <Route
             path="/store/:id/edit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <ProductEdit />
               </ProtectedRoute>
@@ -164,7 +146,7 @@ function App() {
           <Route
             path="/store/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <ProductDetail />
               </ProtectedRoute>
@@ -200,7 +182,7 @@ function App() {
           <Route
             path="/users"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <UserManagement />
               </ProtectedRoute>
@@ -209,16 +191,34 @@ function App() {
           <Route
             path="/approval"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <Navigation />
                 <AdminAccountManagement />
               </ProtectedRoute>
             }
           />
           <Route
+            path="/events/approval"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <Navigation />
+                <EventApproval />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/approval/:id"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <Navigation />
+                <EventApprovalDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin-users"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
                 <Navigation />
                 <AdminUserList />
               </ProtectedRoute>
