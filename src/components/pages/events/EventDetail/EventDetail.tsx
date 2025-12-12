@@ -461,67 +461,6 @@ const EventDetail: React.FC = () => {
     }
   };
 
-  const findOptionById = (options: EventOption[], optionId: number): EventOption | null => {
-    for (const option of options) {
-      if (option.optionId === optionId) {
-        return option;
-      }
-      if (option.children && option.children.length > 0) {
-        const found = findOptionById(option.children, optionId);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  const getOptionPath = (options: EventOption[], optionId: number): string => {
-    const findPath = (opts: EventOption[], targetId: number, path: string[]): string[] | null => {
-      for (const opt of opts) {
-        const currentPath = [...path, opt.name];
-        if (opt.optionId === targetId) {
-          return currentPath;
-        }
-        if (opt.children && opt.children.length > 0) {
-          const found = findPath(opt.children, targetId, currentPath);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    const path = findPath(options, optionId, []);
-    return path ? path.join(" > ") : "알 수 없음";
-  };
-
-  const getApplicationStatusClass = (status: string): string => {
-    switch (status.toUpperCase()) {
-      case "APPLIED":
-        return "applied";
-      case "CHECKED_IN":
-        return "checked-in";
-      case "CANCELLED":
-        return "cancelled";
-      case "REJECTED":
-        return "rejected";
-      default:
-        return "";
-    }
-  };
-
-  const getApplicationStatusText = (status: string): string => {
-    switch (status.toUpperCase()) {
-      case "APPLIED":
-        return "신청됨";
-      case "CHECKED_IN":
-        return "체크인";
-      case "CANCELLED":
-        return "취소됨";
-      case "REJECTED":
-        return "거절됨";
-      default:
-        return status;
-    }
-  };
 
   const OptionTreeItem: React.FC<{ option: EventOption; depth: number }> = ({ option, depth }) => {
     const hasChildren = option.children && option.children.length > 0;
@@ -767,45 +706,6 @@ const EventDetail: React.FC = () => {
                   .map((option) => (
                     <OptionTreeItem key={option.optionId} option={option} depth={0} />
                   ))}
-              </div>
-            </div>
-          )}
-
-          {/* 신청 현황 섹션 */}
-          {eventData.applications && eventData.applications.length > 0 && (
-            <div className={styles["event-applications-section"]}>
-              <h3 className={styles["section-title"]}>신청 현황</h3>
-              <div className={styles["applications-table-container"]}>
-                <table className={styles["applications-table"]}>
-                  <thead>
-                    <tr>
-                      <th>이름</th>
-                      <th>이메일</th>
-                      <th>옵션</th>
-                      <th>상태</th>
-                      <th>신청일</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {eventData.applications.map((application) => {
-                      const option = findOptionById(eventData.options, application.optionId);
-                      const optionPath = option ? getOptionPath(eventData.options, application.optionId) : "알 수 없음";
-                      return (
-                        <tr key={application.applicationId}>
-                          <td>{application.displayName}</td>
-                          <td>{application.email}</td>
-                          <td>{optionPath}</td>
-                          <td>
-                            <span className={`${styles["status-badge"]} ${styles[getApplicationStatusClass(application.status)]}`}>
-                              {getApplicationStatusText(application.status)}
-                            </span>
-                          </td>
-                          <td>{formatDateTime(application.appliedAt)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
               </div>
             </div>
           )}

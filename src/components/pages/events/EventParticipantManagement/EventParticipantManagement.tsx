@@ -141,6 +141,11 @@ const EventParticipantManagement: React.FC = () => {
     }
   };
 
+  const isEventEnded = (status: string): boolean => {
+    const displayStatus = mapApiStatusToDisplayStatus(status);
+    return displayStatus === "completed" || displayStatus === "deleted";
+  };
+
   const fetchEventInfo = useCallback(async () => {
     if (!eventId) return;
 
@@ -705,16 +710,25 @@ const EventParticipantManagement: React.FC = () => {
                 width: 80,
                 align: "center",
                 className: styles["actions-cell"],
-                render: (p: Participant) => (
-                  (p.status === "APPLIED" || p.status === "CHECKED_IN") ? (
-                    <button
-                      className={`${styles["action-btn"]} ${styles["cancel"]}`}
-                      onClick={() => handleCancelClick(p.applicationId, p.name)}
-                    >
-                      취소
-                    </button>
-                  ) : null
-                ),
+                render: (p: Participant) => {
+                  const canCancel = 
+                    (p.status === "APPLIED" || p.status === "CHECKED_IN") &&
+                    eventInfo &&
+                    !isEventEnded(eventInfo.status);
+                  
+                  return (
+                    <div className={styles["actions-wrapper"]}>
+                      {canCancel ? (
+                        <button
+                          className={`${styles["action-btn"]} ${styles["cancel"]}`}
+                          onClick={() => handleCancelClick(p.applicationId, p.name)}
+                        >
+                          취소
+                        </button>
+                      ) : null}
+                    </div>
+                  );
+                },
               },
             ]}
             data={isLoading ? [] : participants}
