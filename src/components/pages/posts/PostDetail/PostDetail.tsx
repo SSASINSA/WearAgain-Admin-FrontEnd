@@ -243,36 +243,29 @@ const PostDetail: React.FC = () => {
 
       <div className={styles["event-detail-main"]} style={{ alignItems: "flex-start" }}>
         <div className={styles["event-detail-content"]}>
-          {/* 게시글 헤더 섹션 */}
+          {/* 게시글 카드 */}
           <div className={styles["event-hero-section"]}>
-            <div className={styles["event-hero-image"]}>
-              {postData.imageUrls && postData.imageUrls.length > 0 ? (
-                <img src={postData.imageUrls[0]} alt="게시글 대표 이미지" />
-              ) : (
-                <img src="/admin/img/example/event-hero.png" alt="게시글 대표 이미지" />
-              )}
-              <div className={styles["image-overlay"]}></div>
-            </div>
             <div className={styles["event-hero-content"]}>
               <div className={styles["event-tags"]}>
                 <span className={`${styles["tag"]} ${styles["workshop"]}`}>{postData.categoryName || "게시글"}</span>
               </div>
               <h2 className={styles["event-title"]}>{postData.title}</h2>
+              
+              {/* 게시글 이미지 */}
+              {postData.imageUrls && postData.imageUrls.length > 0 && (
+                <div style={{ marginTop: "24px", marginBottom: "24px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+                    {postData.imageUrls.map((url, index) => (
+                      <img key={index} src={url} alt={`게시글 이미지 ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* 게시글 내용 */}
               <p className={styles["event-description"]}>{postData.content}</p>
             </div>
           </div>
-
-          {/* 이미지 갤러리 섹션 */}
-          {postData.imageUrls && postData.imageUrls.length > 1 && (
-            <div className={styles["event-details-section"]}>
-              <h3 className={styles["section-title"]}>이미지 갤러리</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
-                {postData.imageUrls.map((url, index) => (
-                  <img key={index} src={url} alt={`게시글 이미지 ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 댓글 목록 섹션 */}
           <div className={styles["event-results-section"]}>
