@@ -98,6 +98,8 @@ const EventDetail: React.FC = () => {
   const [eventData, setEventData] = useState<EventDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [staffCode, setStaffCode] = useState<string | null>(null);
   const [staffCodeIssuedAt, setStaffCodeIssuedAt] = useState<string | null>(null);
   const [isLoadingStaffCode, setIsLoadingStaffCode] = useState<boolean>(false);
@@ -514,7 +516,61 @@ const EventDetail: React.FC = () => {
     );
   }
 
-  const mainImage = eventData.images && eventData.images.length > 0 ? eventData.images[0].url : imgImg;
+  const getSortedImages = (): EventImage[] => {
+    if (eventData?.images && eventData.images.length > 0) {
+      return [...eventData.images].sort((a, b) => a.displayOrder - b.displayOrder);
+    }
+    return [];
+  };
+
+  const getMainImage = (): string => {
+    const sortedImages = getSortedImages();
+    if (sortedImages.length > 0) {
+      return sortedImages[0].url;
+    }
+    return imgImg;
+  };
+
+  const mainImage = getMainImage();
+
+  const handleImageClick = () => {
+    if (getSortedImages().length > 0) {
+      setSelectedImageIndex(0);
+      setIsImageModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsImageModalOpen(false);
+  };
+
+  const handlePrevImage = () => {
+    const images = getSortedImages();
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
+
+  const handleNextImage = () => {
+    const images = getSortedImages();
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      handleCloseModal();
+    } else if (e.key === "ArrowLeft") {
+      handlePrevImage();
+    } else if (e.key === "ArrowRight") {
+      handleNextImage();
+    }
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setSelectedImageIndex(index);
+  };
 
   const totalCapacity = calculateTotalCapacity(eventData.options);
   const totalAppliedCount = calculateTotalAppliedCount(eventData.options);
@@ -529,7 +585,11 @@ const EventDetail: React.FC = () => {
         <div className={styles["event-detail-content"]}>
           {/* 행사 헤더 섹션 */}
           <div className={styles["event-hero-section"]}>
-            <div className={styles["event-hero-image"]}>
+            <div
+              className={styles["event-hero-image"]}
+              onClick={handleImageClick}
+              style={{ cursor: getSortedImages().length > 0 ? "pointer" : "default" }}
+            >
               <img src={mainImage} alt={eventData.images[0]?.altText || "행사 이미지"} />
               <div className={styles["image-overlay"]}></div>
             </div>
@@ -860,6 +920,59 @@ const EventDetail: React.FC = () => {
         onCancel={() => setShowReissueModal(false)}
         type="default"
       />
+
+      {/* 이미지 갤러리 모달 */}
+      {isImageModalOpen && (
+        <div
+          className={styles["image-modal-overlay"]}
+          onClick={handleCloseModal}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+        >
+          <div className={styles["image-modal-container"]} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles["modal-title"]}>확대보기</h2>
+            <div className={styles["modal-main-content"]}>
+              <div className={styles["modal-image-wrapper"]}>
+                {getSortedImages().length > 0 && (
+                  <>
+                    <img
+                      src={getSortedImages()[selectedImageIndex].url}
+                      alt={getSortedImages()[selectedImageIndex].altText || `행사 이미지 ${selectedImageIndex + 1}`}
+                      className={styles["modal-image"]}
+                    />
+                    {getSortedImages().length > 1 && (
+                      <>
+                        <button className={styles["modal-nav-btn"]} onClick={handlePrevImage} style={{ left: "20px" }}>
+                          ‹
+                        </button>
+                        <button className={styles["modal-nav-btn"]} onClick={handleNextImage} style={{ right: "20px" }}>
+                          ›
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+              {getSortedImages().length > 1 && (
+                <div className={styles["modal-thumbnails"]}>
+                  {getSortedImages().map((image, index) => (
+                    <div
+                      key={image.imageId}
+                      className={`${styles["modal-thumbnail"]} ${index === selectedImageIndex ? styles["active"] : ""}`}
+                      onClick={() => handleThumbnailClick(index)}
+                    >
+                      <img src={image.url} alt={image.altText || `썸네일 ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className={styles["modal-close-button"]} onClick={handleCloseModal}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
