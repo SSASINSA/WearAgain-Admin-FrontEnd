@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "./OrderManagement.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import DataList from "../../../common/DataList/DataList";
@@ -40,6 +40,7 @@ interface OrderCancelResponse {
 }
 
 const OrderManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getPageFromUrl = () => {
@@ -393,6 +394,14 @@ const OrderManagement: React.FC = () => {
                 width: 200,
                 dataIndex: "itemName",
                 className: styles["item-name-cell"],
+                render: (row: Order) => (
+                  <p
+                    className={`${styles["product-name"]} ${styles["clickable"]}`}
+                    onClick={() => navigate(`/store/${row.itemId}`)}
+                  >
+                    {row.itemName}
+                  </p>
+                ),
               },
               {
                 key: "quantity",
@@ -464,18 +473,19 @@ const OrderManagement: React.FC = () => {
                 className: styles["actions-cell"],
                 render: (row: Order) => (
                   <div className={styles["actions-wrapper"]}>
-                    {row.status === "PURCHASED" ? (
-                      <button
-                        className={`${styles["action-btn"]} ${styles["cancel"]}`}
-                        title="주문 취소"
-                        onClick={() => {
+                    <button
+                      className={`${styles["action-btn"]} ${row.status === "PURCHASED" ? styles["cancel"] : styles["disabled"]}`}
+                      title={row.status === "PURCHASED" ? "주문 취소" : "취소 불가"}
+                      onClick={() => {
+                        if (row.status === "PURCHASED") {
                           setSelectedOrderId(row.orderId);
                           setCancelModalOpen(true);
-                        }}
-                      >
-                        취소
-                      </button>
-                    ) : null}
+                        }
+                      }}
+                      disabled={row.status !== "PURCHASED"}
+                    >
+                      취소
+                    </button>
                   </div>
                 ),
               },
