@@ -138,10 +138,6 @@ const AddProduct: React.FC = () => {
     return data;
   };
 
-  const handleTempSave = () => {
-    console.log("임시저장:", { ...productData, images });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -352,9 +348,6 @@ const AddProduct: React.FC = () => {
             <p>새로운 상품을 등록하고 판매를 시작하세요</p>
           </div>
           <div className={styles["header-actions"]}>
-            <button className={styles["temp-save-btn"]} onClick={handleTempSave}>
-              임시저장
-            </button>
             <button className={styles["submit-btn"]} onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? "등록 중..." : "상품 등록"}
             </button>
@@ -560,33 +553,6 @@ const AddProduct: React.FC = () => {
                   <button className={styles["preview-buy-btn"]}>구매하기</button>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className={`${styles["section"]} ${styles["quick-actions"]}`}>
-            <h3>빠른 작업</h3>
-            <div className={styles["action-buttons"]}>
-              <button
-                className={`${styles["action-btn"]} ${pressedAction === "preview" ? styles["is-pressed"] : ""}`}
-                {...getPressHandlers("preview")}
-              >
-                <img src={ICONS.eye} alt="미리보기" className={styles["icon"]} />
-                미리보기
-              </button>
-              <button
-                className={`${styles["action-btn"]} ${pressedAction === "copy" ? styles["is-pressed"] : ""}`}
-                {...getPressHandlers("copy")}
-              >
-                <img src={ICONS.copy} alt="복사하기" className={styles["icon"]} />
-                복사하기
-              </button>
-              <button
-                className={`${styles["action-btn"]} ${pressedAction === "share" ? styles["is-pressed"] : ""}`}
-                {...getPressHandlers("share")}
-              >
-                <img src={ICONS.share} alt="공유하기" className={styles["icon"]} />
-                공유하기
-              </button>
             </div>
           </div>
 

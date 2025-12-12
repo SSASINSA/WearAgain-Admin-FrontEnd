@@ -253,12 +253,10 @@ const PostDetail: React.FC = () => {
               
               {/* 게시글 이미지 */}
               {postData.imageUrls && postData.imageUrls.length > 0 && (
-                <div style={{ marginTop: "24px", marginBottom: "24px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
-                    {postData.imageUrls.map((url, index) => (
-                      <img key={index} src={url} alt={`게시글 이미지 ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
-                    ))}
-                  </div>
+                <div style={{ marginTop: "24px", marginBottom: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {postData.imageUrls.map((url, index) => (
+                    <img key={index} src={url} alt={`게시글 이미지 ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
+                  ))}
                 </div>
               )}
               
@@ -282,7 +280,7 @@ const PostDetail: React.FC = () => {
                       />
                       <div className={styles["comment-author-info"]}>
                         <p className={styles["comment-author-name"]}>
-                          {comment.author.displayName} ({comment.author.email})
+                          {comment.author.displayName}
                         </p>
                         <p className={styles["comment-date"]}>
                           {formatDateTime(comment.createdAt)} {renderCommentStatus(comment.status)}
