@@ -153,6 +153,8 @@ const EventEdit: React.FC = () => {
   const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
   const [showAddDropdown, setShowAddDropdown] = useState(false);
   const [showMoreMenuId, setShowMoreMenuId] = useState<string | null>(null);
+  const [isOptionsLocked, setIsOptionsLocked] = useState(true);
+  const [showOptionsWarningModal, setShowOptionsWarningModal] = useState(false);
   const addDropdownRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
@@ -841,30 +843,45 @@ const EventEdit: React.FC = () => {
         }
       };
 
-      try {
-        const cleanedOptions = options.map((opt) => {
-          const hasChildren = options.some((o) => o.parentId === opt.id);
-          if (hasChildren) {
-            return { ...opt, capacity: null };
-          }
-          return opt;
-        });
-        validateOptions(cleanedOptions);
-        
-        const apiOptions = convertToApiFormat(cleanedOptions);
+      const requestData: EventUpdateRequest = {
+        title: formData.eventName.trim(),
+        description: formData.eventDescription.trim(),
+        usageGuide: formData.usageGuide || undefined,
+        precautions: formData.precautions || undefined,
+        location: fullLocation.trim(),
+        startDate: formatDate(formData.eventStartDate),
+        endDate: formatDate(formData.eventEndDate),
+        images: eventImages.length > 0 ? eventImages : null,
+      };
 
-        const requestData: EventUpdateRequest = {
-          title: formData.eventName.trim(),
-          description: formData.eventDescription.trim(),
-          usageGuide: formData.usageGuide || undefined,
-          precautions: formData.precautions || undefined,
-          location: fullLocation.trim(),
-          startDate: formatDate(formData.eventStartDate),
-          endDate: formatDate(formData.eventEndDate),
-          images: eventImages.length > 0 ? eventImages : null,
-          options: apiOptions.length > 0 ? apiOptions : null,
-          optionDepth: optionDepth,
-        };
+      // 옵션이 수정되지 않은 경우 null로 보내서 변경 없음을 표시
+      if (!isOptionsLocked) {
+        try {
+          const cleanedOptions = options.map((opt) => {
+            const hasChildren = options.some((o) => o.parentId === opt.id);
+            if (hasChildren) {
+              return { ...opt, capacity: null };
+            }
+            return opt;
+          });
+          validateOptions(cleanedOptions);
+          
+          const apiOptions = convertToApiFormat(cleanedOptions);
+          requestData.options = apiOptions.length > 0 ? apiOptions : null;
+          requestData.optionDepth = optionDepth;
+        } catch (error) {
+          console.error("옵션 검증 실패:", error);
+          alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        // 옵션이 수정되지 않은 경우 null로 보내서 변경 없음을 표시
+        requestData.options = null;
+        requestData.optionDepth = undefined;
+      }
+
+      try {
 
         const response = await apiRequest(`/admin/events/${id}`, {
           method: "PUT",
@@ -873,7 +890,19 @@ const EventEdit: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || "행사 수정에 실패했습니다.");
+          let errorMessage = errorData.message || "행사 수정에 실패했습니다.";
+          
+          // 외래 키 제약 조건 위반 에러 처리
+          if (errorData.message && (
+            errorData.message.includes("foreign key constraint") ||
+            errorData.message.includes("외래 키") ||
+            errorData.message.includes("참조") ||
+            errorData.message.includes("신청")
+          )) {
+            errorMessage = "해당 옵션을 사용하는 신청이 있어 삭제할 수 없습니다. 먼저 관련 신청을 처리해주세요.";
+          }
+          
+          throw new Error(errorMessage);
         }
 
         alert("행사가 수정되었습니다.");
@@ -1157,8 +1186,35 @@ const EventEdit: React.FC = () => {
               </div>
 
               {/* 행사 옵션 섹션 */}
-              <div className={styles["form-group"]}>
-                <div className={styles["option-header"]}>
+              <div 
+                className={styles["form-group"]}
+                style={{
+                  position: "relative",
+                  opacity: isOptionsLocked ? 0.5 : 1,
+                }}
+              >
+                {isOptionsLocked && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      zIndex: 1000,
+                      cursor: "pointer",
+                      backgroundColor: "transparent",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowOptionsWarningModal(true);
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                  />
+                )}
+                <div className={styles["option-header"]} style={{ pointerEvents: isOptionsLocked ? "none" : "auto" }}>
                   <label className={styles["form-label"]}>
                     <img
                       src={ticketIcon}
@@ -1168,10 +1224,11 @@ const EventEdit: React.FC = () => {
                     티켓 설정
                   </label>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", pointerEvents: isOptionsLocked ? "none" : "auto" }}>
                   <div style={{ position: "relative", display: "inline-block" }}>
                     <select
                       value={optionDepth}
+                      disabled={isOptionsLocked}
                       onChange={(e) => {
                         const newOptionDepth = parseInt(e.target.value, 10);
                         const oldOptionDepth = optionDepth;
@@ -1234,6 +1291,7 @@ const EventEdit: React.FC = () => {
                     <button
                       type="button"
                       className={styles["add-option-button"]}
+                      disabled={isOptionsLocked}
                       onClick={() => setShowAddDropdown(!showAddDropdown)}
                     >
                       추가
@@ -1242,13 +1300,13 @@ const EventEdit: React.FC = () => {
                     {showAddDropdown && (
                       <div className={styles["add-option-dropdown"]}>
                         <button type="button" onClick={handleAddCategory}>
-                          카테고리 추가
+                          옵션 추가
                         </button>
                       </div>
                     )}
                   </div>
                 </div>
-                <div className={styles["options-tree"]}>
+                <div className={styles["options-tree"]} style={{ pointerEvents: isOptionsLocked ? "none" : "auto" }}>
                   {options
                     .filter((opt) => opt.parentId === null)
                     .sort((a, b) => a.displayOrder - b.displayOrder)
@@ -1271,6 +1329,28 @@ const EventEdit: React.FC = () => {
                                   }
                                 }}
                               />
+                              {optionDepth === 1 && !options.some((opt) => opt.parentId === category.id) && (
+                                <input
+                                  type="number"
+                                  value={category.capacity || ""}
+                                  onChange={(e) =>
+                                    handleOptionChange(
+                                      category.id,
+                                      "capacity",
+                                      e.target.value ? parseInt(e.target.value, 10) : null
+                                    )
+                                  }
+                                  placeholder="수용 인원"
+                                  className={styles["option-capacity-input"]}
+                                  min={1}
+                                  max={999}
+                                  onKeyPress={(e) => {
+                                    if (e.key === "Enter") {
+                                      setEditingOptionId(null);
+                                    }
+                                  }}
+                                />
+                              )}
                               <button
                                 type="button"
                                 className={styles["option-save-btn"]}
@@ -1282,6 +1362,11 @@ const EventEdit: React.FC = () => {
                           ) : (
                             <>
                               <span className={styles["option-name"]}>{category.name || "이름 없음"}</span>
+                              {optionDepth === 1 && !options.some((opt) => opt.parentId === category.id) && category.capacity !== null && (
+                                <span className={styles["option-quantity"]}>
+                                  수량 : 0/{category.capacity || 0}
+                                </span>
+                              )}
                             </>
                           )}
                           <div className={styles["option-actions"]}>
@@ -1302,15 +1387,17 @@ const EventEdit: React.FC = () => {
                               </button>
                               {showMoreMenuId === category.id && (
                                 <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddChild(category.id);
-                                    }}
-                                  >
-                                    항목 추가
-                                  </button>
+                                  {optionDepth > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddChild(category.id);
+                                      }}
+                                    >
+                                      항목 추가
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={(e) => {
@@ -1411,7 +1498,7 @@ const EventEdit: React.FC = () => {
                                       </button>
                                       {showMoreMenuId === item.id && (
                                         <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
-                                          {itemDepth < 3 && (
+                                          {optionDepth > 2 && itemDepth < optionDepth - 1 && (
                                             <button
                                               type="button"
                                               onClick={(e) => {
@@ -1522,7 +1609,7 @@ const EventEdit: React.FC = () => {
                                               </button>
                                               {showMoreMenuId === subItem.id && (
                                                 <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
-                                                  {subItemDepth < 2 && (
+                                                  {optionDepth > 3 && subItemDepth < optionDepth - 1 && (
                                                     <button
                                                       type="button"
                                                       onClick={(e) => {
@@ -1650,7 +1737,7 @@ const EventEdit: React.FC = () => {
                                               </div>
                                             );
                                           })}
-                                        {options.filter((opt) => opt.parentId === subItem.id).length === 0 && subItemDepth < 2 && (
+                                        {options.filter((opt) => opt.parentId === subItem.id).length === 0 && optionDepth > 3 && subItemDepth < optionDepth - 1 && (
                                           <div className={styles["option-add-child"]}>
                                             <button type="button" onClick={() => handleAddChild(subItem.id)}>
                                               + 항목 추가
@@ -1660,7 +1747,7 @@ const EventEdit: React.FC = () => {
                                       </div>
                                     );
                                   })}
-                                {options.filter((opt) => opt.parentId === item.id).length === 0 && itemDepth < 3 && (
+                                {options.filter((opt) => opt.parentId === item.id).length === 0 && optionDepth > 2 && itemDepth < optionDepth - 1 && (
                                   <div className={styles["option-add-child"]}>
                                     <button type="button" onClick={() => handleAddChild(item.id)}>
                                       + 항목 추가
@@ -1670,7 +1757,7 @@ const EventEdit: React.FC = () => {
                               </div>
                             );
                           })}
-                        {options.filter((opt) => opt.parentId === category.id).length === 0 && (
+                        {options.filter((opt) => opt.parentId === category.id).length === 0 && optionDepth > 1 && (
                           <div className={styles["option-add-child"]}>
                             <button type="button" onClick={() => handleAddChild(category.id)}>
                               + 항목 추가
@@ -1748,6 +1835,20 @@ const EventEdit: React.FC = () => {
         onConfirm={handleAddressWarningConfirm}
         onCancel={handleAddressWarningCancel}
         type="default"
+      />
+
+      <ConfirmModal
+        isOpen={showOptionsWarningModal}
+        title="옵션 수정 경고"
+        message="옵션 삭제 및 변경시 기존 신청은 모두 삭제됩니다."
+        confirmText="확인"
+        cancelText="취소"
+        onConfirm={() => {
+          setIsOptionsLocked(false);
+          setShowOptionsWarningModal(false);
+        }}
+        onCancel={() => setShowOptionsWarningModal(false)}
+        type="reject"
       />
     </div>
   );

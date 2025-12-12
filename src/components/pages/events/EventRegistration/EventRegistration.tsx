@@ -1004,7 +1004,7 @@ const EventRegistration: React.FC = () => {
                     {showAddDropdown && (
                       <div className={styles["add-option-dropdown"]}>
                         <button type="button" onClick={handleAddCategory}>
-                          카테고리 추가
+                          옵션 추가
                         </button>
                       </div>
                     )}
@@ -1033,6 +1033,28 @@ const EventRegistration: React.FC = () => {
                                   }
                                 }}
                               />
+                              {optionDepth === 1 && !options.some((opt) => opt.parentId === category.id) && (
+                                <input
+                                  type="number"
+                                  value={category.capacity || ""}
+                                  onChange={(e) =>
+                                    handleOptionChange(
+                                      category.id,
+                                      "capacity",
+                                      e.target.value ? parseInt(e.target.value, 10) : null
+                                    )
+                                  }
+                                  placeholder="수용 인원"
+                                  className={styles["option-capacity-input"]}
+                                  min={1}
+                                  max={999}
+                                  onKeyPress={(e) => {
+                                    if (e.key === "Enter") {
+                                      setEditingOptionId(null);
+                                    }
+                                  }}
+                                />
+                              )}
                               <button
                                 type="button"
                                 className={styles["option-save-btn"]}
@@ -1044,6 +1066,11 @@ const EventRegistration: React.FC = () => {
                           ) : (
                             <>
                               <span className={styles["option-name"]}>{category.name || "이름 없음"}</span>
+                              {optionDepth === 1 && !options.some((opt) => opt.parentId === category.id) && category.capacity !== null && (
+                                <span className={styles["option-quantity"]}>
+                                  수량 : 0/{category.capacity || 0}
+                                </span>
+                              )}
                             </>
                           )}
                           <div className={styles["option-actions"]}>
@@ -1064,15 +1091,17 @@ const EventRegistration: React.FC = () => {
                               </button>
                               {showMoreMenuId === category.id && (
                                 <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddChild(category.id);
-                                    }}
-                                  >
-                                    항목 추가
-                                  </button>
+                                  {optionDepth > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddChild(category.id);
+                                      }}
+                                    >
+                                      항목 추가
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={(e) => {
@@ -1173,7 +1202,7 @@ const EventRegistration: React.FC = () => {
                                       </button>
                                       {showMoreMenuId === item.id && (
                                         <div className={styles["option-more-menu"]} onClick={(e) => e.stopPropagation()}>
-                                          {itemDepth < 3 && (
+                                          {optionDepth > 2 && itemDepth < optionDepth - 1 && (
                                             <button
                                               type="button"
                                               onClick={(e) => {
@@ -1412,7 +1441,7 @@ const EventRegistration: React.FC = () => {
                                               </div>
                                             );
                                           })}
-                                        {options.filter((opt) => opt.parentId === subItem.id).length === 0 && subItemDepth < 2 && (
+                                        {options.filter((opt) => opt.parentId === subItem.id).length === 0 && optionDepth > 3 && subItemDepth < optionDepth - 1 && (
                                           <div className={styles["option-add-child"]}>
                                             <button type="button" onClick={() => handleAddChild(subItem.id)}>
                                               + 항목 추가
@@ -1422,7 +1451,7 @@ const EventRegistration: React.FC = () => {
                                       </div>
                                     );
                                   })}
-                                {options.filter((opt) => opt.parentId === item.id).length === 0 && itemDepth < 3 && (
+                                {options.filter((opt) => opt.parentId === item.id).length === 0 && optionDepth > 2 && itemDepth < optionDepth - 1 && (
                                   <div className={styles["option-add-child"]}>
                                     <button type="button" onClick={() => handleAddChild(item.id)}>
                                       + 항목 추가
@@ -1432,7 +1461,7 @@ const EventRegistration: React.FC = () => {
                               </div>
                             );
                           })}
-                        {options.filter((opt) => opt.parentId === category.id).length === 0 && (
+                        {options.filter((opt) => opt.parentId === category.id).length === 0 && optionDepth > 1 && (
                           <div className={styles["option-add-child"]}>
                             <button type="button" onClick={() => handleAddChild(category.id)}>
                               + 항목 추가
