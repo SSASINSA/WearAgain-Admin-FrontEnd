@@ -648,12 +648,6 @@ const AdminAccountManagement: React.FC = () => {
                                         {row.description || "상세 설명이 없습니다."}
                                       </span>
                                     </div>
-                                    {row.reason && (
-                                      <div className={styles["admin-account-expanded-item"]}>
-                                        <span className={styles["admin-account-expanded-label"]}>거부 사유:</span>
-                                        <span className={styles["admin-account-expanded-value"]}>{row.reason}</span>
-                                      </div>
-                                    )}
                                   </div>
                                 </td>
                               </tr>
@@ -723,12 +717,6 @@ const AdminAccountManagement: React.FC = () => {
                   {selectedDetail.description || "상세 설명이 없습니다."}
                 </div>
               </div>
-              {selectedDetail.reason && (
-                <div className={styles["admin-account-modal-row"]}>
-                  <span className={styles["admin-account-modal-label"]}>거부 사유:</span>
-                  <span className={styles["admin-account-modal-value"]}>{selectedDetail.reason}</span>
-                </div>
-              )}
             </div>
           </div>
         </div>

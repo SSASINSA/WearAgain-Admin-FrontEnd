@@ -462,21 +462,22 @@ const OrderManagement: React.FC = () => {
                 width: 80,
                 align: "center",
                 className: styles["actions-cell"],
-                render: (row: Order) =>
-                  row.status === "PURCHASED" ? (
-                    <button
-                      className={`${styles["action-btn"]} ${styles["cancel"]}`}
-                      title="주문 취소"
-                      onClick={() => {
-                        setSelectedOrderId(row.orderId);
-                        setCancelModalOpen(true);
-                      }}
-                    >
-                      취소
-                    </button>
-                  ) : (
-                    <span className={styles["no-action"]}>-</span>
-                  ),
+                render: (row: Order) => (
+                  <div className={styles["actions-wrapper"]}>
+                    {row.status === "PURCHASED" ? (
+                      <button
+                        className={`${styles["action-btn"]} ${styles["cancel"]}`}
+                        title="주문 취소"
+                        onClick={() => {
+                          setSelectedOrderId(row.orderId);
+                          setCancelModalOpen(true);
+                        }}
+                      >
+                        취소
+                      </button>
+                    ) : null}
+                  </div>
+                ),
               },
             ]}
             data={orders}

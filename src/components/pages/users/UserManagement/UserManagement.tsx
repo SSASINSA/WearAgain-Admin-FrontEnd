@@ -452,10 +452,10 @@ const UserManagement: React.FC = () => {
                 className: styles["actions-cell"],
                 render: (u: User) => (
                   <button
-                    className={`${styles["action-btn"]} ${u.suspended ? styles["unsuspend"] : styles["suspend"]}`}
+                    className={`${styles["action-btn"]} ${u.suspended ? styles["suspended"] : styles["suspend"]}`}
                     onClick={() => handleSuspendClick(u.id, u.name, u.suspended)}
                   >
-                    {u.suspended ? "정지 해제" : "정지"}
+                    정지
                   </button>
                 ),
               },
@@ -478,7 +478,7 @@ const UserManagement: React.FC = () => {
       <ConfirmModal
         isOpen={showSuspendModal}
         title={isSuspending ? "유저 정지 해제" : "유저 정지"}
-        message={`${selectedUserName} 유저를 ${isSuspending ? "정지 해제" : "정지"}하시겠습니까?`}
+        message={isSuspending ? `해당 유저는 정지 상태입니다. ${selectedUserName} 유저를 정지 해제하시겠습니까?` : `${selectedUserName} 유저를 정지하시겠습니까?`}
         confirmText={isSuspending ? "정지 해제" : "정지"}
         cancelText="취소"
         onConfirm={handleSuspendConfirm}
