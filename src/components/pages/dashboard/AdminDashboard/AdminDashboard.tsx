@@ -61,6 +61,7 @@ interface ImpactCardProps {
   bgColor: string;
   borderColor: string;
   badge: string;
+  iconColor?: string;
 }
 
 const ImpactCard: React.FC<ImpactCardProps> = ({
@@ -72,25 +73,32 @@ const ImpactCard: React.FC<ImpactCardProps> = ({
   bgColor,
   borderColor,
   badge,
+  iconColor,
 }) => (
   <div className={styles["impact-card"]} style={{ backgroundColor: bgColor, borderColor }}>
     <div className={styles["impact-card-header"]}>
       <div className={styles["impact-icon"]} style={{ backgroundColor: color }}>
-        <img src={icon} alt="" />
+        <img 
+          src={icon} 
+          alt="" 
+          style={iconColor ? { filter: iconColor } : {}}
+        />
       </div>
-      <span className={styles["impact-badge"]} style={{ backgroundColor: "#ffffff", color }}>
+      <span className={styles["impact-badge"]}>
         {badge}
       </span>
     </div>
-    <p className={styles["impact-title"]} style={{ color }}>
+    <p className={styles["impact-title"]}>
       {title}
     </p>
-    <p className={styles["impact-value"]} style={{ color }}>
+    <p className={styles["impact-value"]}>
       {value}
     </p>
-    <p className={styles["impact-description"]} style={{ color }}>
-      {description}
-    </p>
+    {description && (
+      <p className={styles["impact-description"]}>
+        {description}
+      </p>
+    )}
   </div>
 );
 
@@ -264,34 +272,37 @@ const AdminDashboard: React.FC = () => {
     if (!impact) {
       return [
         {
-          title: "CO2(kg) 절감량",
+          title: "CO2 절감량 (단위: kg)",
           value: "0",
-          description: "데이터 수신 전",
+          description: "",
           icon: "/admin/img/icon/co2.svg",
-          color: "#059669",
+          color: "rgba(5, 150, 105, 0.2)",
           bgColor: "#ffffff",
           borderColor: "#e5e7eb",
           badge: "환경보호",
+          iconColor: "brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(130deg) brightness(95%) contrast(85%)",
         },
         {
-          title: "에너지(KWh) 절약량",
+          title: "에너지 절약량 (단위: kWh)",
           value: "0",
-          description: "데이터 수신 전",
+          description: "",
           icon: "/admin/img/icon/energy.svg",
-          color: "#d97706",
+          color: "rgba(217, 119, 6, 0.2)",
           bgColor: "#ffffff",
           borderColor: "#e5e7eb",
           badge: "에너지",
+          iconColor: "brightness(0) saturate(100%) invert(60%) sepia(94%) saturate(1352%) hue-rotate(1deg) brightness(102%) contrast(92%)",
         },
         {
-          title: "물(L) 절약량",
+          title: "물 절약량 (단위: L)",
           value: "0",
-          description: "데이터 수신 전",
+          description: "",
           icon: "/admin/img/icon/water.svg",
-          color: "#2563eb",
+          color: "rgba(37, 99, 235, 0.2)",
           bgColor: "#ffffff",
           borderColor: "#e5e7eb",
           badge: "물 절약",
+          iconColor: "brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(1821%) hue-rotate(212deg) brightness(95%) contrast(95%)",
         },
       ];
     }
@@ -302,34 +313,37 @@ const AdminDashboard: React.FC = () => {
 
     return [
       {
-        title: "CO2 절감량",
+        title: "CO2 절감량 (단위: kg)",
         value: co2.toLocaleString(),
-        description: "실시간 누적 (단위: kg)",
+        description: "",
         icon: "/admin/img/icon/co2.svg",
-        color: "#059669",
+        color: "rgba(5, 150, 105, 0.2)",
         bgColor: "#ffffff",
         borderColor: "#e5e7eb",
         badge: "환경보호",
+        iconColor: "brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(130deg) brightness(95%) contrast(85%)",
       },
       {
-        title: "에너지 절약량",
+        title: "에너지 절약량 (단위: kWh)",
         value: energy.toLocaleString(),
-        description: "실시간 누적 (단위: kWh)",
+        description: "",
         icon: "/admin/img/icon/energy.svg",
-        color: "#d97706",
+        color: "rgba(217, 119, 6, 0.2)",
         bgColor: "#ffffff",
         borderColor: "#e5e7eb",
         badge: "에너지",
+        iconColor: "brightness(0) saturate(100%) invert(60%) sepia(94%) saturate(1352%) hue-rotate(1deg) brightness(102%) contrast(92%)",
       },
       {
-        title: "물 절약량",
+        title: "물 절약량 (단위: L)",
         value: water.toLocaleString(),
-        description: "실시간 누적 (단위: L)",
+        description: "",
         icon: "/admin/img/icon/water.svg",
-        color: "#2563eb",
+        color: "rgba(37, 99, 235, 0.2)",
         bgColor: "#ffffff",
         borderColor: "#e5e7eb",
         badge: "물 절약",
+        iconColor: "brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(1821%) hue-rotate(212deg) brightness(95%) contrast(95%)",
       },
     ];
   }, [impactData]);

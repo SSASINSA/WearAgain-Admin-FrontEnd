@@ -175,7 +175,7 @@ const ParticipantManagement: React.FC = () => {
       case "APPLIED":
         return "신청됨";
       case "CHECKED_IN":
-        return "체크인";
+        return "참여 완료";
       case "CANCELLED":
         return "취소됨";
       case "REJECTED":
@@ -326,13 +326,13 @@ const ParticipantManagement: React.FC = () => {
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
               <div className={styles["stat-info"]}>
-                <h3>체크인</h3>
+                <h3>참여 완료</h3>
                 <p className={styles["stat-number"]}>
                   {isLoading ? "..." : stats?.checkedInCount.toLocaleString() || 0}
                 </p>
               </div>
               <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/credit.svg" alt="체크인" />
+                <img src="/admin/img/icon/credit.svg" alt="참여 완료" />
               </div>
             </div>
           </div>
@@ -397,7 +397,7 @@ const ParticipantManagement: React.FC = () => {
                     >
                       <option value="all">전체 상태</option>
                       <option value="APPLIED">신청됨</option>
-                      <option value="CHECKED_IN">체크인</option>
+                      <option value="CHECKED_IN">참여 완료</option>
                       <option value="CANCELLED">취소됨</option>
                       <option value="REJECTED">거절됨</option>
                     </select>
@@ -473,7 +473,7 @@ const ParticipantManagement: React.FC = () => {
               },
               {
                 key: "checkedInAt",
-                title: "체크인일",
+                title: "행사 참여일",
                 width: 130,
                 render: (p: Participant) => p.checkedInAt || "-",
               },
