@@ -17,12 +17,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/login" replace />;
   }
 
-  // role 로딩 중일 때는 대기
+  // role 로딩 중일 때는 대기 (권한 체크 전에)
   if (isLoading) {
     return <div>로딩 중...</div>;
   }
 
-  // allowedRoles가 지정된 경우 role 체크
+  // allowedRoles가 지정된 경우 role 체크 (로딩 완료 후에만)
   if (allowedRoles && allowedRoles.length > 0) {
     if (!role || !allowedRoles.includes(role)) {
       // 권한이 없으면 대시보드로 리다이렉트
