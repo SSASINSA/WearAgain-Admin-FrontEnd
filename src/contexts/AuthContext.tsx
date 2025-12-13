@@ -19,11 +19,12 @@ interface RoleResponse {
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [role, setRole] = useState<AdminRole>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchRole = useCallback(async () => {
     if (!authUtils.isAuthenticated()) {
       setRole(null);
+      setIsLoading(false);
       return;
     }
 
@@ -54,13 +55,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setRole(null);
   }, []);
 
+  // 초기 마운트 시 role 로드
   useEffect(() => {
-    if (authUtils.isAuthenticated() && !role) {
+    if (authUtils.isAuthenticated()) {
       fetchRole();
-    } else if (!authUtils.isAuthenticated()) {
+    } else {
       setRole(null);
+      setIsLoading(false);
     }
-  }, [role, fetchRole]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleTokenExpired = () => {
