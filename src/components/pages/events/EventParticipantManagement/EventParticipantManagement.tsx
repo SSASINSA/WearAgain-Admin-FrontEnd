@@ -252,13 +252,13 @@ const EventParticipantManagement: React.FC = () => {
   const getStatusDisplayName = (status: string): string => {
     switch (status) {
       case "APPLIED":
-        return "신청됨";
+        return "신청";
       case "CHECKED_IN":
         return "참여 완료";
       case "CANCELLED":
-        return "취소됨";
+        return "취소";
       case "REJECTED":
-        return "거절됨";
+        return "차단";
       default:
         return status;
     }
@@ -495,15 +495,15 @@ const EventParticipantManagement: React.FC = () => {
           </div>
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
-              <div className={styles["stat-info"]}>
-                <h3>신청됨</h3>
-                <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.appliedCount.toLocaleString() || 0}
-                </p>
-              </div>
-              <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/ticket.svg" alt="신청됨" />
-              </div>
+               <div className={styles["stat-info"]}>
+                 <h3>신청</h3>
+                 <p className={styles["stat-number"]}>
+                   {isLoading ? "..." : stats?.appliedCount.toLocaleString() || 0}
+                 </p>
+               </div>
+               <div className={styles["stat-icon"]}>
+                 <img src="/admin/img/icon/ticket.svg" alt="신청" />
+               </div>
             </div>
           </div>
           <div className={styles["stat-card"]}>
@@ -521,28 +521,28 @@ const EventParticipantManagement: React.FC = () => {
           </div>
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
-              <div className={styles["stat-info"]}>
-                <h3>취소됨</h3>
-                <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.cancelledCount.toLocaleString() || 0}
-                </p>
-              </div>
-              <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/ticket.svg" alt="취소됨" />
-              </div>
+               <div className={styles["stat-info"]}>
+                 <h3>취소</h3>
+                 <p className={styles["stat-number"]}>
+                   {isLoading ? "..." : stats?.cancelledCount.toLocaleString() || 0}
+                 </p>
+               </div>
+               <div className={styles["stat-icon"]}>
+                 <img src="/admin/img/icon/delete.svg" alt="취소" />
+               </div>
             </div>
           </div>
           <div className={styles["stat-card"]}>
             <div className={styles["stat-content"]}>
-              <div className={styles["stat-info"]}>
-                <h3>거절됨</h3>
-                <p className={styles["stat-number"]}>
-                  {isLoading ? "..." : stats?.rejectedCount.toLocaleString() || 0}
-                </p>
-              </div>
-              <div className={styles["stat-icon"]}>
-                <img src="/admin/img/icon/ticket.svg" alt="거절됨" />
-              </div>
+               <div className={styles["stat-info"]}>
+                 <h3>차단</h3>
+                 <p className={styles["stat-number"]}>
+                   {isLoading ? "..." : stats?.rejectedCount.toLocaleString() || 0}
+                 </p>
+               </div>
+               <div className={styles["stat-icon"]}>
+                 <img src="/admin/img/icon/ban.svg" alt="차단" />
+               </div>
             </div>
           </div>
         </div>
@@ -605,10 +605,10 @@ const EventParticipantManagement: React.FC = () => {
                       className={styles["status-select"]}
                     >
                       <option value="all">전체 상태</option>
-                      <option value="APPLIED">신청됨</option>
+                      <option value="APPLIED">신청</option>
                       <option value="CHECKED_IN">참여 완료</option>
-                      <option value="CANCELLED">취소됨</option>
-                      <option value="REJECTED">거절됨</option>
+                      <option value="CANCELLED">취소</option>
+                      <option value="REJECTED">차단</option>
                     </select>
                     <div className={styles["status-select-icon"]}>
                       <img src={dropdownIcon} alt="드롭다운" />

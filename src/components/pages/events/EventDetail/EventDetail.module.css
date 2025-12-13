@@ -269,15 +269,15 @@
 }
 
 .impact-icon.co2-icon {
-  background-color: #10b981;
+  background-color: rgba(5, 150, 105, 0.2);
 }
 
 .impact-icon.water-icon {
-  background-color: #2563eb;
+  background-color: rgba(37, 99, 235, 0.2);
 }
 
 .impact-icon.energy-icon {
-  background-color: #d97706;
+  background-color: rgba(217, 119, 6, 0.2);
 }
 
 .impact-icon img {
@@ -285,8 +285,19 @@
   height: 28px;
   object-fit: contain;
   aspect-ratio: 1 / 1;
-  filter: brightness(0) invert(1);
   opacity: 1;
+}
+
+.impact-icon.co2-icon img {
+  filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(130deg) brightness(95%) contrast(85%);
+}
+
+.impact-icon.energy-icon img {
+  filter: brightness(0) saturate(100%) invert(60%) sepia(94%) saturate(1352%) hue-rotate(1deg) brightness(102%) contrast(92%);
+}
+
+.impact-icon.water-icon img {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(1821%) hue-rotate(212deg) brightness(95%) contrast(95%);
 }
 
 .impact-content {
@@ -547,25 +558,35 @@
 }
 
 .result-item:nth-child(1) .result-icon {
-  background-color: #06b0b7;
+  background-color: rgba(6, 176, 183, 0.2);
 }
 
 .result-item:nth-child(2) .result-icon {
-  background-color: #16a34a;
+  background-color: rgba(22, 163, 74, 0.2);
 }
 
 .result-item:nth-child(3) .result-icon {
-  background-color: #f97316;
+  background-color: rgba(249, 115, 22, 0.2);
 }
-
 
 .result-icon img {
   width: 28px;
   height: 28px;
   object-fit: contain;
   aspect-ratio: 1 / 1;
-  filter: brightness(0) invert(1);
   opacity: 1;
+}
+
+.result-item:nth-child(1) .result-icon img {
+  filter: brightness(0) saturate(100%) invert(60%) sepia(89%) saturate(1352%) hue-rotate(160deg) brightness(95%) contrast(95%);
+}
+
+.result-item:nth-child(2) .result-icon img {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(85%) saturate(1200%) hue-rotate(100deg) brightness(95%) contrast(90%);
+}
+
+.result-item:nth-child(3) .result-icon img {
+  filter: brightness(0) saturate(100%) invert(65%) sepia(95%) saturate(1500%) hue-rotate(5deg) brightness(100%) contrast(95%);
 }
 
 .result-number {

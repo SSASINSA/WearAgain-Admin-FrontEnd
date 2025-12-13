@@ -122,7 +122,7 @@
 }
 
 .submit-btn {
-  background: linear-gradient(to right, #06b0b7, #642c8d);
+  background: #06b0b7;
   border: none;
   color: white;
   min-width: 116px;
@@ -530,7 +530,7 @@
 
 .preview-buy-btn {
   padding: 8px 16px;
-  background: linear-gradient(to right, #06b0b7, #642c8d);
+  background: #06b0b7;
   border: none;
   border-radius: 8px;
   color: white;
