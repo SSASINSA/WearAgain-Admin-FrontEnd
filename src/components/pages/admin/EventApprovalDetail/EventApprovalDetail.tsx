@@ -11,13 +11,18 @@ const imgFrame2 = "/admin/img/icon/location-pin.svg";
 const approveIcon = "/admin/img/icon/check-approve.svg";
 const rejectIcon = "/admin/img/icon/x-reject.svg";
 
+interface EventImage {
+  imageId: number;
+  url: string;
+  altText: string | null;
+  displayOrder: number;
+}
+
 interface EventOption {
   optionId: number;
   name: string;
   displayOrder: number;
   capacity: number | null;
-  appliedCount: number | null;
-  remainingCount: number | null;
   children: EventOption[];
 }
 
@@ -37,11 +42,21 @@ interface EventApprovalRequestDetailResponse {
     eventId: number;
     title: string;
     description: string;
+    usageGuide: string | null;
+    precautions: string | null;
     location: string;
     startDate: string;
     endDate: string;
     status: string;
+    organizerName: string | null;
+    organizerContact: string | null;
+    organizerAdminId: number | null;
+    organizerAdminEmail: string | null;
+    organizerAdminName: string | null;
   };
+  totalCapacity: number | null;
+  optionDepth: number;
+  images: EventImage[];
   options: EventOption[];
 }
 
@@ -54,6 +69,8 @@ const EventApprovalDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -213,12 +230,66 @@ const EventApprovalDetail: React.FC = () => {
   const formatDateTime = (dateString: string | null): string => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
     return `${year}.${month}.${day} ${hours}:${minutes}`;
+  };
+
+  const getSortedImages = (): EventImage[] => {
+    if (approvalData?.images && approvalData.images.length > 0) {
+      return [...approvalData.images].sort((a, b) => a.displayOrder - b.displayOrder);
+    }
+    return [];
+  };
+
+  const getMainImage = (): string => {
+    const sortedImages = getSortedImages();
+    if (sortedImages.length > 0) {
+      return sortedImages[0].url;
+    }
+    return imgImg;
+  };
+
+  const handleImageClick = () => {
+    if (getSortedImages().length > 0) {
+      setSelectedImageIndex(0);
+      setIsImageModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsImageModalOpen(false);
+  };
+
+  const handlePrevImage = () => {
+    const images = getSortedImages();
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
+
+  const handleNextImage = () => {
+    const images = getSortedImages();
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      handleCloseModal();
+    } else if (e.key === "ArrowLeft") {
+      handlePrevImage();
+    } else if (e.key === "ArrowRight") {
+      handleNextImage();
+    }
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setSelectedImageIndex(index);
   };
 
   const OptionTreeItem: React.FC<{ option: EventOption; depth: number }> = ({ option, depth }) => {
@@ -233,9 +304,9 @@ const EventApprovalDetail: React.FC = () => {
             <span className={styles["option-name"]}>{option.name}</span>
           </div>
           <div className={styles["option-right-section"]}>
-            {isLeaf && (
+            {isLeaf && option.capacity !== null && (
               <span className={styles["option-quantity"]}>
-                수량: {option.appliedCount !== null && option.appliedCount !== undefined ? option.appliedCount : 0}/{option.capacity !== null && option.capacity !== undefined ? option.capacity : 0}
+                수량: {option.capacity}
               </span>
             )}
           </div>
@@ -281,8 +352,12 @@ const EventApprovalDetail: React.FC = () => {
         <div className={styles["event-approval-detail-content"]}>
           {/* 행사 헤더 섹션 */}
           <div className={styles["event-hero-section"]}>
-            <div className={styles["event-hero-image"]}>
-              <img src={imgImg} alt="행사 이미지" />
+            <div
+              className={styles["event-hero-image"]}
+              onClick={handleImageClick}
+              style={{ cursor: getSortedImages().length > 0 ? "pointer" : "default" }}
+            >
+              <img src={getMainImage()} alt={getSortedImages()[0]?.altText || "행사 이미지"} />
               <div className={styles["image-overlay"]}></div>
             </div>
             <div className={styles["event-hero-content"]}>
@@ -321,6 +396,30 @@ const EventApprovalDetail: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* 이용 방법 섹션 */}
+          {approvalData.event.usageGuide && (
+            <div className={styles["event-usage-section"]}>
+              <h3 className={styles["section-title"]}>이용 방법</h3>
+              <ul className={styles["usage-list"]}>
+                {approvalData.event.usageGuide.split("\n").map((line, index) => (
+                  <li key={index}>{line}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 주의사항 섹션 */}
+          {approvalData.event.precautions && (
+            <div className={styles["event-precaution-section"]}>
+              <h3 className={styles["section-title"]}>주의사항</h3>
+              <ul className={styles["precaution-list"]}>
+                {approvalData.event.precautions.split("\n").map((line, index) => (
+                  <li key={index}>{line}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* 옵션 현황 섹션 */}
           {approvalData.options && approvalData.options.length > 0 && (
@@ -363,35 +462,12 @@ const EventApprovalDetail: React.FC = () => {
                   <span className={styles["info-label"]}>요청일</span>
                   <span className={styles["info-value"]}>{formatDateTime(approvalData.createdAt)}</span>
                 </div>
-                {approvalData.options && approvalData.options.length > 0 && (() => {
-                  const calculateTotalCapacity = (options: EventOption[]): number => {
-                    let total = 0;
-                    const traverse = (opts: EventOption[]) => {
-                      for (const opt of opts) {
-                        if (opt.children && opt.children.length > 0) {
-                          traverse(opt.children);
-                        } else if (opt.capacity !== null && opt.capacity !== undefined) {
-                          total += opt.capacity;
-                        }
-                      }
-                    };
-                    traverse(options);
-                    return total;
-                  };
-
-                  const totalCapacity = calculateTotalCapacity(approvalData.options);
-
-                  return (
-                    <>
-                      {totalCapacity > 0 && (
-                        <div className={styles["info-item"]}>
-                          <span className={styles["info-label"]}>총 정원</span>
-                          <span className={styles["info-value"]}>{totalCapacity}명</span>
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
+                {approvalData.totalCapacity !== null && (
+                  <div className={styles["info-item"]}>
+                    <span className={styles["info-label"]}>전체 정원</span>
+                    <span className={styles["info-value"]}>{approvalData.totalCapacity}명</span>
+                  </div>
+                )}
                 {approvalData.processedAt && (
                   <>
                     <div className={styles["info-item"]}>
@@ -455,6 +531,59 @@ const EventApprovalDetail: React.FC = () => {
         onCancel={handleModalCancel}
         type="reject"
       />
+
+      {/* 이미지 갤러리 모달 */}
+      {isImageModalOpen && (
+        <div
+          className={styles["image-modal-overlay"]}
+          onClick={handleCloseModal}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+        >
+          <div className={styles["image-modal-container"]} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles["modal-title"]}>확대보기</h2>
+            <div className={styles["modal-main-content"]}>
+              <div className={styles["modal-image-wrapper"]}>
+                {getSortedImages().length > 0 && (
+                  <>
+                    <img
+                      src={getSortedImages()[selectedImageIndex].url}
+                      alt={getSortedImages()[selectedImageIndex].altText || `행사 이미지 ${selectedImageIndex + 1}`}
+                      className={styles["modal-image"]}
+                    />
+                    {getSortedImages().length > 1 && (
+                      <>
+                        <button className={styles["modal-nav-btn"]} onClick={handlePrevImage} style={{ left: "20px" }}>
+                          ‹
+                        </button>
+                        <button className={styles["modal-nav-btn"]} onClick={handleNextImage} style={{ right: "20px" }}>
+                          ›
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+              {getSortedImages().length > 1 && (
+                <div className={styles["modal-thumbnails"]}>
+                  {getSortedImages().map((image, index) => (
+                    <div
+                      key={image.imageId}
+                      className={`${styles["modal-thumbnail"]} ${index === selectedImageIndex ? styles["active"] : ""}`}
+                      onClick={() => handleThumbnailClick(index)}
+                    >
+                      <img src={image.url} alt={image.altText || `썸네일 ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className={styles["modal-close-button"]} onClick={handleCloseModal}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
