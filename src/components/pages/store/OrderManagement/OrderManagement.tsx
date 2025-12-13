@@ -221,7 +221,7 @@ const OrderManagement: React.FC = () => {
         await fetchOrders();
         setCancelModalOpen(false);
         setSelectedOrderId(null);
-        alert(`주문이 취소되었습니다.\n환불 금액: ${formatPrice(cancelData.refundedAmount)}원`);
+        alert(`주문이 취소되었습니다.\n환불 금액: ${formatPrice(cancelData.refundedAmount)} C`);
       } else {
         const errorData = await response.json();
         alert(errorData.message || "주문 취소에 실패했습니다.");
@@ -416,14 +416,14 @@ const OrderManagement: React.FC = () => {
                 title: "단가",
                 width: 100,
                 className: styles["price-cell"],
-                render: (row: Order) => `${formatPrice(row.unitPrice)}원`,
+                render: (row: Order) => `${formatPrice(row.unitPrice)} C`,
               },
               {
                 key: "totalPrice",
                 title: "총액",
                 width: 120,
                 className: styles["price-cell"],
-                render: (row: Order) => `${formatPrice(row.totalPrice)}원`,
+                render: (row: Order) => `${formatPrice(row.totalPrice)} C`,
               },
               {
                 key: "pickupLocation",
