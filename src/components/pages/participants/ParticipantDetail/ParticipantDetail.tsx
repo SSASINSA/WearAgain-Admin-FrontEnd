@@ -34,6 +34,7 @@ interface ParticipantDetailResponse {
     level: number;
     exp: number;
     nextLevelExp: number;
+    expProgressPercent: number;
     magicScissorCount: number;
     cycles: number;
   } | null;
@@ -328,16 +329,12 @@ const ParticipantDetail: React.FC = () => {
                     <div
                       className={styles["progress"]}
                       style={{
-                        width: `${participant.mascot.nextLevelExp > 0 ? (participant.mascot.exp / participant.mascot.nextLevelExp) * 100 : 0}%`,
+                        width: `${participant.mascot.expProgressPercent}%`,
                       }}
                     />
                   </div>
                   <div className={styles["progress-text"]}>
-                    다음 레벨까지{" "}
-                    {participant.mascot.nextLevelExp > 0
-                      ? Math.round((participant.mascot.exp / participant.mascot.nextLevelExp) * 100)
-                      : 0}
-                    %
+                    다음 레벨까지 {Math.round(participant.mascot.expProgressPercent)}%
                   </div>
                   <div className={styles["scissor-box"]}>
                     <div className={styles["label"]}>
