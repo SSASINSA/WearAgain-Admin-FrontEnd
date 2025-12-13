@@ -382,24 +382,34 @@
   gap: 8px;
   height: 64px;
   padding: 0 24px;
-  border: none;
+  border: 2px solid #06b0b7;
   border-radius: 12px;
-  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
-  color: white;
+  background-color: white;
+  color: #06b0b7;
+  font-family: "Pretendard", sans-serif;
   font-size: 18px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.register-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(6, 176, 183, 0.3);
+.register-btn:hover:not(:disabled) {
+  background-color: #06b0b7;
+  color: white;
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .register-btn img {
   width: 18px;
   height: 18px;
+  filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%) contrast(101%);
+}
+
+.register-btn:hover:not(:disabled) img {
   filter: brightness(0) invert(1);
 }
 

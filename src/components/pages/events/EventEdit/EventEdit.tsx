@@ -15,6 +15,7 @@ const eventDateIcon = "/admin/img/icon/calendar.svg";
 const eventLocationIcon = "/admin/img/icon/location-pin.svg";
 const locationSearchIcon = "/admin/img/icon/search.svg";
 const updateIcon = "/admin/img/icon/edit.svg";
+const deleteIcon = "/admin/img/icon/delete.svg";
 const lightbulbIcon = "/admin/img/icon/lightbulb.svg";
 const checkIcon = "/admin/img/icon/check.svg";
 const cameraIcon = "/admin/img/icon/camera.svg";
@@ -155,6 +156,9 @@ const EventEdit: React.FC = () => {
   const [showMoreMenuId, setShowMoreMenuId] = useState<string | null>(null);
   const [isOptionsLocked, setIsOptionsLocked] = useState(true);
   const [showOptionsWarningModal, setShowOptionsWarningModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [eventStatus, setEventStatus] = useState<string>("");
   const addDropdownRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
@@ -191,6 +195,7 @@ const EventEdit: React.FC = () => {
           eventLocationDetail: "",
         });
         setOriginalLocation(data.location || "");
+        setEventStatus(data.status || "");
 
         if (data.optionDepth) {
           setOptionDepth(data.optionDepth);
@@ -922,6 +927,58 @@ const EventEdit: React.FC = () => {
 
   const handleCancelUpdate = () => {
     setShowConfirmModal(false);
+  };
+
+  const mapApiStatusToDisplayStatus = (
+    apiStatus: string
+  ): "active" | "completed" | "upcoming" | "pending" | "rejected" | "deleted" => {
+    switch (apiStatus.toUpperCase()) {
+      case "OPEN":
+        return "active";
+      case "CLOSED":
+        return "completed";
+      case "ARCHIVED":
+        return "deleted";
+      case "APPROVAL":
+        return "upcoming";
+      case "DRAFT":
+        return "pending";
+      case "REJECTED":
+        return "rejected";
+      default:
+        return "active";
+    }
+  };
+
+  const canDeleteEvent = (status: string): boolean => {
+    const displayStatus = mapApiStatusToDisplayStatus(status);
+    return displayStatus === "upcoming" || displayStatus === "pending";
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!id) return;
+
+    try {
+      setIsDeleting(true);
+      const response = await apiRequest(`/admin/events/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "행사 삭제에 실패했습니다.");
+      }
+
+      alert("행사가 삭제되었습니다.");
+      navigate("/events");
+    } catch (err) {
+      console.error("행사 삭제 실패:", err);
+      const message = err instanceof Error ? err.message : "행사 삭제에 실패했습니다.";
+      alert(message);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
   };
 
 
@@ -1773,6 +1830,15 @@ const EventEdit: React.FC = () => {
               </div>
 
               <div className={styles["form-actions"]}>
+                <button
+                  type="button"
+                  className={`${styles["register-btn"]} ${styles["delete-btn"]} ${!canDeleteEvent(eventStatus) ? styles["disabled"] : ""}`}
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={!canDeleteEvent(eventStatus) || isDeleting}
+                >
+                  <img src={deleteIcon} alt="삭제" />
+                  {isDeleting ? "삭제 중..." : "삭제하기"}
+                </button>
                 <button type="submit" className={styles["register-btn"]} disabled={isSubmitting}>
                   <img src={updateIcon} alt="수정" />
                   {isSubmitting ? "수정 중..." : "행사 수정하기"}
@@ -1848,6 +1914,17 @@ const EventEdit: React.FC = () => {
           setShowOptionsWarningModal(false);
         }}
         onCancel={() => setShowOptionsWarningModal(false)}
+        type="reject"
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="행사 삭제"
+        message="정말로 이 행사를 삭제하시겠습니까? 삭제된 행사는 목록에서 숨겨집니다."
+        confirmText="삭제"
+        cancelText="취소"
+        onConfirm={handleDeleteEvent}
+        onCancel={() => setShowDeleteModal(false)}
         type="reject"
       />
     </div>
