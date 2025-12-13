@@ -229,7 +229,7 @@
 }
 
 .staff-code-button {
-  background: linear-gradient(135deg, #06b0b7 0%, #642c8d 100%);
+  background: #06b0b7;
   border: none;
   border-radius: 12px;
   color: white;
