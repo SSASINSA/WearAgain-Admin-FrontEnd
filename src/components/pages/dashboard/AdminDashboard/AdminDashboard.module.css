@@ -462,24 +462,29 @@
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
+  background-color: #ffffff;
+  color: #6b7280;
 }
 
 .impact-title {
   font-size: 14px;
-  margin: 0 0 8px 0;
-  font-weight: 400;
+  margin: 0 0 0px 0;
+  font-weight: 600;
+  color: #808a96;
 }
 
 .impact-value {
   font-size: 30px;
   font-weight: 400;
   margin: 0 0 8px 0;
+  color: #111827;
 }
 
 .impact-description {
   font-size: 14px;
   margin: 0;
-  font-weight: 400;
+  font-weight: 600;
+  color: #808a96;
 }
 
 @media (max-width: 1200px) {
