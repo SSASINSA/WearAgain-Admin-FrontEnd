@@ -244,13 +244,14 @@ const EventDetail: React.FC = () => {
 
   const formatDateTime = (dateString: string | null): string => {
     if (!dateString) return "";
+    // UTC 시간을 그대로 표시 (로컬 시간 변환 없이)
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}.${month}.${day} ${hours}:${minutes}`;
+    const utcYear = date.getUTCFullYear();
+    const utcMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const utcDay = String(date.getUTCDate()).padStart(2, "0");
+    const utcHours = String(date.getUTCHours()).padStart(2, "0");
+    const utcMinutes = String(date.getUTCMinutes()).padStart(2, "0");
+    return `${utcYear}.${utcMonth}.${utcDay} ${utcHours}:${utcMinutes}`;
   };
 
   const formatDateTimeLocal = (utcDateString: string | null): string => {
@@ -441,6 +442,10 @@ const EventDetail: React.FC = () => {
 
   const isEventCompleted = (status: string): boolean => {
     return mapApiStatusToDisplayStatus(status) === "completed";
+  };
+
+  const isEventArchived = (status: string): boolean => {
+    return mapApiStatusToDisplayStatus(status) === "deleted";
   };
 
   const getStatusBadge = (status: string) => {
@@ -774,7 +779,7 @@ const EventDetail: React.FC = () => {
         {/* 사이드바 - 스태프 코드 발급 */}
         <div className={styles["event-detail-sidebar"]} ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            {staffCodeError && staffCodeError.includes("담당자만") ? (
+            {!isEventArchived(eventData.status) && staffCodeError && staffCodeError.includes("담당자만") ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
@@ -783,14 +788,14 @@ const EventDetail: React.FC = () => {
                   </p>
                 </div>
               </div>
-            ) : isLoadingStaffCode ? (
+            ) : !isEventArchived(eventData.status) && isLoadingStaffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
                   <p className={styles["staff-code-description"]}>로딩 중...</p>
                 </div>
               </div>
-            ) : staffCode ? (
+            ) : !isEventArchived(eventData.status) && staffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
@@ -825,7 +830,7 @@ const EventDetail: React.FC = () => {
                   <p>재발급 시 이전 코드는 즉시 무효화됩니다</p>
                 </div>
               </div>
-            ) : (
+            ) : !isEventArchived(eventData.status) ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드 발급</h4>
@@ -843,7 +848,7 @@ const EventDetail: React.FC = () => {
                   <p>코드는 행사 당일에만 유효합니다</p>
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* 행사 정보 섹션 */}
             <div className={styles["event-info-section"]}>
@@ -864,37 +869,45 @@ const EventDetail: React.FC = () => {
                   </div>
                 )}
               </div>
+              {isEventArchived(eventData.status) && (
+                <div className={`${styles["staff-code-notice"]} ${styles["archived-notice"]}`} style={{ marginTop: "24px" }}>
+                  <img src={imgFrame9} alt="알림 아이콘" />
+                  <p>삭제된 행사입니다</p>
+                </div>
+              )}
             </div>
 
             {/* 액션 버튼들 */}
-            <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
-              {isCompletedEvent && (
+            {!isEventArchived(eventData.status) && (
+              <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
+                {isCompletedEvent && (
+                  <button
+                    className={`${styles["edit-button"]} ${styles["download-button"]}`}
+                    onClick={handleDownloadReport}
+                    disabled={isDownloadingReport}
+                  >
+                    <img src={reportIcon} alt="보고서 다운로드 아이콘" />
+                    {isDownloadingReport ? "다운로드 중..." : "보고서 다운로드"}
+                  </button>
+                )}
+                {!isCompletedEvent && (
+                  <button
+                    className={styles["edit-button"]}
+                    onClick={() => navigate(`/events/${id}/edit`)}
+                  >
+                    <img src={editIcon} alt="수정 아이콘" />
+                    수정하기
+                  </button>
+                )}
                 <button
-                  className={`${styles["edit-button"]} ${styles["download-button"]}`}
-                  onClick={handleDownloadReport}
-                  disabled={isDownloadingReport}
+                  className={`${styles["edit-button"]} ${styles["participants-button"]}`}
+                  onClick={() => navigate(`/events/${id}/participants`)}
                 >
-                  <img src={reportIcon} alt="보고서 다운로드 아이콘" />
-                  {isDownloadingReport ? "다운로드 중..." : "보고서 다운로드"}
+                  <img src="/admin/img/icon/users.svg" alt="참가 신청 관리 아이콘" />
+                  참가 신청 관리
                 </button>
-              )}
-              {!isCompletedEvent && (
-                <button
-                  className={styles["edit-button"]}
-                  onClick={() => navigate(`/events/${id}/edit`)}
-                >
-                  <img src={editIcon} alt="수정 아이콘" />
-                  수정하기
-                </button>
-              )}
-              <button
-                className={`${styles["edit-button"]} ${styles["participants-button"]}`}
-                onClick={() => navigate(`/events/${id}/participants`)}
-              >
-                <img src="/admin/img/icon/users.svg" alt="참가 신청 관리 아이콘" />
-                참가 신청 관리
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

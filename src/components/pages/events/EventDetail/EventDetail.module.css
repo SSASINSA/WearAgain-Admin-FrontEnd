@@ -761,6 +761,10 @@
   line-height: 20px;
 }
 
+.staff-code-notice.archived-notice img {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(98%) saturate(7471%) hue-rotate(350deg) brightness(90%) contrast(86%);
+}
+
 .edit-button {
   background-color: white;
   border: 2px solid #06b0b7;
@@ -905,6 +909,21 @@
 .status-badge.deleted {
   background-color: #f3f4f6;
   color: #6b7280;
+}
+
+.archived-message {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+}
+
+.archived-message p {
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 24px;
 }
 
 @media (min-width: 1600px) {
