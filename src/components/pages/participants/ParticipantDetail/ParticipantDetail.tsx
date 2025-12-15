@@ -137,7 +137,7 @@ const ParticipantDetail: React.FC = () => {
       case "APPLIED":
         return "신청 완료";
       case "CHECKED_IN":
-        return "체크인 완료";
+        return "참여 완료";
       default:
         return status;
     }

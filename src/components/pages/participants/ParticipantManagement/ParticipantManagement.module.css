@@ -546,8 +546,8 @@
 }
 
 .status-badge.cancelled {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: #e5e7eb;
+  color: #374151;
 }
 
 .status-badge.rejected {

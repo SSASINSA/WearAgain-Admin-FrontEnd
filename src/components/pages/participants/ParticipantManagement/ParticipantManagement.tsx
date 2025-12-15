@@ -20,7 +20,7 @@ interface EventApplicationResponse {
   displayName: string;
   email: string;
   optionPath: string;
-  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "REJECTED";
+  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "CANCELED" | "REJECTED";
   appliedAt: string;
   checkedInAt: string | null;
   suspended: boolean;
@@ -58,7 +58,7 @@ interface Participant {
   name: string;
   email: string;
   optionPath: string;
-  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "REJECTED";
+  status: "APPLIED" | "CHECKED_IN" | "CANCELLED" | "CANCELED" | "REJECTED";
   appliedAt: string;
   checkedInAt: string | null;
   suspended: boolean;
@@ -177,6 +177,7 @@ const ParticipantManagement: React.FC = () => {
       case "CHECKED_IN":
         return "참여 완료";
       case "CANCELLED":
+      case "CANCELED":
         return "취소됨";
       case "REJECTED":
         return "거절됨";
@@ -492,6 +493,7 @@ const ParticipantManagement: React.FC = () => {
                       statusClass = styles["checked-in"];
                       break;
                     case "CANCELLED":
+                    case "CANCELED":
                       statusClass = styles["cancelled"];
                       break;
                     case "REJECTED":
