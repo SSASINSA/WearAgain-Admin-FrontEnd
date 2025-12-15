@@ -251,7 +251,6 @@ const PostDetail: React.FC = () => {
               </div>
               <h2 className={styles["event-title"]}>{postData.title}</h2>
               
-              {/* 게시글 이미지 */}
               {postData.imageUrls && postData.imageUrls.length > 0 && (
                 <div style={{ marginTop: "24px", marginBottom: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
                   {postData.imageUrls.map((url, index) => (
@@ -260,7 +259,6 @@ const PostDetail: React.FC = () => {
                 </div>
               )}
               
-              {/* 게시글 내용 */}
               <p className={styles["event-description"]}>{postData.content}</p>
             </div>
           </div>
@@ -328,7 +326,6 @@ const PostDetail: React.FC = () => {
                 </div>
               </div>
 
-              {/* 삭제 버튼 - 게시글 정보 카드 내부 하단 */}
               <div className={styles["delete-actions-section"]}>
                 <button className={styles["delete-button"]} onClick={handleDelete}>
                   <img src={deleteIcon} alt="삭제 아이콘" />

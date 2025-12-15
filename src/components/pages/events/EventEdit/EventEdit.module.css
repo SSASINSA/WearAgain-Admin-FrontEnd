@@ -162,7 +162,6 @@
   display: block;
 }
 
-/* 행사 수정 페이지에서 스태프와 참가자 아이콘 색상 변경 */
 .label-icon.icon-colored {
   filter: brightness(0) saturate(100%) invert(50%) sepia(98%) saturate(1352%) hue-rotate(145deg) brightness(94%) contrast(101%);
 }
@@ -731,7 +730,6 @@
   }
 }
 
-/* 옵션 관련 스타일 */
 .option-header {
   display: flex;
   justify-content: space-between;

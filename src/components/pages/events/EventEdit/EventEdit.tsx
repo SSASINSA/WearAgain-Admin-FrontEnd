@@ -859,7 +859,6 @@ const EventEdit: React.FC = () => {
         images: eventImages.length > 0 ? eventImages : null,
       };
 
-      // 옵션이 수정되지 않은 경우 null로 보내서 변경 없음을 표시
       if (!isOptionsLocked) {
         try {
           const cleanedOptions = options.map((opt) => {
@@ -881,7 +880,6 @@ const EventEdit: React.FC = () => {
           return;
         }
       } else {
-        // 옵션이 수정되지 않은 경우 null로 보내서 변경 없음을 표시
         requestData.options = null;
         requestData.optionDepth = undefined;
       }
@@ -897,7 +895,6 @@ const EventEdit: React.FC = () => {
           const errorData = await response.json().catch(() => ({}));
           let errorMessage = errorData.message || "행사 수정에 실패했습니다.";
           
-          // 외래 키 제약 조건 위반 에러 처리
           if (errorData.message && (
             errorData.message.includes("foreign key constraint") ||
             errorData.message.includes("외래 키") ||
@@ -1291,7 +1288,6 @@ const EventEdit: React.FC = () => {
                         const oldOptionDepth = optionDepth;
                         setOptionDepth(newOptionDepth);
                         setOptions((prevOptions) => {
-                          // 레벨이 낮아질 때만 초과 옵션 제거
                           if (newOptionDepth < oldOptionDepth) {
                             const getOptionDepth = (optionId: string): number => {
                               const option = prevOptions.find((o) => o.id === optionId);
@@ -1308,7 +1304,6 @@ const EventEdit: React.FC = () => {
                               displayOrder: index + 1,
                             }));
                           }
-                          // 레벨이 높아지거나 같을 때는 기존 옵션 유지
                           return prevOptions;
                         });
                       }}

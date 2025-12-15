@@ -270,8 +270,8 @@
   padding-bottom: 8px;
   flex: 1;
   min-width: 0;
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .chart-scroll::-webkit-scrollbar {

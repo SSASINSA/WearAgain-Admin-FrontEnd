@@ -355,7 +355,6 @@ const AdminDashboard: React.FC = () => {
     return [value, name];
   };
 
-  // Custom tooltip uses any to keep compatibility across Recharts type versions
   const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {

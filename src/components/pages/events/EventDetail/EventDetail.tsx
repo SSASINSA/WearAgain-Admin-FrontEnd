@@ -244,7 +244,6 @@ const EventDetail: React.FC = () => {
 
   const formatDateTime = (dateString: string | null): string => {
     if (!dateString) return "";
-    // UTC 시간을 그대로 표시 (로컬 시간 변환 없이)
     const date = new Date(dateString);
     const utcYear = date.getUTCFullYear();
     const utcMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -305,7 +304,6 @@ const EventDetail: React.FC = () => {
     if (result === "noCode") {
       setShowIssueModal(true);
     }
-    // result === "noPermission"일 때는 모달을 띄우지 않음
   };
 
   const handleIssueConfirm = async () => {
@@ -877,7 +875,6 @@ const EventDetail: React.FC = () => {
               )}
             </div>
 
-            {/* 액션 버튼들 */}
             {!isEventArchived(eventData.status) && (
               <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
                 {isCompletedEvent && (

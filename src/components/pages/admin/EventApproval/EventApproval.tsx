@@ -253,7 +253,6 @@ const EventApproval: React.FC = () => {
       setAppliedSearchScope(urlKeywordScope);
     }
     if (urlSort !== sort) setSort(urlSort);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {

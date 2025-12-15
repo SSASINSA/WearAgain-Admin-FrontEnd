@@ -939,7 +939,6 @@ const EventRegistration: React.FC = () => {
                         const oldOptionDepth = optionDepth;
                         setOptionDepth(newOptionDepth);
                         setOptions((prevOptions) => {
-                          // 레벨이 낮아질 때만 초과 옵션 제거
                           if (newOptionDepth < oldOptionDepth) {
                             const getOptionDepth = (optionId: string): number => {
                               const option = prevOptions.find((o) => o.id === optionId);
@@ -956,7 +955,6 @@ const EventRegistration: React.FC = () => {
                               displayOrder: index + 1,
                             }));
                           }
-                          // 레벨이 높아지거나 같을 때는 기존 옵션 유지
                           return prevOptions;
                         });
                       }}

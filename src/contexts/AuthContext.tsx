@@ -55,7 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setRole(null);
   }, []);
 
-  // 초기 마운트 시 role 로드
   useEffect(() => {
     if (authUtils.isAuthenticated()) {
       fetchRole();
@@ -63,7 +62,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setRole(null);
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
