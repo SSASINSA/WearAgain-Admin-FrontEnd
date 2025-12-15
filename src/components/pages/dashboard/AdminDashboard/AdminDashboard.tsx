@@ -204,7 +204,6 @@ const AdminDashboard: React.FC = () => {
   }, [eventMetrics]);
 
   const countFormatter = (value: number) => `${value.toLocaleString()}`;
-  const participantFormatter = (value: number) => `${value.toLocaleString()}`;
   const percentFormatter = (value: number) => `${((value || 0) * 100).toFixed(1)}%`;
 
   const statsData = useMemo(() => {
@@ -349,7 +348,7 @@ const AdminDashboard: React.FC = () => {
   }, [impactData]);
 
   const tooltipFormatter = (value: ValueType, name: NameType) => {
-    if (name === "participants") return [participantFormatter(Number(value)), "참가자 수"];
+    if (name === "participants") return [countFormatter(Number(value)), "참가자 수"];
     if (name === "donated") return [countFormatter(Number(value)), "기부된 옷"];
     if (name === "exchanged") return [countFormatter(Number(value)), "교환된 옷"];
     return [value, name];
@@ -389,7 +388,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const response = await apiRequest(`/admin/dashboard/metrics?period=${period}`);
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status} 오류가 발생했습니다.`);
       }
 
       const data = await response.json();
@@ -410,7 +409,7 @@ const AdminDashboard: React.FC = () => {
       });
       setEventMetrics(mapped);
     } catch (err) {
-      console.error("Failed to load event metrics", err);
+      console.error("행사 메트릭 로드 실패:", err);
       setError("데이터를 불러오지 못했습니다. 다시 시도해주세요.");
       setEventMetrics([]);
     } finally {
@@ -424,13 +423,13 @@ const AdminDashboard: React.FC = () => {
     try {
       const response = await apiRequest(`/admin/dashboard/overview`);
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status} 오류가 발생했습니다.`);
       }
       const data: OverviewResponse = await response.json();
       setOverviewData(data.overview);
       setImpactData(data.impact);
     } catch (err) {
-      console.error("Failed to load dashboard overview", err);
+      console.error("대시보드 개요 로드 실패:", err);
       setOverviewError("대시보드 개요를 불러오지 못했습니다.");
     } finally {
       setOverviewLoading(false);
@@ -533,11 +532,7 @@ const AdminDashboard: React.FC = () => {
                         <LabelList
                           dataKey={series.key}
                           position="top"
-                          formatter={(value: any) =>
-                            series.key === "participants"
-                              ? participantFormatter(Number(value))
-                              : countFormatter(Number(value))
-                          }
+                          formatter={(value: any) => countFormatter(Number(value))}
                           fill="#4b5563"
                         />
                       </Bar>

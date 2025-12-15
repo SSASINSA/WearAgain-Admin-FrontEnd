@@ -510,7 +510,7 @@ const EventRegistration: React.FC = () => {
         alert("행사가 성공적으로 등록되었습니다.");
         navigate("/events");
       } catch (error) {
-        alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+        alert(error instanceof Error ? error.message : "옵션 검증에 실패했습니다.");
         setIsSubmitting(false);
         return;
       }

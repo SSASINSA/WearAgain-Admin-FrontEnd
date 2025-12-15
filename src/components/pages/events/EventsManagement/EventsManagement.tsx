@@ -247,7 +247,7 @@ const EventsManagement: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "행사 목록을 가져오는데 실패했습니다.";
       setError(errorMessage);
-      console.error("Error fetching events:", err);
+      console.error("행사 목록 조회 실패:", err);
     } finally {
       setIsLoading(false);
     }

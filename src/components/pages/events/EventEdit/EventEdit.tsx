@@ -875,7 +875,7 @@ const EventEdit: React.FC = () => {
           requestData.optionDepth = optionDepth;
         } catch (error) {
           console.error("옵션 검증 실패:", error);
-          alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+          alert(error instanceof Error ? error.message : "옵션 검증에 실패했습니다.");
           setIsSubmitting(false);
           return;
         }
@@ -911,7 +911,7 @@ const EventEdit: React.FC = () => {
         setShowConfirmModal(false);
         navigate(`/events/${id}`);
       } catch (error) {
-        alert(error instanceof Error ? error.message : "options 검증에 실패했습니다.");
+        alert(error instanceof Error ? error.message : "옵션 검증에 실패했습니다.");
         setIsSubmitting(false);
         return;
       }

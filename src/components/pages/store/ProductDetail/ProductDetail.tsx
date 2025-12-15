@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ProductDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
+import ImageGalleryModal, { GalleryImage } from "../../../common/ImageGalleryModal/ImageGalleryModal";
 import apiRequest from "../../../../utils/api";
 
 interface ProductImage {
@@ -31,7 +32,6 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -140,7 +140,6 @@ const ProductDetail: React.FC = () => {
 
   const handleImageClick = () => {
     if (getSortedImages().length > 0) {
-      setSelectedImageIndex(0);
       setIsImageModalOpen(true);
     }
   };
@@ -149,28 +148,12 @@ const ProductDetail: React.FC = () => {
     setIsImageModalOpen(false);
   };
 
-  const handlePrevImage = () => {
-    const images = getSortedImages();
-    if (images.length > 0) {
-      setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    }
-  };
-
-  const handleNextImage = () => {
-    const images = getSortedImages();
-    if (images.length > 0) {
-      setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      handleCloseModal();
-    } else if (e.key === "ArrowLeft") {
-      handlePrevImage();
-    } else if (e.key === "ArrowRight") {
-      handleNextImage();
-    }
+  const getGalleryImages = (): GalleryImage[] => {
+    return getSortedImages().map((image) => ({
+      id: image.id,
+      url: image.imageUrl,
+      altText: null,
+    }));
   };
 
   if (isLoading) {
@@ -291,58 +274,12 @@ const ProductDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* 이미지 갤러리 모달 */}
-      {isImageModalOpen && (
-        <div
-          className={styles["image-modal-overlay"]}
-          onClick={handleCloseModal}
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-        >
-          <div className={styles["image-modal-container"]} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles["modal-title"]}>확대보기</h2>
-            <div className={styles["modal-main-content"]}>
-              <div className={styles["modal-image-wrapper"]}>
-                {getSortedImages().length > 0 && (
-                  <>
-                    <img
-                      src={getSortedImages()[selectedImageIndex].imageUrl}
-                      alt={`${product.name} 이미지 ${selectedImageIndex + 1}`}
-                      className={styles["modal-image"]}
-                    />
-                    {getSortedImages().length > 1 && (
-                      <>
-                        <button className={styles["modal-nav-btn"]} onClick={handlePrevImage} style={{ left: "20px" }}>
-                          ‹
-                        </button>
-                        <button className={styles["modal-nav-btn"]} onClick={handleNextImage} style={{ right: "20px" }}>
-                          ›
-                        </button>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-              {getSortedImages().length > 1 && (
-                <div className={styles["modal-thumbnails"]}>
-                  {getSortedImages().map((image, index) => (
-                    <div
-                      key={image.id}
-                      className={`${styles["modal-thumbnail"]} ${index === selectedImageIndex ? styles["active"] : ""}`}
-                      onClick={() => setSelectedImageIndex(index)}
-                    >
-                      <img src={image.imageUrl} alt={`썸네일 ${index + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button className={styles["modal-close-button"]} onClick={handleCloseModal}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+      <ImageGalleryModal
+        isOpen={isImageModalOpen}
+        images={getGalleryImages()}
+        initialIndex={0}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
