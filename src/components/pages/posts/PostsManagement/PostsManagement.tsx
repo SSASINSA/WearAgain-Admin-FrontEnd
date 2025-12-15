@@ -260,7 +260,6 @@ const PostsManagement: React.FC = () => {
     }
     if (urlStatus !== selectedStatus) setSelectedStatus(urlStatus);
     if (urlSort !== sortBy) setSortBy(urlSort);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {

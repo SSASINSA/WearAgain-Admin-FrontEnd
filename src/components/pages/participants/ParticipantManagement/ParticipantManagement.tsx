@@ -235,7 +235,7 @@ const ParticipantManagement: React.FC = () => {
       setTotalPages(data.totalPages);
       setStats(data.summary);
     } catch (error) {
-      console.error("Error fetching participants:", error);
+      console.error("참가자 목록 조회 실패:", error);
       alert("참가자 목록을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);

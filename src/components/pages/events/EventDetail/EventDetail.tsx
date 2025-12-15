@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EventDetail.module.css";
 import PageHeader from "../../../common/PageHeader/PageHeader";
 import ConfirmModal from "../../../common/ConfirmModal/ConfirmModal";
+import ImageGalleryModal, { GalleryImage } from "../../../common/ImageGalleryModal/ImageGalleryModal";
 import apiRequest from "utils/api";
 
 const imgImg = "/admin/img/example/event-hero.png";
@@ -99,7 +100,6 @@ const EventDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [staffCode, setStaffCode] = useState<string | null>(null);
   const [staffCodeIssuedAt, setStaffCodeIssuedAt] = useState<string | null>(null);
   const [isLoadingStaffCode, setIsLoadingStaffCode] = useState<boolean>(false);
@@ -244,7 +244,6 @@ const EventDetail: React.FC = () => {
 
   const formatDateTime = (dateString: string | null): string => {
     if (!dateString) return "";
-    // UTC 시간을 그대로 표시 (로컬 시간 변환 없이)
     const date = new Date(dateString);
     const utcYear = date.getUTCFullYear();
     const utcMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -305,7 +304,6 @@ const EventDetail: React.FC = () => {
     if (result === "noCode") {
       setShowIssueModal(true);
     }
-    // result === "noPermission"일 때는 모달을 띄우지 않음
   };
 
   const handleIssueConfirm = async () => {
@@ -540,7 +538,6 @@ const EventDetail: React.FC = () => {
 
   const handleImageClick = () => {
     if (getSortedImages().length > 0) {
-      setSelectedImageIndex(0);
       setIsImageModalOpen(true);
     }
   };
@@ -549,32 +546,12 @@ const EventDetail: React.FC = () => {
     setIsImageModalOpen(false);
   };
 
-  const handlePrevImage = () => {
-    const images = getSortedImages();
-    if (images.length > 0) {
-      setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    }
-  };
-
-  const handleNextImage = () => {
-    const images = getSortedImages();
-    if (images.length > 0) {
-      setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      handleCloseModal();
-    } else if (e.key === "ArrowLeft") {
-      handlePrevImage();
-    } else if (e.key === "ArrowRight") {
-      handleNextImage();
-    }
-  };
-
-  const handleThumbnailClick = (index: number) => {
-    setSelectedImageIndex(index);
+  const getGalleryImages = (): GalleryImage[] => {
+    return getSortedImages().map((image) => ({
+      id: image.imageId,
+      url: image.url,
+      altText: image.altText,
+    }));
   };
 
   const totalCapacity = calculateTotalCapacity(eventData.options);
@@ -877,7 +854,6 @@ const EventDetail: React.FC = () => {
               )}
             </div>
 
-            {/* 액션 버튼들 */}
             {!isEventArchived(eventData.status) && (
               <div style={{ display: "flex", gap: "4px", flexDirection: "column" }}>
                 {isCompletedEvent && (
@@ -934,58 +910,12 @@ const EventDetail: React.FC = () => {
         type="default"
       />
 
-      {/* 이미지 갤러리 모달 */}
-      {isImageModalOpen && (
-        <div
-          className={styles["image-modal-overlay"]}
-          onClick={handleCloseModal}
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-        >
-          <div className={styles["image-modal-container"]} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles["modal-title"]}>확대보기</h2>
-            <div className={styles["modal-main-content"]}>
-              <div className={styles["modal-image-wrapper"]}>
-                {getSortedImages().length > 0 && (
-                  <>
-                    <img
-                      src={getSortedImages()[selectedImageIndex].url}
-                      alt={getSortedImages()[selectedImageIndex].altText || `행사 이미지 ${selectedImageIndex + 1}`}
-                      className={styles["modal-image"]}
-                    />
-                    {getSortedImages().length > 1 && (
-                      <>
-                        <button className={styles["modal-nav-btn"]} onClick={handlePrevImage} style={{ left: "20px" }}>
-                          ‹
-                        </button>
-                        <button className={styles["modal-nav-btn"]} onClick={handleNextImage} style={{ right: "20px" }}>
-                          ›
-                        </button>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-              {getSortedImages().length > 1 && (
-                <div className={styles["modal-thumbnails"]}>
-                  {getSortedImages().map((image, index) => (
-                    <div
-                      key={image.imageId}
-                      className={`${styles["modal-thumbnail"]} ${index === selectedImageIndex ? styles["active"] : ""}`}
-                      onClick={() => handleThumbnailClick(index)}
-                    >
-                      <img src={image.url} alt={image.altText || `썸네일 ${index + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button className={styles["modal-close-button"]} onClick={handleCloseModal}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+      <ImageGalleryModal
+        isOpen={isImageModalOpen}
+        images={getGalleryImages()}
+        initialIndex={0}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
