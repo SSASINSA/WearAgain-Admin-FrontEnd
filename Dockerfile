@@ -7,7 +7,7 @@ RUN npm ci
     
 COPY . .
     
-RUN PUBLIC_URL=. npm run build
+RUN PUBLIC_URL=/admin/ npm run build
     
     
 # ---------- 2단계: 런타임(서빙) 단계 ----------
