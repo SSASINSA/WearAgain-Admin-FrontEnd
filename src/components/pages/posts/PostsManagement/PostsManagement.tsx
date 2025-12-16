@@ -408,7 +408,6 @@ const PostsManagement: React.FC = () => {
                       >
                         <option value="all">전체 상태</option>
                         <option value="active">활성</option>
-                        <option value="inactive">비활성</option>
                         <option value="reported">신고됨</option>
                       </select>
                       <div className={styles["status-select-icon"]}>
