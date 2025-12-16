@@ -48,6 +48,9 @@ const refreshAccessToken = async (): Promise<TokenResponse | null> => {
           expiresIn: data.expiresIn,
         };
         authUtils.setTokens(tokenResponse);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("authTokenRefreshed"));
+        }
         return tokenResponse;
       } else {
         authUtils.clearTokens();
