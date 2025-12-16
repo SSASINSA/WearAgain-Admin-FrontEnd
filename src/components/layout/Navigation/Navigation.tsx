@@ -150,8 +150,19 @@ const Navigation: React.FC = () => {
       <nav className={styles["sidebar-nav"]}>
         <ul>
           {!isRoleLoading && filteredNavItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-              (item.path !== "/" && location.pathname.startsWith(item.path + "/"));
+            let isActive: boolean;
+            
+            if (item.path === "/events") {
+              isActive = location.pathname === "/events" || 
+                (location.pathname.startsWith("/events/") && !location.pathname.startsWith("/events/approval"));
+            } else if (item.path === "/users") {
+              isActive = location.pathname === "/users" || 
+                location.pathname.startsWith("/users/") ||
+                location.pathname.startsWith("/repair/");
+            } else {
+              isActive = location.pathname === item.path || 
+                (item.path !== "/" && location.pathname.startsWith(item.path + "/"));
+            }
             
             return (
               <li key={item.path} className={isActive ? styles["active"] : ""}>
