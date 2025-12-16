@@ -103,10 +103,12 @@ const ProductEdit: React.FC = () => {
               imagePreviews.push({ file: null, preview: img.imageUrl });
             });
           }
-          while (imagePreviews.length < 4) {
+          const minSlots = 4;
+          const targetLength = Math.max(minSlots, imagePreviews.length + 1);
+          while (imagePreviews.length < targetLength) {
             imagePreviews.push({ file: null, preview: "" });
           }
-          setImages(imagePreviews.slice(0, 4));
+          setImages(imagePreviews);
         } else {
           console.error("상품 조회 실패");
         }
@@ -135,10 +137,85 @@ const ProductEdit: React.FC = () => {
 
       setImages((prev) => {
         const newImages = [...prev];
-        newImages[index] = { file, preview };
+        
+        if (newImages[index].preview) {
+          if (!newImages[index].preview.startsWith("http")) {
+            URL.revokeObjectURL(newImages[index].preview);
+          }
+          newImages[index] = { file, preview };
+        } else {
+          let emptyIndex = -1;
+          for (let i = 0; i < newImages.length; i++) {
+            if (!newImages[i].preview) {
+              emptyIndex = i;
+              break;
+            }
+          }
+          
+          if (emptyIndex !== -1) {
+            newImages[emptyIndex] = { file, preview };
+          } else {
+            newImages[index] = { file, preview };
+          }
+        }
+        
+        let lastImageIndex = -1;
+        for (let i = newImages.length - 1; i >= 0; i--) {
+          if (newImages[i].preview) {
+            lastImageIndex = i;
+            break;
+          }
+        }
+        
+        if (lastImageIndex >= 0 && lastImageIndex === newImages.length - 1 && newImages.length < 10) {
+          newImages.push({ file: null, preview: "" });
+        }
+        
         return newImages;
       });
     }
+  };
+
+  const handleImageRemove = (index: number) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      
+      if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[index].preview);
+      }
+      
+      for (let i = index; i < newImages.length - 1; i++) {
+        newImages[i] = { ...newImages[i + 1] };
+      }
+      
+      const lastIndex = newImages.length - 1;
+      if (newImages[lastIndex].preview && !newImages[lastIndex].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[lastIndex].preview);
+      }
+      newImages[lastIndex] = { file: null, preview: "" };
+      
+      let lastImageIndex = -1;
+      for (let i = newImages.length - 1; i >= 0; i--) {
+        if (newImages[i].preview) {
+          lastImageIndex = i;
+          break;
+        }
+      }
+      
+      const minSlots = 4;
+      const targetLength = Math.max(minSlots, lastImageIndex + 2);
+      
+      if (newImages.length > targetLength) {
+        for (let i = targetLength; i < newImages.length; i++) {
+          if (newImages[i].preview && !newImages[i].preview.startsWith("http")) {
+            URL.revokeObjectURL(newImages[i].preview);
+          }
+        }
+        return newImages.slice(0, targetLength);
+      }
+      
+      return newImages;
+    });
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -332,7 +409,19 @@ const ProductEdit: React.FC = () => {
                   />
                   <label htmlFor={`image-${index}`} className={styles["image-upload-label"]}>
                     {image.preview ? (
-                      <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
+                      <div className={styles["image-preview-container"]}>
+                        <img src={image.preview} alt={`상품 이미지 ${index + 1}`} />
+                        <button
+                          type="button"
+                          className={styles["image-remove-btn"]}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleImageRemove(index);
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <img src={ICONS.imageAdd} alt="이미지 추가" className={styles["upload-icon"]} />
