@@ -59,6 +59,39 @@ const decrypt = (encryptedText: string): string => {
   }
 };
 
+interface JwtPayload {
+  iss?: string;
+  sub?: string;
+  email?: string;
+  name?: string;
+  role?: "SUPER_ADMIN" | "ADMIN" | "MANAGER";
+  mustChangePassword?: boolean;
+  iat?: number;
+  exp?: number;
+}
+
+const decodeJwtPayload = (token: string): JwtPayload | null => {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    let payload = parts[1];
+    payload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    
+    while (payload.length % 4) {
+      payload += "=";
+    }
+
+    const decoded = atob(payload);
+    return JSON.parse(decoded) as JwtPayload;
+  } catch (error) {
+    console.error("JWT 디코딩 실패:", error);
+    return null;
+  }
+};
+
 export const authUtils = {
   setTokens: (tokens: TokenResponse): void => {
     const encryptedAccessToken = encrypt(tokens.accessToken);
@@ -92,6 +125,20 @@ export const authUtils = {
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       return null;
     }
+  },
+
+  getRoleFromToken: (): "SUPER_ADMIN" | "ADMIN" | "MANAGER" | null => {
+    const token = authUtils.getAccessToken();
+    if (!token) return null;
+
+    const payload = decodeJwtPayload(token);
+    if (!payload || !payload.role) return null;
+
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      return null;
+    }
+
+    return payload.role;
   },
 
   clearTokens: (): void => {

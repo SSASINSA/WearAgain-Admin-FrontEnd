@@ -1,27 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { authUtils } from "../utils/auth";
-import apiRequest from "../utils/api";
 
 export type AdminRole = "SUPER_ADMIN" | "ADMIN" | "MANAGER" | null;
 
 interface AuthContextType {
   role: AdminRole;
   isLoading: boolean;
-  fetchRole: () => Promise<void>;
+  fetchRole: () => void;
   clearRole: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface RoleResponse {
-  role: "SUPER_ADMIN" | "ADMIN" | "MANAGER";
-}
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [role, setRole] = useState<AdminRole>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchRole = useCallback(async () => {
+  const fetchRole = useCallback(() => {
     if (!authUtils.isAuthenticated()) {
       setRole(null);
       setIsLoading(false);
@@ -30,19 +25,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setIsLoading(true);
     try {
-      const response = await apiRequest("/admin/auth/my-role", {
-        method: "GET",
-      });
-
-      if (response.ok) {
-        const data: RoleResponse = await response.json();
-        setRole(data.role);
-      } else {
-        if (response.status === 401 || response.status === 403) {
-          setRole(null);
-          authUtils.clearTokens();
-        }
-      }
+      const tokenRole = authUtils.getRoleFromToken();
+      setRole(tokenRole);
     } catch (error) {
       console.error("역할 조회 실패:", error);
       setRole(null);
@@ -69,12 +53,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       clearRole();
     };
 
+    const handleTokenRefreshed = () => {
+      fetchRole();
+    };
+
     window.addEventListener("authTokenExpired", handleTokenExpired);
+    window.addEventListener("authTokenRefreshed", handleTokenRefreshed);
 
     return () => {
       window.removeEventListener("authTokenExpired", handleTokenExpired);
+      window.removeEventListener("authTokenRefreshed", handleTokenRefreshed);
     };
-  }, [clearRole]);
+  }, [clearRole, fetchRole]);
 
   const value: AuthContextType = {
     role,
