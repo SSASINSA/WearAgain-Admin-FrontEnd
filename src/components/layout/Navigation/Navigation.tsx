@@ -119,8 +119,9 @@ const Navigation: React.FC = () => {
     const newStates: Record<string, boolean> = {};
     navDropdowns.forEach((dropdown) => {
       const isActive = dropdown.pathMatchers.some((matcher) => {
-        if (matcher.includes("/store/")) {
-          return location.pathname.startsWith("/store");
+        if (matcher === "/store") {
+          return location.pathname === "/store" || 
+            (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders");
         }
         return location.pathname === matcher || location.pathname.startsWith(matcher + "/");
       });
@@ -148,26 +149,33 @@ const Navigation: React.FC = () => {
       </div>
       <nav className={styles["sidebar-nav"]}>
         <ul>
-          {!isRoleLoading && filteredNavItems.map((item) => (
-            <li key={item.path} className={location.pathname === item.path ? styles["active"] : ""}>
-              <Link to={item.path} className={styles["nav-item"]}>
-                {item.icon.startsWith("/") ? (
-                  <img src={item.icon} alt="" />
-                ) : (
-                  <span className={styles["emoji-icon"]}>{item.icon}</span>
-                )}
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
+          {!isRoleLoading && filteredNavItems.map((item) => {
+            const isActive = location.pathname === item.path || 
+              (item.path !== "/" && location.pathname.startsWith(item.path + "/"));
+            
+            return (
+              <li key={item.path} className={isActive ? styles["active"] : ""}>
+                <Link to={item.path} className={styles["nav-item"]}>
+                  {item.icon.startsWith("/") ? (
+                    <img src={item.icon} alt="" />
+                  ) : (
+                    <span className={styles["emoji-icon"]}>{item.icon}</span>
+                  )}
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
           {!isRoleLoading &&
             filteredDropdowns.map((dropdown) => {
               const isOpen = dropdownStates[dropdown.openStateKey];
               const isActive = dropdown.items.some((item) => {
                 if (item.path === "/store") {
-                  return location.pathname === "/store" || (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders");
+                  return location.pathname === "/store" || 
+                    (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders");
                 }
-                return location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+                return location.pathname === item.path || 
+                  location.pathname.startsWith(item.path + "/");
               });
 
               return (
@@ -182,10 +190,15 @@ const Navigation: React.FC = () => {
                   </button>
                   <ul className={styles["nav-dropdown-menu"]}>
                     {dropdown.items.map((item) => {
-                      const itemIsActive =
-                        item.path === "/store"
-                          ? location.pathname === "/store" || (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders")
-                          : location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+                      let itemIsActive: boolean;
+                      
+                      if (item.path === "/store") {
+                        itemIsActive = location.pathname === "/store" || 
+                          (location.pathname.startsWith("/store/") && location.pathname !== "/store/orders");
+                      } else {
+                        itemIsActive = location.pathname === item.path || 
+                          location.pathname.startsWith(item.path + "/");
+                      }
 
                       return (
                         <li key={item.path} className={itemIsActive ? styles["active"] : ""}>
