@@ -11,7 +11,7 @@ interface PageHeaderProps {
   rightSlot?: React.ReactNode;
 }
 
-const HIDE_BACK_ON: string[] = ["/", "/events", "/posts", "/store", "/repair", "/approval", "/events/approval"];
+const HIDE_BACK_ON: string[] = ["/", "/events", "/posts", "/store", "/store/orders", "/repair", "/users", "/approval", "/events/approval", "/admin-users"];
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightSlot }) => {
   const navigate = useNavigate();

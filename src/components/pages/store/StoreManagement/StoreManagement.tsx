@@ -265,7 +265,7 @@ const StoreManagement: React.FC = () => {
     <div className={styles["admin-dashboard"]}>
       <main className={styles["main-content"]}>
         <PageHeader
-          title="크레딧 상점 관리"
+          title="상품 관리"
           subtitle="등록된 상품을 관리하고 새로운 상품을 추가하세요"
           rightSlot={
             <button className={styles["add-product-btn"]} onClick={() => navigate("/store/add")}>
