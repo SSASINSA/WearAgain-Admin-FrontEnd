@@ -554,10 +554,28 @@ const EventEdit: React.FC = () => {
 
       setImages((prev) => {
         const newImages = [...prev];
-        if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
-          URL.revokeObjectURL(newImages[index].preview);
+        
+        if (newImages[index].preview) {
+          if (!newImages[index].preview.startsWith("http")) {
+            URL.revokeObjectURL(newImages[index].preview);
+          }
+          newImages[index] = { ...newImages[index], file, preview, imageName: null, imageUrl: null };
+        } else {
+          let emptyIndex = -1;
+          for (let i = 0; i < newImages.length; i++) {
+            if (!newImages[i].preview) {
+              emptyIndex = i;
+              break;
+            }
+          }
+          
+          if (emptyIndex !== -1) {
+            newImages[emptyIndex] = { ...newImages[emptyIndex], file, preview, imageName: null, imageUrl: null };
+          } else {
+            newImages[index] = { ...newImages[index], file, preview, imageName: null, imageUrl: null };
+          }
         }
-        newImages[index] = { ...newImages[index], file, preview, imageName: null, imageUrl: null };
+        
         return newImages;
       });
     }
@@ -566,16 +584,27 @@ const EventEdit: React.FC = () => {
   const handleImageRemove = (index: number) => {
     setImages((prev) => {
       const newImages = [...prev];
+      
       if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
         URL.revokeObjectURL(newImages[index].preview);
       }
-      newImages[index] = {
+      
+      for (let i = index; i < newImages.length - 1; i++) {
+        newImages[i] = { ...newImages[i + 1] };
+      }
+      
+      const lastIndex = newImages.length - 1;
+      if (newImages[lastIndex].preview && !newImages[lastIndex].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[lastIndex].preview);
+      }
+      newImages[lastIndex] = {
         file: null,
         preview: "",
         imageName: null,
         imageUrl: null,
         imageId: null,
       };
+      
       return newImages;
     });
   };

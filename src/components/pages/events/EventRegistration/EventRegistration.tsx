@@ -205,10 +205,28 @@ const EventRegistration: React.FC = () => {
 
       setImages((prev) => {
         const newImages = [...prev];
-        if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
-          URL.revokeObjectURL(newImages[index].preview);
+        
+        if (newImages[index].preview) {
+          if (!newImages[index].preview.startsWith("http")) {
+            URL.revokeObjectURL(newImages[index].preview);
+          }
+          newImages[index] = { file, preview, imageName: null, imageUrl: null };
+        } else {
+          let emptyIndex = -1;
+          for (let i = 0; i < newImages.length; i++) {
+            if (!newImages[i].preview) {
+              emptyIndex = i;
+              break;
+            }
+          }
+          
+          if (emptyIndex !== -1) {
+            newImages[emptyIndex] = { file, preview, imageName: null, imageUrl: null };
+          } else {
+            newImages[index] = { file, preview, imageName: null, imageUrl: null };
+          }
         }
-        newImages[index] = { file, preview, imageName: null, imageUrl: null };
+        
         return newImages;
       });
     }
@@ -217,10 +235,21 @@ const EventRegistration: React.FC = () => {
   const handleImageRemove = (index: number) => {
     setImages((prev) => {
       const newImages = [...prev];
+      
       if (newImages[index].preview && !newImages[index].preview.startsWith("http")) {
         URL.revokeObjectURL(newImages[index].preview);
       }
-      newImages[index] = { file: null, preview: "", imageName: null, imageUrl: null };
+      
+      for (let i = index; i < newImages.length - 1; i++) {
+        newImages[i] = { ...newImages[i + 1] };
+      }
+      
+      const lastIndex = newImages.length - 1;
+      if (newImages[lastIndex].preview && !newImages[lastIndex].preview.startsWith("http")) {
+        URL.revokeObjectURL(newImages[lastIndex].preview);
+      }
+      newImages[lastIndex] = { file: null, preview: "", imageName: null, imageUrl: null };
+      
       return newImages;
     });
   };
