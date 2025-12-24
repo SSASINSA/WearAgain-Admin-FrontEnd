@@ -756,7 +756,7 @@ const EventDetail: React.FC = () => {
         {/* 사이드바 - 스태프 코드 발급 */}
         <div className={styles["event-detail-sidebar"]} ref={sidebarRef} style={{ alignSelf: "flex-start" }}>
           <div ref={sidebarInnerRef}>
-            {!isEventArchived(eventData.status) && staffCodeError && staffCodeError.includes("담당자만") ? (
+            {!isEventArchived(eventData.status) && !isCompletedEvent && staffCodeError && staffCodeError.includes("담당자만") ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
@@ -765,14 +765,14 @@ const EventDetail: React.FC = () => {
                   </p>
                 </div>
               </div>
-            ) : !isEventArchived(eventData.status) && isLoadingStaffCode ? (
+            ) : !isEventArchived(eventData.status) && !isCompletedEvent && isLoadingStaffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
                   <p className={styles["staff-code-description"]}>로딩 중...</p>
                 </div>
               </div>
-            ) : !isEventArchived(eventData.status) && staffCode ? (
+            ) : !isEventArchived(eventData.status) && !isCompletedEvent && staffCode ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드</h4>
@@ -807,7 +807,7 @@ const EventDetail: React.FC = () => {
                   <p>재발급 시 이전 코드는 즉시 무효화됩니다</p>
                 </div>
               </div>
-            ) : !isEventArchived(eventData.status) ? (
+            ) : !isEventArchived(eventData.status) && !isCompletedEvent ? (
               <div className={styles["staff-code-section"]}>
                 <div className={styles["staff-code-content"]}>
                   <h4 className={styles["staff-code-title"]}>스태프 코드 발급</h4>
